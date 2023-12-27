@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import ip from "ip";
-
+import _ from "node-env-types";
 import { createContext } from "./context";
 export { type AppRouter } from "./routes/app.routes";
 import { appRouter } from "./routes/app.routes";
@@ -10,10 +10,12 @@ import cors from "@fastify/cors";
 import ws from "@fastify/websocket";
 import { getFastifyPlugin } from "trpc-playground/handlers/fastify";
 import process from "process";
+import { sequelize } from "./sequelize";
 
 require("events").EventEmitter.prototype._maxListeners = 100;
 process.setMaxListeners(100);
 
+_();
 const PORT: any = process.env.PORT || 3001;
 const HOST =
   process.env.NODE_ENV === "production"
@@ -23,6 +25,7 @@ const TPRC_API_ENDPOINT = "/api/trpc";
 const TRPC_PLAYGROUND_ENDPOINT = "/api/trpc-playground";
 
 (async () => {
+  await sequelize.sync({ alter: true });
   const fastify = Fastify({
     logger: false,
     ignoreTrailingSlash: true,
