@@ -1,8 +1,14 @@
 export const APP_NAME = "thoughts";
 
+export const domain: string = "7137-213-172-134-183.ngrok-free.app";
+export const serverBaseHttpURL: string = `https://${domain}`;
+export const serverBaseWsURL: string = `wss://${domain}`;
+export const clientHttpURL: string = `${serverBaseHttpURL}/api/trpc`;
+export const clientWsURL: string = `${serverBaseWsURL}/api/trpc`;
+
 export const KEYS = {
   APP_SETTINGS: "set:",
-  TOKEN: "uid:",
+  TOKEN_KEY: "uid:",
 };
 export const COLORS = {
   main: "#EEF5FF",
@@ -15,16 +21,16 @@ export const COLORS = {
   gray: "#f5f5f5",
 };
 export const Fonts = {
-  MontserratAlternatesItalic: require("../../assets/fonts/MontserratAlternates-Italic.ttf"),
-  MontserratAlternatesRegular: require("../../assets/fonts/MontserratAlternates-Regular.ttf"),
-  MontserratAlternatesBold: require("../../assets/fonts/MontserratAlternates-Bold.ttf"),
-  MontserratAlternatesBoldItalic: require("../../assets/fonts/MontserratAlternates-BoldItalic.ttf"),
+  PhilosopherItalic: require("../../assets/fonts/Philosopher-Italic.ttf"),
+  PhilosopherRegular: require("../../assets/fonts/Philosopher-Regular.ttf"),
+  PhilosopherBold: require("../../assets/fonts/Philosopher-Bold.ttf"),
+  PhilosopherBoldItalic: require("../../assets/fonts/Philosopher-BoldItalic.ttf"),
 };
 export const FONTS = {
-  regular: "MontserratAlternatesRegular",
-  italic: "MontserratAlternatesItalic",
-  italicBold: "MontserratAlternatesBoldItalic",
-  regularBold: "MontserratAlternatesBold",
+  regular: "PhilosopherRegular",
+  italic: "PhilosopherItalic",
+  italicBold: "PhilosopherBoldItalic",
+  regularBold: "PhilosopherBold",
 };
 
 export const logo = require("../../assets/logo.png");
