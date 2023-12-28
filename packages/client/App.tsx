@@ -4,10 +4,10 @@ import { LogBox, View, StatusBar } from "react-native";
 import TRPCProvider from "./src/providers/TRPCProvider";
 import { useFonts } from "expo-font";
 import Routes from "./src/routes/Routes";
-import { COLORS, Fonts } from "./src/constants";
+import { Fonts } from "./src/constants";
 import * as Notifications from "expo-notifications";
 import Loading from "./src/components/Loading/Loading";
-import { LinearGradient } from "expo-linear-gradient";
+import LinearGradientProvider from "./src/providers/LinearGradientProvider";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -22,31 +22,18 @@ LogBox.ignoreAllLogs();
 
 const App = () => {
   const [loaded] = useFonts(Fonts);
+  if (!loaded)
+    return (
+      <LinearGradientProvider>
+        <Loading />
+      </LinearGradientProvider>
+    );
   return (
     <TRPCProvider>
-      <LinearGradient
-        colors={[COLORS.main, COLORS.primary]}
-        style={{
-          flex: 1,
-        }}
-        start={{
-          x: 0,
-          y: 1,
-        }}
-        end={{
-          x: 0,
-          y: 0,
-        }}
-      >
-        {!loaded ? (
-          <Loading />
-        ) : (
-          <>
-            <StatusBar barStyle={"light-content"} />
-            <Routes />
-          </>
-        )}
-      </LinearGradient>
+      <LinearGradientProvider>
+        <StatusBar barStyle={"light-content"} />
+        <Routes />
+      </LinearGradientProvider>
     </TRPCProvider>
   );
 };

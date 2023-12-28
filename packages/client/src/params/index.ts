@@ -6,6 +6,12 @@ export type AuthParamList = {
   Landing: undefined;
   Login: undefined;
   Register: undefined;
+  AuthTermsOfUse: {
+    from: keyof AuthParamList;
+  };
+  AuthPrivacyPolicy: {
+    from: keyof AuthParamList;
+  };
 };
 
 export type AuthNavProps<T extends keyof AuthParamList> = {

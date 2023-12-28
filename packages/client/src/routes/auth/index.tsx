@@ -8,7 +8,7 @@ const Stack = createStackNavigator<AuthParamList>();
 export const AuthStack = () => {
   return (
     <Stack.Navigator
-      initialRouteName="Landing"
+      initialRouteName="Register"
       screenOptions={{
         headerShown: false,
       }}
