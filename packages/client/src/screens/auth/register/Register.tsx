@@ -6,6 +6,8 @@ import LinearGradientProvider from "../../../providers/LinearGradientProvider";
 import { styles } from "../../../styles";
 import { AuthNavProps } from "../../../params";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import PinInput from "../../../components/PinInput/PinInput";
+import PhoneInput from "../../../components/PhoneInput/PhoneInput";
 
 const Register: React.FunctionComponent<AuthNavProps<"Register">> = ({
   navigation,
@@ -15,6 +17,9 @@ const Register: React.FunctionComponent<AuthNavProps<"Register">> = ({
     pin: "",
     name: "",
   });
+  const [phoneNumber, setPhoneNumber] = React.useState("");
+
+  console.log({ phoneNumber });
 
   return (
     <KeyboardAwareScrollView
@@ -53,6 +58,7 @@ const Register: React.FunctionComponent<AuthNavProps<"Register">> = ({
             Welcome to {APP_NAME}.
           </Text>
         </View>
+
         <View
           style={{
             flex: 0.5,
@@ -63,7 +69,15 @@ const Register: React.FunctionComponent<AuthNavProps<"Register">> = ({
             padding: 10,
             alignSelf: "center",
           }}
-        ></View>
+        >
+          <PhoneInput setPhoneNumber={setPhoneNumber} />
+          <PinInput
+            length={5}
+            onComplete={(pin) => {
+              console.log({ pin });
+            }}
+          />
+        </View>
       </LinearGradientProvider>
     </KeyboardAwareScrollView>
   );
