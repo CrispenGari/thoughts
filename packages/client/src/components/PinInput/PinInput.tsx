@@ -1,21 +1,29 @@
-import React, { useState, useRef } from "react";
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  NativeSyntheticEvent,
-  TextInputKeyPressEventData,
-} from "react-native";
+import React from "react";
+import { View, TextInput, StyleProp, TextStyle, ViewStyle } from "react-native";
+import { COLORS, FONTS } from "../../constants";
 
 interface Props {
   length?: number;
   onComplete: (pin: string) => void;
+  mask?: string;
+  placeholder?: string;
+  containerStyle?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
+  pin: string;
+  setPin: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const PinInput: React.FC<Props> = ({ length = 4, onComplete }) => {
-  const [pin, setPin] = useState<string>("");
+const PinInput: React.FunctionComponent<Props> = ({
+  length = 4,
+  onComplete,
+  mask = "*",
+  placeholder,
+  containerStyle,
+  inputStyle,
+  pin,
+  setPin,
+}) => {
   const inputRefs: any[] = Array.from({ length }, () => null);
-
   const focusInput = (index: number) => {
     if (inputRefs[index]) {
       inputRefs[index].focus();
@@ -41,45 +49,51 @@ const PinInput: React.FC<Props> = ({ length = 4, onComplete }) => {
       focusInput(index - 1);
     }
   };
-  const maskedPin = "*".repeat(pin.length);
+  const maskedPin = mask.repeat(pin.length);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        {
+          flexDirection: "row",
+          justifyContent: "center",
+          padding: 10,
+          maxWidth: 400,
+        },
+        containerStyle,
+      ]}
+    >
       {Array.from({ length }, (_, index) => (
         <TextInput
           key={index}
           ref={(ref) => (inputRefs[index] = ref)}
-          style={styles.input}
+          placeholder={placeholder}
+          style={[
+            {
+              width: 40,
+              height: 40,
+              borderWidth: 1,
+              borderRadius: 8,
+              margin: 5,
+              textAlign: "center",
+              fontSize: 20,
+              backgroundColor: COLORS.white,
+              fontFamily: FONTS.regularBold,
+              borderColor: COLORS.tertiary,
+            },
+            inputStyle,
+          ]}
           keyboardType="numeric"
           maxLength={1}
+          selectionColor={COLORS.black}
           secureTextEntry
           value={maskedPin[index]}
           onChangeText={(value) => handlePinChange(index, value)}
-          onKeyPress={({
-            nativeEvent: { key },
-          }: NativeSyntheticEvent<TextInputKeyPressEventData>) =>
-            handleKeyPress(index, key)
-          }
+          onKeyPress={({ nativeEvent: { key } }) => handleKeyPress(index, key)}
         />
       ))}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  input: {
-    width: 40,
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 8,
-    margin: 5,
-    textAlign: "center",
-    fontSize: 18,
-  },
-});
 
 export default PinInput;

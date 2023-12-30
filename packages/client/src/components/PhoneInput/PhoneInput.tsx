@@ -6,6 +6,8 @@ import {
   StyleProp,
   ViewStyle,
   TextStyle,
+  NativeSyntheticEvent,
+  TextInputSubmitEditingEventData,
 } from "react-native";
 import React from "react";
 import { countries } from "../../constants/countries";
@@ -21,6 +23,11 @@ const formatPhoneNumber = (num: string) => {
 };
 
 interface Props {
+  onSubmitEditing?: (
+    e: NativeSyntheticEvent<TextInputSubmitEditingEventData>
+  ) => void;
+
+  placeholder?: string;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   countrySelectorTextStyle?: StyleProp<TextStyle>;
@@ -31,6 +38,8 @@ const PhoneInput: React.FunctionComponent<Props> = ({
   inputStyle,
   countrySelectorTextStyle,
   setPhoneNumber,
+  placeholder,
+  onSubmitEditing,
 }) => {
   const [state, setState] = React.useState({
     country: countries[0],
@@ -61,7 +70,12 @@ const PhoneInput: React.FunctionComponent<Props> = ({
   }, [granted]);
   React.useEffect(() => {
     setPhoneNumber(
-      `${state.country.phone.code}${state.number.replace(/\s/g, "")}`
+      `${state.country.phone.code}
+      ${
+        state.number.startsWith("0")
+          ? state.number.slice(1).replace(/\s/g, "")
+          : state.number.replace(/\s/g, "")
+      }`
     );
   }, [state]);
 
@@ -77,6 +91,8 @@ const PhoneInput: React.FunctionComponent<Props> = ({
           paddingHorizontal: 20,
           paddingVertical: 5,
           borderRadius: 5,
+          borderWidth: 1,
+          borderColor: "transparent",
         },
         containerStyle,
       ]}
@@ -125,6 +141,7 @@ const PhoneInput: React.FunctionComponent<Props> = ({
 
       <TextInput
         keyboardType="phone-pad"
+        selectionColor={COLORS.black}
         style={[
           {
             backgroundColor: COLORS.white,
@@ -139,7 +156,9 @@ const PhoneInput: React.FunctionComponent<Props> = ({
           },
           inputStyle,
         ]}
-        maxLength={11}
+        maxLength={13}
+        onSubmitEditing={onSubmitEditing}
+        placeholder={placeholder}
         value={state.number}
         onChangeText={(text) => {
           setState((state) => ({ ...state, number: formatPhoneNumber(text) }));

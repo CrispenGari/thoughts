@@ -53,7 +53,7 @@ export const User: ModelDefined<
       type: DataTypes.STRING,
       allowNull: true,
     },
-    password: {
+    pin: {
       type: DataTypes.STRING,
     },
     phoneNumber: {

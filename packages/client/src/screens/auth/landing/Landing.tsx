@@ -218,7 +218,7 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                navigation.replace("Register");
+                navigation.replace("SetPhoneNumber");
               }}
               activeOpacity={0.7}
               style={[

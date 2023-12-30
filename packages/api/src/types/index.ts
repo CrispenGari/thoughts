@@ -2,7 +2,7 @@ export interface UserType {
   id?: number;
   name: string;
   avatar?: string;
-  password: string;
+  pin: string;
   phoneNumber: string;
   online?: boolean;
   createdAt?: Date;
