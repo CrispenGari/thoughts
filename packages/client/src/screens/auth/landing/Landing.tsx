@@ -7,16 +7,28 @@ import { APP_NAME, COLORS, FONTS, logo } from "../../../constants";
 import { styles } from "../../../styles";
 import { BottomSheet } from "react-native-btr";
 import { useMediaQuery } from "../../../hooks";
+import Loading from "../../../components/Loading/Loading";
+import { useMeStore } from "../../../store";
 
 const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
   navigation,
 }) => {
-  const { data, isFetched, isLoading } = trpc.user.all.useQuery();
+  const { data, isFetching } = trpc.user.me.useQuery();
+  const { setMe } = useMeStore();
   const [open, setOpen] = React.useState(false);
   const toggle = () => setOpen((state) => !state);
   const {
     dimension: { height },
   } = useMediaQuery();
+  React.useEffect(() => {
+    if (!!data?.me) {
+      setMe(data.me);
+    } else {
+      setMe(null);
+    }
+  }, [data]);
+
+  if (isFetching) return <Loading />;
 
   return (
     <LinearGradientProvider>

@@ -3,9 +3,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { AppTabs } from "./app";
 import { AuthStack } from "./auth";
 import * as Linking from "expo-linking";
+import { useMeStore } from "../store";
 
 const Routes = () => {
-  const me = null;
+  const { me } = useMeStore();
   const prefix = Linking.createURL("/");
   return (
     <NavigationContainer
