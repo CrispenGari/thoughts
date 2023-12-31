@@ -1,12 +1,12 @@
 import { View, Text } from "react-native";
 import React from "react";
 
-const Login = () => {
+const NewPin = () => {
   return (
     <View>
-      <Text>Login</Text>
+      <Text>NewPin</Text>
     </View>
   );
 };
 
-export default Login;
+export default NewPin;

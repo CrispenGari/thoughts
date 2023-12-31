@@ -91,7 +91,7 @@ const SetPin: React.FunctionComponent<AuthNavProps<"SetPin">> = ({
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => {
-                navigation.navigate("Login");
+                navigation.navigate("PhoneNumber");
               }}
               style={[
                 styles.button,

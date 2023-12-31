@@ -4,7 +4,9 @@ import type { StackNavigationProp } from "@react-navigation/stack";
 // Auth Stack
 export type AuthParamList = {
   Landing: undefined;
-  Login: undefined;
+  NewPin: { phoneNumber: string };
+  PhoneNumber: undefined;
+  PinCode: { phoneNumber: string };
   SetPhoneNumber: undefined;
   SetPin: { phoneNumber: string };
   ConfirmPin: { phoneNumber: string; pin1: string };

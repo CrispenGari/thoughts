@@ -33,7 +33,7 @@ const SetPhoneNumber: React.FunctionComponent<
             error: "",
           }));
           setPhoneNumber("");
-          navigation.navigate("SetPin", { phoneNumber: res.phoneNumber! });
+          navigation.replace("SetPin", { phoneNumber: res.phoneNumber! });
         }
       })
       .catch((error) =>
@@ -158,7 +158,7 @@ const SetPhoneNumber: React.FunctionComponent<
               activeOpacity={0.7}
               disabled={isLoading}
               onPress={() => {
-                navigation.navigate("Login");
+                navigation.navigate("PhoneNumber");
               }}
               style={[
                 styles.button,

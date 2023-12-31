@@ -1,48 +1,47 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import Divider from "../../../components/Divider/Divider";
-import Ripple from "../../../components/Ripple/Ripple";
-import { logo, APP_NAME, COLORS, profile, KEYS } from "../../../constants";
+import PhoneInput from "../../../components/PhoneInput/PhoneInput";
+import { logo, APP_NAME, COLORS } from "../../../constants";
+import { AuthNavProps } from "../../../params";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
 import { styles } from "../../../styles";
-import { AuthNavProps } from "../../../params";
-import CustomTextInput from "../../../components/CustomTextInput/CustomTextInput";
+import Divider from "../../../components/Divider/Divider";
+import Ripple from "../../../components/Ripple/Ripple";
 import { trpc } from "../../../utils/trpc";
-import { store } from "../../../utils";
 
-const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
+const PhoneNumber: React.FunctionComponent<AuthNavProps<"PhoneNumber">> = ({
   navigation,
-  route,
 }) => {
   const [state, setState] = React.useState({
     error: "",
-    pin: route.params.pin,
-    phoneNumber: route.params.phoneNumber,
-    name: "",
   });
   const { mutateAsync, isLoading } =
-    trpc.register.createUserOrFail.useMutation();
-  const saveProfile = () => {
-    mutateAsync({
-      name: state.name,
-      phoneNumber: state.phoneNumber,
-      pin: state.pin,
-    }).then(async (res) => {
-      if (!!res.error) {
-        setState((state) => ({ ...state, error: res.error }));
-      } else {
+    trpc.login.validatePhoneNumber.useMutation();
+  const [phoneNumber, setPhoneNumber] = React.useState("");
+  const validateNumber = () => {
+    mutateAsync({ phoneNumber })
+      .then((res) => {
+        if (!!res.error) {
+          setState((state) => ({
+            ...state,
+            error: res.error,
+          }));
+        } else {
+          setState((state) => ({
+            ...state,
+            error: "",
+          }));
+          setPhoneNumber("");
+          navigation.replace("PinCode", { phoneNumber: res.phoneNumber! });
+        }
+      })
+      .catch((error) =>
         setState((state) => ({
           ...state,
-          error: "",
-          pin: "",
-          phoneNumber: "",
-        }));
-        await store(KEYS.TOKEN_KEY, res.jwt!).then(() => {
-          navigation.replace("Landing");
-        });
-      }
-    });
+          error: "Unknown request error. Try Again.",
+        }))
+      );
   };
   return (
     <KeyboardAwareScrollView
@@ -80,12 +79,14 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
                 },
               ]}
             >
-              Welcome to {APP_NAME}.
+              Hey user welcome back to {APP_NAME}.
             </Text>
           </View>
           <View
             style={{
-              flex: 0.6,
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
               width: "100%",
               maxWidth: 500,
               padding: 10,
@@ -96,52 +97,22 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
               style={[
                 styles.h1,
                 {
+                  textAlign: "center",
+                  marginBottom: 50,
                   fontSize: 20,
                 },
               ]}
             >
-              Your Profile
+              Phone Number
             </Text>
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "flex-start",
-                marginTop: 10,
+            <PhoneInput
+              placeholder="123 456 789"
+              setPhoneNumber={setPhoneNumber}
+              containerStyle={{
+                borderColor: state.error ? COLORS.red : "transparent",
               }}
-            >
-              <Image
-                source={{
-                  uri: Image.resolveAssetSource(profile).uri,
-                }}
-                style={{
-                  width: 100,
-                  height: 100,
-                  marginBottom: 10,
-                  resizeMode: "contain",
-                  borderRadius: 100,
-                }}
-              />
-              <View
-                style={{
-                  paddingLeft: 5,
-                  flex: 1,
-                  justifyContent: "flex-start",
-                }}
-              >
-                <CustomTextInput
-                  text={state.name}
-                  onChangeText={(text) =>
-                    setState((state) => ({ ...state, name: text }))
-                  }
-                  placeholder="Name"
-                />
-                <Text style={[styles.p]}>
-                  Note that this profile will be public to your contacts.
-                </Text>
-              </View>
-            </View>
-
+              onSubmitEditing={validateNumber}
+            />
             <Text
               style={[
                 styles.p,
@@ -155,7 +126,7 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
             </Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={saveProfile}
+              onPress={validateNumber}
               disabled={isLoading}
               style={[
                 styles.button,
@@ -178,16 +149,16 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
                   },
                 ]}
               >
-                SAVE
+                NEXT
               </Text>
               {isLoading ? <Ripple color={COLORS.tertiary} size={5} /> : null}
             </TouchableOpacity>
-            <Divider color={COLORS.black} title="Already registered?" />
+            <Divider color={COLORS.black} title="New to thoughts?" />
             <TouchableOpacity
               activeOpacity={0.7}
               disabled={isLoading}
               onPress={() => {
-                navigation.navigate("PhoneNumber");
+                navigation.navigate("SetPhoneNumber");
               }}
               style={[
                 styles.button,
@@ -201,7 +172,7 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
                 },
               ]}
             >
-              <Text style={[styles.button__text]}>LOGIN</Text>
+              <Text style={[styles.button__text]}>REGISTER</Text>
             </TouchableOpacity>
           </View>
         </LinearGradientProvider>
@@ -210,4 +181,4 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
   );
 };
 
-export default SetProfile;
+export default PhoneNumber;

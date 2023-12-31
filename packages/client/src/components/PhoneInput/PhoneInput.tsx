@@ -70,8 +70,7 @@ const PhoneInput: React.FunctionComponent<Props> = ({
   }, [granted]);
   React.useEffect(() => {
     setPhoneNumber(
-      `${state.country.phone.code}
-      ${
+      `${state.country.phone.code}${
         state.number.startsWith("0")
           ? state.number.slice(1).replace(/\s/g, "")
           : state.number.replace(/\s/g, "")

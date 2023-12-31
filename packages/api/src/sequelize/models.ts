@@ -56,6 +56,10 @@ export const User: ModelDefined<
     pin: {
       type: DataTypes.STRING,
     },
+    pinTrials: {
+      type: DataTypes.NUMBER,
+      defaultValue: 0,
+    },
     phoneNumber: {
       type: DataTypes.STRING,
       allowNull: false,

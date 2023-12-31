@@ -67,6 +67,7 @@ export const registerRouter = router({
           pin: hashed,
           name: name.trim(),
           phoneNumber: phoneNumber.trim(),
+          online: true,
         });
         const u = user.toJSON();
         const jwt = await signJwt(u);

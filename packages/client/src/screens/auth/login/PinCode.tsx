@@ -1,78 +1,48 @@
-import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import Divider from "../../../components/Divider/Divider";
-import Ripple from "../../../components/Ripple/Ripple";
-import { logo, APP_NAME, COLORS } from "../../../constants";
+import PhoneInput from "../../../components/PhoneInput/PhoneInput";
+import { logo, APP_NAME, COLORS, KEYS } from "../../../constants";
+import { AuthNavProps } from "../../../params";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
 import { styles } from "../../../styles";
-import { AuthNavProps } from "../../../params";
-import PinInput from "../../../components/PinInput/PinInput";
+import Divider from "../../../components/Divider/Divider";
+import Ripple from "../../../components/Ripple/Ripple";
 import { trpc } from "../../../utils/trpc";
+import PinInput from "../../../components/PinInput/PinInput";
+import { store } from "../../../utils";
 
-const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
+const PinCode: React.FunctionComponent<AuthNavProps<"PinCode">> = ({
   navigation,
   route,
 }) => {
-  const [pin, setPin] = React.useState<string>("");
   const [state, setState] = React.useState({
     error: "",
-    pin2: "",
-    pin1: route.params.pin1,
+    pin: "",
     phoneNumber: route.params.phoneNumber,
   });
-  const { mutateAsync, isLoading } = trpc.register.validatePin.useMutation();
-  const validatePin = () => {
-    mutateAsync({ pin1: state.pin1, pin2: state.pin2 })
-      .then((res) => {
-        if (res.error) {
-          setState((state) => ({ ...state, error: res.error }));
-          Alert.alert(
-            APP_NAME,
-            res.error,
-            res.retry
-              ? [
-                  {
-                    text: "Retry",
-                    onPress: () => {
-                      setPin("");
-                      setState((state) => ({
-                        ...state,
-                        pin2: "",
-                      }));
-                    },
-                    style: "destructive",
-                  },
-                ]
-              : [
-                  {
-                    text: "OK",
-                    onPress: () => {
-                      setPin("");
-                      setState((state) => ({ ...state, pin2: "" }));
-                      navigation.replace("SetPin", {
-                        phoneNumber: state.phoneNumber,
-                      });
-                    },
-                  },
-                ]
-          );
-        } else {
-          setState({ error: "", phoneNumber: "", pin1: "", pin2: "" });
-          navigation.replace("SetProfile", {
-            phoneNumber: state.phoneNumber,
-            pin: res.pin!,
-          });
-        }
-      })
-      .catch((error) =>
+  const [pin, setPin] = React.useState<string>("");
+  const { mutateAsync, isLoading } = trpc.login.loginOrFail.useMutation();
+  const login = () => {
+    mutateAsync({
+      phoneNumber: state.phoneNumber,
+      pin: state.pin,
+    }).then(async (res) => {
+      if (!!res.error) {
+        setState((state) => ({ ...state, error: res.error }));
+      } else {
         setState((state) => ({
           ...state,
-          error: "Unknown request error. Try Again.",
-        }))
-      );
+          error: "",
+          pin: "",
+          phoneNumber: "",
+        }));
+        await store(KEYS.TOKEN_KEY, res.jwt!).then(() => {
+          navigation.replace("Landing");
+        });
+      }
+    });
   };
-
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
@@ -109,7 +79,7 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
                 },
               ]}
             >
-              Welcome to {APP_NAME}.
+              Hey user welcome back to {APP_NAME}.
             </Text>
           </View>
           <View
@@ -133,21 +103,20 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
                 },
               ]}
             >
-              Confirm Pin
+              Pin Code
             </Text>
             <PinInput
               pin={pin}
               setPin={setPin}
               onComplete={(pin) => {
-                setState((state) => ({ ...state, pin2: pin }));
+                setState((state) => ({
+                  ...state,
+                  pin,
+                }));
               }}
               length={5}
               placeholder="0"
-              inputStyle={{
-                borderColor: !!state.error ? COLORS.red : COLORS.tertiary,
-              }}
             />
-
             <Text
               style={[
                 styles.p,
@@ -159,11 +128,11 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
             >
               {state.error}
             </Text>
-            {!!state.pin2 ? (
+            {!!state.pin ? (
               <TouchableOpacity
                 activeOpacity={0.7}
+                onPress={login}
                 disabled={isLoading}
-                onPress={validatePin}
                 style={[
                   styles.button,
                   {
@@ -190,12 +159,12 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
                 {isLoading ? <Ripple color={COLORS.tertiary} size={5} /> : null}
               </TouchableOpacity>
             ) : null}
-            <Divider color={COLORS.black} title="Already registered?" />
+            <Divider color={COLORS.black} title="New to thoughts?" />
             <TouchableOpacity
               activeOpacity={0.7}
               disabled={isLoading}
               onPress={() => {
-                navigation.navigate("PhoneNumber");
+                navigation.navigate("SetPhoneNumber");
               }}
               style={[
                 styles.button,
@@ -209,7 +178,7 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
                 },
               ]}
             >
-              <Text style={[styles.button__text]}>LOGIN</Text>
+              <Text style={[styles.button__text]}>REGISTER</Text>
             </TouchableOpacity>
           </View>
         </LinearGradientProvider>
@@ -218,4 +187,4 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
   );
 };
 
-export default ConfirmPin;
+export default PinCode;

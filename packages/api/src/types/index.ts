@@ -9,4 +9,5 @@ export interface UserType {
   updatedAt?: Date;
   thoughtId?: number;
   commentId?: number;
+  pinTrials?: number;
 }
