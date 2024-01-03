@@ -15,7 +15,7 @@ export const AppTabs = () => {
           shadowOpacity: 0,
           borderTopWidth: 0,
           borderColor: "transparent",
-          backgroundColor: COLORS.white,
+          backgroundColor: COLORS.tertiary,
         },
       }}
     >

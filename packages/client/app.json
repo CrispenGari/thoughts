@@ -7,6 +7,14 @@
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow thoughts to access your contacts."
+        }
+      ]
+    ],
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
