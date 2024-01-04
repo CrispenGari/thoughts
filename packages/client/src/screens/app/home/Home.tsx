@@ -12,11 +12,21 @@ import Contacts from "../../../components/Contacts/Contacts";
 const Home = () => {
   const { setMe } = useMeStore();
   const { mutateAsync, isLoading } = trpc.logout.logout.useMutation();
-  const { contacts } = useContacts();
 
   return (
     <LinearGradientProvider>
-      {/* Form */}
+      <Button
+        onPress={() => {
+          mutateAsync().then(async (res) => {
+            if (res) {
+              setMe(null);
+              await del(KEYS.TOKEN_KEY);
+            }
+          });
+        }}
+        title="Logout"
+      />
+
       <MyThought />
       <Contacts />
     </LinearGradientProvider>

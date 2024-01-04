@@ -3,9 +3,19 @@ import React from "react";
 import { COLORS, profile } from "../../constants";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "../../styles";
+import Modal from "../Modal/Modal";
+import { trpc } from "../../utils/trpc";
+import Form from "../Form/Form";
+import EditThought from "../Form/EditThought";
 
 const MyThought = () => {
-  const [thought, setThought] = React.useState("Niphi?");
+  const [openCreateForm, setOpenCreateForm] = React.useState(false);
+  const toggleCreateForm = () => setOpenCreateForm((state) => !state);
+  const [openEditThought, setOpenEditThought] = React.useState(false);
+  const toggleEditThought = () => setOpenEditThought((state) => !state);
+
+  const { data: thought } = trpc.thought.get.useQuery();
+
   return (
     <View
       style={{
@@ -14,6 +24,15 @@ const MyThought = () => {
         alignItems: "center",
       }}
     >
+      {thought ? (
+        <Modal open={openEditThought} toggle={toggleEditThought}>
+          <EditThought thought={thought} />
+        </Modal>
+      ) : (
+        <Modal open={openCreateForm} toggle={toggleCreateForm}>
+          <Form />
+        </Modal>
+      )}
       <View
         style={{
           position: "relative",
@@ -33,6 +52,7 @@ const MyThought = () => {
               top: 0,
               maxWidth: 150,
             }}
+            onPress={toggleEditThought}
           >
             <View
               style={{
@@ -46,7 +66,7 @@ const MyThought = () => {
               }}
             >
               <Text style={[styles.p]} numberOfLines={2}>
-                I'm thinking of dying.
+                {thought.text}
               </Text>
             </View>
             <View
@@ -78,6 +98,7 @@ const MyThought = () => {
         <View style={{ width: 60, alignItems: "center" }}>
           {!!!thought ? (
             <TouchableOpacity
+              onPress={toggleCreateForm}
               style={{
                 position: "absolute",
                 top: 0,

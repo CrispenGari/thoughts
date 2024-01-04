@@ -11,3 +11,9 @@ export interface UserType {
   commentId?: number;
   pinTrials?: number;
 }
+
+export interface ThoughtType {
+  id?: number;
+  text: string;
+  userId?: number;
+}

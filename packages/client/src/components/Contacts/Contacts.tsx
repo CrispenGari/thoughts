@@ -1,22 +1,17 @@
-import { Text, FlatList, SafeAreaView } from "react-native";
+import { FlatList, SafeAreaView } from "react-native";
 import React from "react";
 import { useContacts } from "../../hooks/useContacts";
-
-import { styles } from "../../styles";
 import Contact from "../Contact/Contact";
-import { countries } from "../../constants/countries";
 import { getContactNumbers } from "../../utils";
 
 const Contacts = () => {
   const { contacts } = useContacts();
-
-  const numbers = getContactNumbers(contacts);
-  console.log(JSON.stringify(numbers, null, 2));
+  const contactNumbers = getContactNumbers(contacts);
   return (
     <SafeAreaView style={{ flex: 0.4 }}>
       <FlatList
         contentContainerStyle={{ paddingHorizontal: 10 }}
-        data={contacts.slice(0, 10)}
+        data={contacts}
         keyExtractor={({ id }) => id}
         horizontal
         renderItem={({ item }) => {

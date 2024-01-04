@@ -4,10 +4,16 @@ import { Contact as CT } from "expo-contacts";
 import { COLORS, profile } from "../../constants";
 import { styles } from "../../styles";
 import Ripple from "../Ripple/Ripple";
+import { trpc } from "../../utils/trpc";
+import { getContactNumber } from "../../utils";
 
 const Contact: React.FunctionComponent<{
   contact: CT;
 }> = ({ contact }) => {
+  const { data } = trpc.user.contact.useQuery({
+    input: getContactNumber(contact),
+  });
+  if (!!!data?.user) return null;
   return (
     <View
       style={{
@@ -77,19 +83,21 @@ const Contact: React.FunctionComponent<{
         }}
       >
         <View style={{ position: "relative" }}>
-          <View style={{ position: "absolute", top: 0, right: 0, zIndex: 1 }}>
-            <Ripple color={COLORS.tertiary} size={5} />
-          </View>
+          {data.user.online ? (
+            <View style={{ position: "absolute", top: 0, right: 0, zIndex: 1 }}>
+              <Ripple color={COLORS.tertiary} size={5} />
+            </View>
+          ) : null}
           <Image
             style={{ width: 50, height: 50, borderRadius: 50, marginBottom: 3 }}
             source={{ uri: Image.resolveAssetSource(profile).uri }}
           />
         </View>
         <Text numberOfLines={1} style={[styles.h1]}>
-          {contact.firstName}
+          {data.contactName || data.user.name}
         </Text>
       </View>
     </View>
   );
 };
-export default Contact;
+export default React.memo(Contact);

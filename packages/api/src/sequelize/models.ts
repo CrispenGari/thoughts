@@ -1,6 +1,6 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { UserType } from "../types";
+import { UserType, ThoughtType } from "../types";
 
 export const Comment = sequelize.define(
   "comments",
@@ -18,7 +18,10 @@ export const Comment = sequelize.define(
   { freezeTableName: true, timestamps: true }
 );
 
-export const Thought = sequelize.define(
+export const Thought: ModelDefined<
+  Required<ThoughtType>,
+  ThoughtType
+> = sequelize.define(
   "thoughts",
   {
     id: {
@@ -74,15 +77,24 @@ export const User: ModelDefined<
   { freezeTableName: true, timestamps: true }
 );
 
-Thought.hasOne(User, {
+Thought.belongsTo(User, {
   onDelete: "RESTRICT",
   onUpdate: "CASCADE",
+  foreignKey: "userId",
+});
+
+User.hasOne(Thought, {
+  onDelete: "RESTRICT",
+  onUpdate: "CASCADE",
+  foreignKey: "thoughtId",
 });
 Comment.hasOne(User, {
   onDelete: "RESTRICT",
   onUpdate: "CASCADE",
 });
+
 Thought.hasMany(Comment, {
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
+  foreignKey: "commentId",
 });
