@@ -1,7 +1,6 @@
 import { Image, StatusBar, View } from "react-native";
 import React from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { COLORS, logo } from "../../constants";
+import { logo } from "../../constants";
 import * as Animatable from "react-native-animatable";
 const Loading = () => {
   return (

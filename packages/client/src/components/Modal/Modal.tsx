@@ -26,10 +26,10 @@ const Modal: React.FunctionComponent<Props> = ({ open, toggle, children }) => {
         <View
           style={{
             flex: 1,
-            justifyContent: "center",
+            justifyContent: "flex-end",
             alignItems: "center",
-            marginTop: 22,
             backgroundColor: "rgba(0, 0, 0, .3)",
+            padding: 5,
           }}
         >
           {children}
@@ -43,16 +43,12 @@ const Modal: React.FunctionComponent<Props> = ({ open, toggle, children }) => {
                 bottom: 20,
                 backgroundColor: COLORS.red,
                 borderRadius: 5,
+                padding: 10,
               },
             ]}
           >
-            <Text
-              style={[
-                styles.button__text,
-                { color: COLORS.white, textTransform: "uppercase" },
-              ]}
-            >
-              Close
+            <Text style={[styles.button__text, { color: COLORS.white }]}>
+              close
             </Text>
           </TouchableOpacity>
         </View>

@@ -7,14 +7,42 @@ import Modal from "../Modal/Modal";
 import { trpc } from "../../utils/trpc";
 import Form from "../Form/Form";
 import EditThought from "../Form/EditThought";
+import { useMeStore } from "../../store";
 
 const MyThought = () => {
+  const { me } = useMeStore();
   const [openCreateForm, setOpenCreateForm] = React.useState(false);
   const toggleCreateForm = () => setOpenCreateForm((state) => !state);
   const [openEditThought, setOpenEditThought] = React.useState(false);
   const toggleEditThought = () => setOpenEditThought((state) => !state);
+  const { data: thought, refetch: refetchMyThought } =
+    trpc.thought.get.useQuery();
 
-  const { data: thought } = trpc.thought.get.useQuery();
+  // Subscriptions
+  trpc.thought.onCreate.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchMyThought();
+      },
+    }
+  );
+  trpc.thought.onUpdate.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchMyThought();
+      },
+    }
+  );
+  trpc.thought.onDelete.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchMyThought();
+      },
+    }
+  );
 
   return (
     <View
@@ -26,11 +54,11 @@ const MyThought = () => {
     >
       {thought ? (
         <Modal open={openEditThought} toggle={toggleEditThought}>
-          <EditThought thought={thought} />
+          <EditThought thought={thought} toggle={toggleEditThought} />
         </Modal>
       ) : (
         <Modal open={openCreateForm} toggle={toggleCreateForm}>
-          <Form />
+          <Form toggle={toggleCreateForm} />
         </Modal>
       )}
       <View

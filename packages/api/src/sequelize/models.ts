@@ -91,6 +91,7 @@ User.hasOne(Thought, {
 Comment.hasOne(User, {
   onDelete: "RESTRICT",
   onUpdate: "CASCADE",
+  foreignKey: "userId",
 });
 
 Thought.hasMany(Comment, {

@@ -19,3 +19,5 @@ export const contactSchema = z.object({
     phoneNumbers: z.string().array(),
   }),
 });
+
+export const getSchema = z.object({ id: z.number() });
