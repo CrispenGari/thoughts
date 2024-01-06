@@ -8,6 +8,7 @@ import { useMeStore } from "../store";
 const Routes = () => {
   const { me } = useMeStore();
   const prefix = Linking.createURL("/");
+  console.log({ me });
   return (
     <NavigationContainer
       linking={{

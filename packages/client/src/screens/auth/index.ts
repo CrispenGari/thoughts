@@ -6,3 +6,5 @@ export { default as NewPin } from "./login/NewPin";
 export { default as SetPin } from "./register/SetPin";
 export { default as ConfirmPin } from "./register/ConfirmPin";
 export { default as Landing } from "./landing/Landing";
+export { default as AuthPrivacyPolicy } from "./pp/PrivacyPolicy";
+export { default as AuthTermsOfUse } from "./tnc/TnC";

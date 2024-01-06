@@ -5,7 +5,7 @@ import LinearGradientProvider from "../../../providers/LinearGradientProvider";
 import { AuthNavProps } from "../../../params";
 import { APP_NAME, COLORS, FONTS, logo } from "../../../constants";
 import { styles } from "../../../styles";
-import { BottomSheet } from "react-native-btr";
+import { BottomSheet, CheckBox } from "react-native-btr";
 import { useMediaQuery } from "../../../hooks";
 import Loading from "../../../components/Loading/Loading";
 import { useMeStore } from "../../../store";
@@ -13,6 +13,7 @@ import { useMeStore } from "../../../store";
 const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
   navigation,
 }) => {
+  const [agree, setAgree] = React.useState(false);
   const { data, isFetching } = trpc.user.me.useQuery();
   const { setMe } = useMeStore();
   const [open, setOpen] = React.useState(false);
@@ -71,6 +72,7 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
         }}
       >
         <TouchableOpacity
+          disabled={!agree}
           onPress={toggle}
           activeOpacity={0.7}
           style={[
@@ -88,6 +90,73 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
             GET STARTED
           </Text>
         </TouchableOpacity>
+
+        <View
+          style={{
+            flexDirection: "row",
+            paddingHorizontal: 10,
+            justifyContent: "center",
+            flexWrap: "wrap",
+            maxWidth: 400,
+            marginTop: 20,
+          }}
+        >
+          <CheckBox
+            color={COLORS.tertiary}
+            checked={agree}
+            onPress={() => setAgree((state) => !state)}
+          />
+          <Text style={[styles.p, { marginLeft: 10 }]}>
+            I've agreed with the
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("AuthTermsOfUse", { from: "Landing" });
+            }}
+            activeOpacity={0.7}
+            style={{}}
+          >
+            <Text
+              style={[
+                styles.p,
+                {
+                  color: COLORS.tertiary,
+                  textDecorationStyle: "solid",
+                  textDecorationColor: COLORS.tertiary,
+                  textDecorationLine: "underline",
+                },
+              ]}
+            >
+              Terms and Conditions
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.p]}> and </Text>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("AuthPrivacyPolicy", { from: "Landing" });
+            }}
+            activeOpacity={0.7}
+            style={{}}
+          >
+            <Text
+              style={[
+                styles.p,
+                {
+                  color: COLORS.tertiary,
+                  textDecorationStyle: "solid",
+                  textDecorationColor: COLORS.tertiary,
+                  textDecorationLine: "underline",
+                },
+              ]}
+            >
+              Privacy Policy
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.p, { fontFamily: FONTS.regularBold }]}>
+            {" "}
+            of {APP_NAME}.
+          </Text>
+        </View>
       </View>
       <BottomSheet
         visible={!!open}

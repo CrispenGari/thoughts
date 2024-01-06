@@ -2,10 +2,18 @@ import { COLORS } from "../../constants";
 import type { AppParamList } from "../../params";
 import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
-import { Home, Settings } from "../../screens/app";
+import {
+  AppPrivacyPolicy,
+  AppTermsOfUse,
+  Home,
+  Settings,
+  Notifications,
+  Profile,
+} from "../../screens/app";
 import { AppState } from "react-native";
 import { trpc } from "../../utils/trpc";
 import { useMeStore, useSubscriptionsStore } from "../../store";
+
 const Stack = createStackNavigator<AppParamList>();
 
 export const AppTabs = () => {
@@ -75,11 +83,16 @@ export const AppTabs = () => {
           borderTopWidth: 0,
           borderColor: "transparent",
           backgroundColor: COLORS.tertiary,
+          height: 100,
         },
       }}
     >
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Settings" component={Settings} />
+      <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="Notifications" component={Notifications} />
+      <Stack.Screen name="AppPrivacyPolicy" component={AppPrivacyPolicy} />
+      <Stack.Screen name="AppTermsOfUse" component={AppTermsOfUse} />
     </Stack.Navigator>
   );
 };

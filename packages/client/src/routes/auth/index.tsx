@@ -1,5 +1,7 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import {
+  AuthPrivacyPolicy,
+  AuthTermsOfUse,
   ConfirmPin,
   Landing,
   NewPin,
@@ -27,6 +29,8 @@ export const AuthStack = () => {
       <Stack.Screen name="SetPhoneNumber" component={SetPhoneNumber} />
       <Stack.Screen name="SetPin" component={SetPin} />
       <Stack.Screen name="SetProfile" component={SetProfile} />
+      <Stack.Screen name="AuthPrivacyPolicy" component={AuthPrivacyPolicy} />
+      <Stack.Screen name="AuthTermsOfUse" component={AuthTermsOfUse} />
     </Stack.Navigator>
   );
 };

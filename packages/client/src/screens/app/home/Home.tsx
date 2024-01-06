@@ -1,32 +1,19 @@
-import { View, Text, TouchableOpacity, Button } from "react-native";
 import React from "react";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
-import { del } from "../../../utils";
-import { KEYS } from "../../../constants";
-import { useMeStore } from "../../../store";
-import { trpc } from "../../../utils/trpc";
-import { useContacts } from "../../../hooks/useContacts";
+
 import MyThought from "../../../components/MyThought/MyThought";
 import Contacts from "../../../components/Contacts/Contacts";
+import { AppNavProps } from "../../../params";
+import AppHeader from "../../../components/AppHeader/AppHeader";
 
-const Home = () => {
-  const { setMe } = useMeStore();
-  const { mutateAsync, isLoading } = trpc.logout.logout.useMutation();
-
+const Home = ({ navigation }: AppNavProps<"Home">) => {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      header: (props) => <AppHeader {...props} navigation={navigation} />,
+    });
+  }, [navigation]);
   return (
     <LinearGradientProvider>
-      <Button
-        onPress={() => {
-          mutateAsync().then(async (res) => {
-            if (res) {
-              setMe(null);
-              await del(KEYS.TOKEN_KEY);
-            }
-          });
-        }}
-        title="Logout"
-      />
-
       <MyThought />
       <Contacts />
     </LinearGradientProvider>

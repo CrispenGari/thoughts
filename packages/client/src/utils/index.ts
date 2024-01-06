@@ -1,6 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Contact } from "expo-contacts";
+import * as StoreReview from "expo-store-review";
+import * as Updates from "expo-updates";
 import { countries } from "../constants/countries";
+import { Alert } from "react-native";
+import { APP_NAME } from "../constants";
 
 export const getContactNumber = (contact: Contact) => {
   const phoneNumbers = contact.phoneNumbers
@@ -77,3 +81,60 @@ export const del = async (key: string): Promise<boolean> => {
     return false;
   }
 };
+
+export const rateApp = async () => {
+  const available = await StoreReview.isAvailableAsync();
+  if (available) {
+    const hasAction = await StoreReview.hasAction();
+    if (hasAction) {
+      await StoreReview.requestReview();
+    }
+  }
+};
+
+export const onFetchUpdateAsync = async () => {
+  try {
+    const update = await Updates.checkForUpdateAsync();
+    if (update.isAvailable) {
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+    }
+  } catch (error) {
+    Alert.alert(
+      APP_NAME,
+      error as any,
+      [{ text: "OK", style: "destructive" }],
+      { cancelable: false }
+    );
+  }
+};
+
+// export const schedulePushNotification = async ({
+//   title,
+//   body,
+//   data,
+//   badge,
+//   subtitle,
+// }: {
+//   title: string;
+//   body: string;
+//   data: {
+//     tweetId: string;
+//     from: keyof AppParamList;
+//   };
+//   badge?: number;
+//   subtitle?: string;
+// }) => {
+//   await Notifications.scheduleNotificationAsync({
+//     content: {
+//       title,
+//       body,
+//       data,
+//       badge,
+//       color: COLORS.primary,
+//       sound: "notification.wav",
+//       subtitle,
+//     },
+//     trigger: { seconds: 2 },
+//   });
+// };

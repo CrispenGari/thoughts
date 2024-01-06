@@ -28,6 +28,15 @@ export type AuthNavProps<T extends keyof AuthParamList> = {
 export type AppParamList = {
   Home: undefined;
   Settings: undefined;
+
+  Notifications: undefined;
+  Profile: undefined;
+  AppTermsOfUse: {
+    from: keyof AppParamList;
+  };
+  AppPrivacyPolicy: {
+    from: keyof AppParamList;
+  };
 };
 
 export type AppNavProps<T extends keyof AppParamList> = {
