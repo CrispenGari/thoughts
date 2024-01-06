@@ -8,3 +8,23 @@ export const useMeStore = create<{
   me: null,
   setMe: (me) => set({ me }),
 }));
+
+export const useSubscriptionsStore = create<{
+  user: number | null;
+  thought: {
+    userId: number;
+    thoughtId: number;
+  } | null;
+  setThought: (
+    thought: {
+      userId: number;
+      thoughtId: number;
+    } | null
+  ) => void;
+  setUser: (id: number | null) => void;
+}>((set) => ({
+  user: null,
+  thought: null,
+  setUser: (id) => set({ user: id }),
+  setThought: (thought) => set({ thought }),
+}));

@@ -5,6 +5,7 @@ import {
   onDeleteSchema,
   onUpdateSchema,
   updateSchema,
+  getUserThoughtSchema,
 } from "../../schema/thought.schema";
 import { Thought, User } from "../../sequelize/models";
 import { publicProcedure, router } from "../../trpc";
@@ -21,11 +22,31 @@ export const thoughtRouter = router({
         const handler = (payload: ThoughtType) => {
           if (payload.userId === userId) {
             emit.next(payload);
+          } else {
+            emit.next(payload);
           }
         };
         ee.on(Events.ON_CREATE_THOUGHT, handler);
         return () => {
           ee.off(Events.ON_CREATE_THOUGHT, handler);
+        };
+      });
+    }),
+
+  onDelete: publicProcedure
+    .input(onDeleteSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<ThoughtType>((emit) => {
+        const handler = (payload: ThoughtType) => {
+          if (payload.userId === userId) {
+            emit.next(payload);
+          } else {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_DELETE_THOUGHT, handler);
+        return () => {
+          ee.off(Events.ON_DELETE_THOUGHT, handler);
         };
       });
     }),
@@ -36,6 +57,8 @@ export const thoughtRouter = router({
         const handler = (payload: ThoughtType) => {
           if (payload.userId === userId) {
             emit.next(payload);
+          } else {
+            emit.next(payload);
           }
         };
         ee.on(Events.ON_UPDATE_THOUGHT, handler);
@@ -44,22 +67,6 @@ export const thoughtRouter = router({
         };
       });
     }),
-  onDelete: publicProcedure
-    .input(onDeleteSchema)
-    .subscription(async ({ input: { userId } }) => {
-      return observable<ThoughtType>((emit) => {
-        const handler = (payload: ThoughtType) => {
-          if (payload.userId === userId) {
-            emit.next(payload);
-          }
-        };
-        ee.on(Events.ON_DELETE_THOUGHT, handler);
-        return () => {
-          ee.off(Events.ON_DELETE_THOUGHT, handler);
-        };
-      });
-    }),
-
   create: publicProcedure
     .input(createSchema)
     .mutation(async ({ input: { thought }, ctx: { me } }) => {
@@ -141,6 +148,18 @@ export const thoughtRouter = router({
       return null;
     }
   }),
+  getUserThought: publicProcedure
+    .input(getUserThoughtSchema)
+    .query(async ({ input: { userId } }) => {
+      try {
+        const payload = await Thought.findOne({
+          where: { userId },
+        });
+        return !!payload ? payload.toJSON() : null;
+      } catch (error) {
+        return null;
+      }
+    }),
   all: publicProcedure.query(async ({ ctx: {} }) => {
     try {
       const thoughts = await Thought.findAll({

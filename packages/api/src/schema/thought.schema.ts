@@ -12,6 +12,9 @@ export const onDeleteSchema = z.object({
 export const onCreateSchema = z.object({
   userId: z.number(),
 });
+export const getUserThoughtSchema = z.object({
+  userId: z.number(),
+});
 
 export const updateSchema = z.object({
   thought: z.string(),

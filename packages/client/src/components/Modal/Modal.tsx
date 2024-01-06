@@ -40,10 +40,11 @@ const Modal: React.FunctionComponent<Props> = ({ open, toggle, children }) => {
               styles.button,
               {
                 position: "absolute",
-                bottom: 20,
+                bottom: 30,
                 backgroundColor: COLORS.red,
                 borderRadius: 5,
                 padding: 10,
+                maxWidth: 360,
               },
             ]}
           >

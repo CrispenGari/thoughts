@@ -14,10 +14,9 @@ export const contactsSchema = z.object({
     .array(),
 });
 export const contactSchema = z.object({
-  input: z.object({
-    contactName: z.string(),
-    phoneNumbers: z.string().array(),
-  }),
+  id: z.number(),
 });
 
 export const getSchema = z.object({ id: z.number() });
+export const statusUpdateSchema = z.object({ status: z.boolean() });
+export const onStatusSchema = z.object({ userId: z.number() });

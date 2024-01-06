@@ -7,9 +7,10 @@ import Modal from "../Modal/Modal";
 import { trpc } from "../../utils/trpc";
 import Form from "../Form/Form";
 import EditThought from "../Form/EditThought";
-import { useMeStore } from "../../store";
+import { useMeStore, useSubscriptionsStore } from "../../store";
 
 const MyThought = () => {
+  const { thought: thoughtPayload, setThought } = useSubscriptionsStore();
   const { me } = useMeStore();
   const [openCreateForm, setOpenCreateForm] = React.useState(false);
   const toggleCreateForm = () => setOpenCreateForm((state) => !state);
@@ -18,36 +19,22 @@ const MyThought = () => {
   const { data: thought, refetch: refetchMyThought } =
     trpc.thought.get.useQuery();
 
-  // Subscriptions
-  trpc.thought.onCreate.useSubscription(
-    { userId: me?.id || 0 },
-    {
-      onData: async (data) => {
-        await refetchMyThought();
-      },
+  React.useEffect(() => {
+    if (!!thoughtPayload && !!me) {
+      if (thoughtPayload.userId === me.id) {
+        refetchMyThought().then(({ data }) => {
+          if (data?.text) {
+            setThought(null);
+          }
+        });
+      }
     }
-  );
-  trpc.thought.onUpdate.useSubscription(
-    { userId: me?.id || 0 },
-    {
-      onData: async (data) => {
-        await refetchMyThought();
-      },
-    }
-  );
-  trpc.thought.onDelete.useSubscription(
-    { userId: me?.id || 0 },
-    {
-      onData: async (data) => {
-        await refetchMyThought();
-      },
-    }
-  );
+  }, [thoughtPayload, setThought, me]);
 
   return (
     <View
       style={{
-        flex: 0.9,
+        flex: 1,
         justifyContent: "center",
         alignItems: "center",
       }}
