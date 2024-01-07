@@ -5,6 +5,24 @@ import * as Updates from "expo-updates";
 import { countries } from "../constants/countries";
 import { Alert } from "react-native";
 import { APP_NAME } from "../constants";
+import { ReactNativeFile } from "apollo-upload-client";
+import * as mime from "react-native-mime-types";
+
+export const generateRNFile = ({
+  uri,
+  name,
+}: {
+  uri: string;
+  name: string;
+}) => {
+  return uri
+    ? new ReactNativeFile({
+        uri,
+        type: mime.lookup(uri) || "image",
+        name,
+      })
+    : null;
+};
 
 export const getContactNumber = (contact: Contact) => {
   const phoneNumbers = contact.phoneNumbers

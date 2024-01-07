@@ -1,5 +1,6 @@
+import { User } from "../../sequelize/user.model";
 import { publicProcedure, router } from "../../trpc";
-import { User } from "../../sequelize/models";
+
 export const logoutRouter = router({
   logout: publicProcedure.mutation(async ({ ctx: { me } }) => {
     try {

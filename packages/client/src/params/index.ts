@@ -1,5 +1,6 @@
 import type { RouteProp } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
+import { CountryType } from "@thoughts/api/src/types";
 
 // Auth Stack
 export type AuthParamList = {
@@ -8,9 +9,15 @@ export type AuthParamList = {
   PhoneNumber: undefined;
   PinCode: { phoneNumber: string };
   SetPhoneNumber: undefined;
-  SetPin: { phoneNumber: string };
-  ConfirmPin: { phoneNumber: string; pin1: string };
-  SetProfile: { pin: string; phoneNumber: string };
+  SetPin: { user: { phoneNumber: string }; country: CountryType };
+  ConfirmPin: {
+    user: { phoneNumber: string; pin1: string };
+    country: CountryType;
+  };
+  SetProfile: {
+    user: { phoneNumber: string; pin: string };
+    country: CountryType;
+  };
   AuthTermsOfUse: {
     from: keyof AuthParamList;
   };
@@ -28,7 +35,9 @@ export type AuthNavProps<T extends keyof AuthParamList> = {
 export type AppParamList = {
   Home: undefined;
   Settings: undefined;
-
+  UpdatePhoneNumber: undefined;
+  BlockedContact: undefined;
+  ChangePin: undefined;
   Notifications: undefined;
   Profile: undefined;
   AppTermsOfUse: {

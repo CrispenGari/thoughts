@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
-import { COLORS, profile } from "../../constants";
+import { COLORS, profile, serverBaseHttpURL } from "../../constants";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "../../styles";
 import Modal from "../Modal/Modal";
@@ -139,7 +139,11 @@ const MyThought = () => {
               marginBottom: 3,
               resizeMode: "contain",
             }}
-            source={{ uri: Image.resolveAssetSource(profile).uri }}
+            source={{
+              uri: !!me?.avatar
+                ? serverBaseHttpURL.concat(me.avatar)
+                : Image.resolveAssetSource(profile).uri,
+            }}
           />
         </View>
       </View>

@@ -11,6 +11,10 @@ import ws from "@fastify/websocket";
 import { getFastifyPlugin } from "trpc-playground/handlers/fastify";
 import process from "process";
 import { sequelize } from "./sequelize";
+import fastifyStatic from "@fastify/static";
+import path from "path";
+import multipart from "@fastify/multipart";
+import { uploadRoute } from "./routes/upload/image.routes";
 
 require("events").EventEmitter.prototype._maxListeners = 100;
 process.setMaxListeners(100);
@@ -35,6 +39,12 @@ const TRPC_PLAYGROUND_ENDPOINT = "/api/trpc-playground";
   fastify.get("/", (_req, res) => {
     res.status(200).send("Hello ✌ from thoughts server.");
   });
+  fastify.register(multipart);
+  fastify.register(fastifyStatic, {
+    root: path.resolve(path.join(__dirname.replace("src", ""), "storage")),
+    prefixAvoidTrailingSlash: true,
+    prefix: "/api/storage",
+  });
   fastify.register(ws);
   fastify.register(cors, {
     credentials: true,
@@ -57,6 +67,10 @@ const TRPC_PLAYGROUND_ENDPOINT = "/api/trpc-playground";
     }),
     { prefix: TRPC_PLAYGROUND_ENDPOINT }
   );
+  fastify.register(uploadRoute, {
+    prefix: "/api/upload/images",
+  });
+
   fastify.listen({ port: PORT, host: HOST }, (error, _address) => {
     if (error) {
       console.error(error);

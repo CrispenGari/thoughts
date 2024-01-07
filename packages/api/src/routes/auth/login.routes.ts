@@ -3,10 +3,11 @@ import {
   loginOrFailSchema,
   validatePhoneNumberSchema,
 } from "../../schema/login.schema";
-import { User } from "../../sequelize/models";
+
 import { publicProcedure, router } from "../../trpc";
 import { isValidPhoneNumber } from "../../utils/regexp";
 import { signJwt } from "../../utils/jwt";
+import { User } from "../../sequelize/user.model";
 
 export const loginRouter = router({
   validatePhoneNumber: publicProcedure

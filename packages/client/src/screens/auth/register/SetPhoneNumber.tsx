@@ -9,18 +9,33 @@ import { styles } from "../../../styles";
 import Divider from "../../../components/Divider/Divider";
 import Ripple from "../../../components/Ripple/Ripple";
 import { trpc } from "../../../utils/trpc";
+import { countries } from "../../../constants/countries";
+import { useCountryCodeStore } from "../../../store";
 
 const SetPhoneNumber: React.FunctionComponent<
   AuthNavProps<"SetPhoneNumber">
 > = ({ navigation }) => {
+  const { code } = useCountryCodeStore();
+  const [phoneInputState, setPhoneInputState] = React.useState({
+    country:
+      countries.find((c) => c.code.toLowerCase() === code) || countries[0],
+    number: "",
+  });
   const [state, setState] = React.useState({
     error: "",
   });
   const { mutateAsync, isLoading } =
     trpc.register.validatePhoneNumber.useMutation();
-  const [phoneNumber, setPhoneNumber] = React.useState("");
   const validateNumber = () => {
-    mutateAsync({ phoneNumber })
+    mutateAsync({
+      user: { phoneNumber: phoneInputState.number },
+      country: {
+        countryCode: phoneInputState.country.code,
+        phoneCode: phoneInputState.country.phone.code,
+        flag: phoneInputState.country.emoji,
+        name: phoneInputState.country.name,
+      },
+    })
       .then((res) => {
         if (!!res.error) {
           setState((state) => ({
@@ -32,8 +47,21 @@ const SetPhoneNumber: React.FunctionComponent<
             ...state,
             error: "",
           }));
-          setPhoneNumber("");
-          navigation.replace("SetPin", { phoneNumber: res.phoneNumber! });
+          setPhoneInputState({
+            country:
+              countries.find((c) => c.code.toLowerCase() === code) ||
+              countries[0],
+            number: "",
+          });
+          navigation.replace("SetPin", {
+            user: { phoneNumber: res.phoneNumber! },
+            country: {
+              countryCode: phoneInputState.country.code,
+              phoneCode: phoneInputState.country.phone.code,
+              flag: phoneInputState.country.emoji,
+              name: phoneInputState.country.name,
+            },
+          });
         }
       })
       .catch((error) =>
@@ -107,7 +135,8 @@ const SetPhoneNumber: React.FunctionComponent<
             </Text>
             <PhoneInput
               placeholder="123 456 789"
-              setPhoneNumber={setPhoneNumber}
+              setState={setPhoneInputState}
+              state={phoneInputState}
               containerStyle={{
                 borderColor: state.error ? COLORS.red : "transparent",
               }}

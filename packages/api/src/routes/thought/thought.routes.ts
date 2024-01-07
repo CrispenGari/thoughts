@@ -7,11 +7,13 @@ import {
   updateSchema,
   getUserThoughtSchema,
 } from "../../schema/thought.schema";
-import { Thought, User } from "../../sequelize/models";
+
 import { publicProcedure, router } from "../../trpc";
 import { observable } from "@trpc/server/observable";
 import { Events } from "../../constants";
 import { ThoughtType } from "../../types";
+import { Thought } from "../../sequelize/thought.model";
+import { User } from "../../sequelize/user.model";
 
 const ee = new EventEmitter();
 export const thoughtRouter = router({

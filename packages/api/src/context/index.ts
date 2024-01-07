@@ -2,7 +2,7 @@ import { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify";
 import { inferAsyncReturnType } from "@trpc/server";
 import { UserType } from "../types";
 import { verifyJwt } from "../utils/jwt";
-import { User } from "../sequelize/models";
+import { User } from "../sequelize/user.model";
 
 const getMe = async (jwt: string | undefined): Promise<UserType | null> => {
   if (!!!jwt) return null;

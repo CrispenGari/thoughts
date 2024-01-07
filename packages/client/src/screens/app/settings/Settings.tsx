@@ -149,19 +149,19 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
             Icon={
               <MaterialIcons name="block" size={18} color={COLORS.tertiary} />
             }
-            onPress={() => {}}
+            onPress={() => navigation.navigate("BlockedContact")}
           />
           <Divider color={COLORS.tertiary} title="PHONE MANAGEMENT" />
           <SettingItem
             title={"Update Phone Number"}
             Icon={<Ionicons name="keypad" size={18} color={COLORS.tertiary} />}
-            onPress={() => {}}
+            onPress={() => navigation.navigate("UpdatePhoneNumber")}
           />
           <Divider color={COLORS.tertiary} title="PIN MANAGEMENT" />
           <SettingItem
             title={"Change Pin"}
             Icon={<Ionicons name="key" size={18} color={COLORS.tertiary} />}
-            onPress={() => {}}
+            onPress={() => navigation.navigate("ChangePin")}
           />
           <SettingItem
             title={"Forgot Pin"}

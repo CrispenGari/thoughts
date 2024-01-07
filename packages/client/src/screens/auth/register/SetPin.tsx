@@ -80,8 +80,8 @@ const SetPin: React.FunctionComponent<AuthNavProps<"SetPin">> = ({
               setPin={setPin}
               onComplete={(pin) => {
                 navigation.replace("ConfirmPin", {
-                  phoneNumber: route.params.phoneNumber,
-                  pin1: pin,
+                  country: route.params.country,
+                  user: { ...route.params.user, pin1: pin },
                 });
               }}
               length={5}

@@ -9,6 +9,14 @@ export const useMeStore = create<{
   setMe: (me) => set({ me }),
 }));
 
+export const useCountryCodeStore = create<{
+  code: string | null;
+  setCode: (code: string | null) => void;
+}>((set) => ({
+  code: null,
+  setCode: (code) => set({ code }),
+}));
+
 export const useSubscriptionsStore = create<{
   user: number | null;
   thought: {

@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
-import { COLORS, profile } from "../../constants";
+import { COLORS, profile, serverBaseHttpURL } from "../../constants";
 import { styles } from "../../styles";
 import Ripple from "../Ripple/Ripple";
 import { trpc } from "../../utils/trpc";
@@ -63,7 +63,11 @@ const Contact: React.FunctionComponent<{
           ) : null}
           <Image
             style={{ width: 50, height: 50, borderRadius: 50, marginBottom: 3 }}
-            source={{ uri: Image.resolveAssetSource(profile).uri }}
+            source={{
+              uri: !!data.user.avatar
+                ? serverBaseHttpURL.concat(data.user.avatar)
+                : Image.resolveAssetSource(profile).uri,
+            }}
           />
         </View>
         <Text numberOfLines={1} style={[styles.h1]}>

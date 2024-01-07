@@ -9,6 +9,9 @@ import {
   Settings,
   Notifications,
   Profile,
+  BlockedContacts,
+  ChangePin,
+  UpdatePhoneNumber,
 } from "../../screens/app";
 import { AppState } from "react-native";
 import { trpc } from "../../utils/trpc";
@@ -93,6 +96,9 @@ export const AppTabs = () => {
       <Stack.Screen name="Notifications" component={Notifications} />
       <Stack.Screen name="AppPrivacyPolicy" component={AppPrivacyPolicy} />
       <Stack.Screen name="AppTermsOfUse" component={AppTermsOfUse} />
+      <Stack.Screen name="UpdatePhoneNumber" component={UpdatePhoneNumber} />
+      <Stack.Screen name="ChangePin" component={ChangePin} />
+      <Stack.Screen name="BlockedContact" component={BlockedContacts} />
     </Stack.Navigator>
   );
 };

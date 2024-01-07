@@ -8,6 +8,7 @@ import { Fonts } from "./src/constants";
 import * as Notifications from "expo-notifications";
 import Loading from "./src/components/Loading/Loading";
 import LinearGradientProvider from "./src/providers/LinearGradientProvider";
+import ReactQueryProvider from "./src/providers/ReactQueryProvider";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -32,7 +33,9 @@ const App = () => {
     <TRPCProvider>
       <LinearGradientProvider>
         <StatusBar barStyle={"light-content"} />
-        <Routes />
+        <ReactQueryProvider>
+          <Routes />
+        </ReactQueryProvider>
       </LinearGradientProvider>
     </TRPCProvider>
   );

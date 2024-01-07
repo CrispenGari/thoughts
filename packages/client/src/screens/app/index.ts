@@ -4,3 +4,6 @@ export { default as AppPrivacyPolicy } from "./pp/PrivacyPolicy";
 export { default as AppTermsOfUse } from "./tnc/TnC";
 export { default as Notifications } from "./notifications/Notifications";
 export { default as Profile } from "./profile/Profile";
+export { default as UpdatePhoneNumber } from "./phone/ChangePhoneNumber";
+export { default as ChangePin } from "./pin/ChangePin";
+export { default as BlockedContacts } from "./blocked/BlockedContact";

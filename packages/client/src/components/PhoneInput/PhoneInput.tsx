@@ -12,72 +12,52 @@ import {
 import React from "react";
 import { countries } from "../../constants/countries";
 import { COLORS, FONTS } from "../../constants";
-import * as Location from "expo-location";
 import ModalSelector from "react-native-modal-selector";
 import { styles } from "../../styles";
-import { useLocationPermission } from "../../hooks";
 
 const formatPhoneNumber = (num: string) => {
   const groups = num.replace(/\s/g, "").match(/.{1,3}/g);
   return groups ? groups.join(" ") : "";
 };
 
+interface PhoneInputStateType {
+  country: {
+    name: string;
+    code: string;
+    emoji: string;
+    flag: {
+      image: string;
+      unicode: string;
+    };
+    phone: {
+      code: string;
+    };
+  };
+  number: string;
+}
 interface Props {
   onSubmitEditing?: (
     e: NativeSyntheticEvent<TextInputSubmitEditingEventData>
   ) => void;
-
+  state: PhoneInputStateType;
+  setState: React.Dispatch<React.SetStateAction<PhoneInputStateType>>;
   placeholder?: string;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   countrySelectorTextStyle?: StyleProp<TextStyle>;
-  setPhoneNumber: React.Dispatch<React.SetStateAction<string>>;
+  defaultPhoneNumber?: string;
+  defaultPhoneCountryCode?: string;
 }
 const PhoneInput: React.FunctionComponent<Props> = ({
   containerStyle,
   inputStyle,
   countrySelectorTextStyle,
-  setPhoneNumber,
+  state,
+  setState,
   placeholder,
   onSubmitEditing,
 }) => {
-  const [state, setState] = React.useState({
-    country: countries[0],
-    number: "",
-  });
-  const { granted } = useLocationPermission();
   const selectorRef = React.createRef<ModalSelector>();
-  React.useLayoutEffect(() => {
-    if (granted) {
-      Location.getCurrentPositionAsync().then(
-        ({ coords: { latitude, longitude } }) => {
-          Location.reverseGeocodeAsync({
-            latitude,
-            longitude,
-          }).then((loc) => {
-            const curr = loc[0];
-            setState((state) => ({
-              ...state,
-              country: countries.find(
-                (c) =>
-                  c.code.toLowerCase() === curr.isoCountryCode?.toLowerCase()
-              )!,
-            }));
-          });
-        }
-      );
-    }
-  }, [granted]);
-  React.useEffect(() => {
-    setPhoneNumber(
-      `${state.country.phone.code}${
-        state.number.startsWith("0")
-          ? state.number.slice(1).replace(/\s/g, "")
-          : state.number.replace(/\s/g, "")
-      }`
-    );
-  }, [state]);
-
   return (
     <View
       style={[

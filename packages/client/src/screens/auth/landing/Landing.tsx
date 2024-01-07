@@ -6,17 +6,21 @@ import { AuthNavProps } from "../../../params";
 import { APP_NAME, COLORS, FONTS, logo } from "../../../constants";
 import { styles } from "../../../styles";
 import { BottomSheet, CheckBox } from "react-native-btr";
-import { useMediaQuery } from "../../../hooks";
+import { useLocationPermission, useMediaQuery } from "../../../hooks";
 import Loading from "../../../components/Loading/Loading";
-import { useMeStore } from "../../../store";
+import { useCountryCodeStore, useMeStore } from "../../../store";
+import * as Location from "expo-location";
 
 const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
   navigation,
 }) => {
+  const { granted } = useLocationPermission();
+  const { setCode } = useCountryCodeStore();
   const [agree, setAgree] = React.useState(false);
   const { data, isFetching } = trpc.user.me.useQuery();
   const { setMe } = useMeStore();
   const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const toggle = () => setOpen((state) => !state);
   const {
     dimension: { height },
@@ -29,7 +33,24 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
     }
   }, [data]);
 
-  if (isFetching) return <Loading />;
+  React.useEffect(() => {
+    if (granted) {
+      setLoading(true);
+      Location.getCurrentPositionAsync()
+        .then(({ coords: { latitude, longitude } }) => {
+          Location.reverseGeocodeAsync({ latitude, longitude }).then((res) => {
+            if (!!res.length) {
+              setCode(res[0].isoCountryCode?.toLowerCase() || null);
+            }
+          });
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setCode(null);
+    }
+  }, [setCode, granted]);
+
+  if (isFetching || loading) return <Loading />;
 
   return (
     <LinearGradientProvider>
@@ -171,28 +192,33 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
             borderTopLeftRadius: 30,
           }}
         >
-          <Text
-            style={[
-              styles.h1,
-              {
-                position: "absolute",
-                backgroundColor: COLORS.main,
-                paddingHorizontal: 15,
-                top: -10,
-                paddingVertical: 5,
-                borderRadius: 999,
-                letterSpacing: 0.5,
-                textTransform: "uppercase",
-                shadowColor: COLORS.tertiary,
-                shadowRadius: 2,
-                shadowOffset: { width: 2, height: 2 },
-                shadowOpacity: 0.5,
-                alignSelf: "center",
-              },
-            ]}
+          <View
+            style={{
+              position: "absolute",
+              backgroundColor: COLORS.main,
+              paddingHorizontal: 15,
+              top: -10,
+              shadowRadius: 2,
+              shadowOffset: { width: 2, height: 2 },
+              shadowOpacity: 0.5,
+              alignSelf: "center",
+              paddingVertical: 5,
+              shadowColor: COLORS.tertiary,
+              borderRadius: 999,
+            }}
           >
-            {APP_NAME}
-          </Text>
+            <Text
+              style={[
+                styles.h1,
+                {
+                  letterSpacing: 0.5,
+                  textTransform: "uppercase",
+                },
+              ]}
+            >
+              {APP_NAME}
+            </Text>
+          </View>
           <View
             style={{
               flex: 0.6,

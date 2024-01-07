@@ -18,8 +18,7 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
   const [state, setState] = React.useState({
     error: "",
     pin2: "",
-    pin1: route.params.pin1,
-    phoneNumber: route.params.phoneNumber,
+    pin1: route.params.user.pin1,
   });
   const { mutateAsync, isLoading } = trpc.register.validatePin.useMutation();
   const validatePin = () => {
@@ -51,17 +50,21 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
                       setPin("");
                       setState((state) => ({ ...state, pin2: "" }));
                       navigation.replace("SetPin", {
-                        phoneNumber: state.phoneNumber,
+                        country: route.params.country,
+                        user: route.params.user,
                       });
                     },
                   },
                 ]
           );
         } else {
-          setState({ error: "", phoneNumber: "", pin1: "", pin2: "" });
+          setState({ error: "", pin1: "", pin2: "" });
           navigation.replace("SetProfile", {
-            phoneNumber: state.phoneNumber,
-            pin: res.pin!,
+            country: route.params.country,
+            user: {
+              phoneNumber: route.params.user.phoneNumber,
+              pin: route.params.user.pin1,
+            },
           });
         }
       })
