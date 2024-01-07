@@ -11,6 +11,7 @@ import ws from "@fastify/websocket";
 import { getFastifyPlugin } from "trpc-playground/handlers/fastify";
 import process from "process";
 import { sequelize } from "./sequelize";
+import "./sequelize/relations";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import multipart from "@fastify/multipart";
@@ -39,7 +40,17 @@ const TRPC_PLAYGROUND_ENDPOINT = "/api/trpc-playground";
   fastify.get("/", (_req, res) => {
     res.status(200).send("Hello ✌ from thoughts server.");
   });
-  fastify.register(multipart);
+  fastify.register(multipart, {
+    limits: {
+      fieldNameSize: 100, // Max field name size in bytes
+      fieldSize: 100, // Max field value size in bytes
+      fields: 10, // Max number of non-file fields
+      fileSize: 1e7, // For multipart forms, the max file size in bytes
+      files: 1, // Max number of file fields
+      headerPairs: 2000, // Max number of header key=>value pairs
+      parts: 1000, // For multipart forms, the max number of parts (fields + files)
+    },
+  });
   fastify.register(fastifyStatic, {
     root: path.resolve(path.join(__dirname.replace("src", ""), "storage")),
     prefixAvoidTrailingSlash: true,

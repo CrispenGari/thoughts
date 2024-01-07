@@ -14,6 +14,7 @@ import { UserType } from "../../types";
 import { Op } from "sequelize";
 import { isValidPhoneNumber } from "../../utils/regexp";
 import { User } from "../../sequelize/user.model";
+import { Country } from "../../sequelize/country.model";
 
 const ee = new EventEmitter();
 export const userRouter = router({
@@ -77,7 +78,7 @@ export const userRouter = router({
   get: publicProcedure.input(getSchema).query(async ({ input: { id } }) => {
     try {
       const u = await User.findByPk(id, {
-        include: { all: true },
+        include: ["country"],
       });
       return !!u ? u.toJSON() : null;
     } catch (error) {
@@ -114,8 +115,16 @@ export const userRouter = router({
 
   updatePhoneNumber: publicProcedure
     .input(updatePhoneNumberSchema)
-    .mutation(async ({ ctx: { me }, input: { phoneNumber } }) => {
+    .mutation(async ({ ctx: { me }, input: { user, country } }) => {
       try {
+        const phoneNumber = user.phoneNumber.startsWith("+")
+          ? user.phoneNumber
+          : `${country.phoneCode}${
+              user.phoneNumber.startsWith("0")
+                ? user.phoneNumber.substring(1)
+                : user.phoneNumber
+            }`.replace(/\s/g, "");
+
         if (!!!me) return { error: "You are not authenticated." };
         if (!isValidPhoneNumber(phoneNumber.trim())) {
           return {
@@ -126,15 +135,21 @@ export const userRouter = router({
           return {
             phoneNumber: me.phoneNumber,
           };
-        const user = await User.findOne({
+        const _user = await User.findOne({
           where: { phoneNumber: phoneNumber.trim() },
         });
 
-        if (!!user) {
+        if (!!_user) {
           return {
             error: "The phone number is taken.",
           };
         }
+        await Country.update(
+          {
+            ...country,
+          },
+          { where: { id: me.country?.id } }
+        );
         await User.update(
           { phoneNumber: phoneNumber.trim() },
           { where: { id: me.id } }

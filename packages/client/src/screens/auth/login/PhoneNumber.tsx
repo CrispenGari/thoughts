@@ -9,18 +9,34 @@ import { styles } from "../../../styles";
 import Divider from "../../../components/Divider/Divider";
 import Ripple from "../../../components/Ripple/Ripple";
 import { trpc } from "../../../utils/trpc";
+import { countries } from "../../../constants/countries";
+import { useCountryCodeStore } from "../../../store";
 
 const PhoneNumber: React.FunctionComponent<AuthNavProps<"PhoneNumber">> = ({
   navigation,
 }) => {
+  const { code } = useCountryCodeStore();
+  const [phoneInputState, setPhoneInputState] = React.useState({
+    country:
+      countries.find((c) => c.code.toLowerCase() === code) || countries[0],
+    number: "",
+  });
   const [state, setState] = React.useState({
     error: "",
   });
   const { mutateAsync, isLoading } =
     trpc.login.validatePhoneNumber.useMutation();
-  const [phoneNumber, setPhoneNumber] = React.useState("");
+
   const validateNumber = () => {
-    mutateAsync({ phoneNumber })
+    mutateAsync({
+      user: { phoneNumber: phoneInputState.number },
+      country: {
+        countryCode: phoneInputState.country.code,
+        phoneCode: phoneInputState.country.phone.code,
+        flag: phoneInputState.country.emoji,
+        name: phoneInputState.country.name,
+      },
+    })
       .then((res) => {
         if (!!res.error) {
           setState((state) => ({
@@ -32,8 +48,18 @@ const PhoneNumber: React.FunctionComponent<AuthNavProps<"PhoneNumber">> = ({
             ...state,
             error: "",
           }));
-          setPhoneNumber("");
-          navigation.replace("PinCode", { phoneNumber: res.phoneNumber! });
+
+          navigation.replace("PinCode", {
+            country: {
+              countryCode: phoneInputState.country.code,
+              phoneCode: phoneInputState.country.phone.code,
+              flag: phoneInputState.country.emoji,
+              name: phoneInputState.country.name,
+            },
+            user: {
+              phoneNumber: res.phoneNumber!,
+            },
+          });
         }
       })
       .catch((error) =>
@@ -107,7 +133,8 @@ const PhoneNumber: React.FunctionComponent<AuthNavProps<"PhoneNumber">> = ({
             </Text>
             <PhoneInput
               placeholder="123 456 789"
-              setPhoneNumber={setPhoneNumber}
+              setState={setPhoneInputState}
+              state={phoneInputState}
               containerStyle={{
                 borderColor: state.error ? COLORS.red : "transparent",
               }}

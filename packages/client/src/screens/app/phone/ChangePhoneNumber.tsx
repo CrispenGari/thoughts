@@ -13,34 +13,40 @@ import Ripple from "../../../components/Ripple/Ripple";
 import { trpc } from "../../../utils/trpc";
 import { useMeStore } from "../../../store";
 import parsePhoneNumber from "libphonenumber-js";
+import { countries } from "../../../constants/countries";
 
 const ChangePhoneNumber: React.FunctionComponent<
   AppNavProps<"UpdatePhoneNumber">
 > = ({ navigation }) => {
   const { me, setMe } = useMeStore();
   const { os } = usePlatform();
+
+  const [phoneInputState, setPhoneInputState] = React.useState({
+    country:
+      countries.find(
+        (c) => c.code.toLowerCase() === me?.country?.countryCode.toLowerCase()
+      ) || countries[0],
+    number: !!me
+      ? (parsePhoneNumber(me.phoneNumber)?.nationalNumber as string)
+      : "",
+  });
   const [state, setState] = React.useState({
     error: "",
     defaultPhoneCountryCode: "",
   });
   const { isLoading, mutateAsync } = trpc.user.updatePhoneNumber.useMutation();
-  const [phoneNumber, setPhoneNumber] = React.useState("");
-
-  React.useEffect(() => {
-    if (!!me) {
-      const parsed = parsePhoneNumber(me.phoneNumber);
-      if (parsed) {
-        setPhoneNumber(parsed.nationalNumber);
-        setState((state) => ({
-          ...state,
-          defaultPhoneCountryCode: "+".concat(parsed.countryCallingCode),
-        }));
-      }
-    }
-  }, [me]);
-
   const updatePhoneNumber = () => {
-    mutateAsync({ phoneNumber }).then((res) => {
+    mutateAsync({
+      user: {
+        phoneNumber: phoneInputState.number,
+      },
+      country: {
+        countryCode: phoneInputState.country.code,
+        phoneCode: phoneInputState.country.phone.code,
+        flag: phoneInputState.country.emoji,
+        name: phoneInputState.country.name,
+      },
+    }).then((res) => {
       if (!!res.error) {
         setState((state) => ({ ...state, error: res.error }));
       } else {
@@ -62,7 +68,7 @@ const ChangePhoneNumber: React.FunctionComponent<
       },
       headerStyle: {
         backgroundColor: COLORS.tertiary,
-        height: 80,
+        height: 100,
       },
       headerLeft: () => (
         <AppStackBackButton
@@ -105,8 +111,8 @@ const ChangePhoneNumber: React.FunctionComponent<
             </Text>
             <PhoneInput
               placeholder="123 456 789"
-              defaultPhoneNumber={phoneNumber}
-              defaultPhoneCountryCode={state.defaultPhoneCountryCode}
+              setState={setPhoneInputState}
+              state={phoneInputState}
               containerStyle={{
                 borderColor: state.error ? COLORS.red : "transparent",
               }}

@@ -8,7 +8,7 @@ const getMe = async (jwt: string | undefined): Promise<UserType | null> => {
   if (!!!jwt) return null;
   try {
     const { id } = await verifyJwt(jwt);
-    const me = await User.findByPk(id);
+    const me = await User.findByPk(id, { include: ["country"] });
     return !!me ? me.toJSON() : null;
   } catch (error) {
     return null;

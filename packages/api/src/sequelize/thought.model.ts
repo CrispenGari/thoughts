@@ -1,8 +1,6 @@
 import { ModelDefined, DataTypes } from "sequelize";
 import { sequelize } from ".";
 import { ThoughtType } from "../types";
-import { Comment } from "./comment.model";
-import { User } from "./user.model";
 
 export const Thought: ModelDefined<
   Required<ThoughtType>,
@@ -22,14 +20,3 @@ export const Thought: ModelDefined<
   },
   { freezeTableName: true, timestamps: true }
 );
-
-Thought.belongsTo(User, {
-  onDelete: "RESTRICT",
-  onUpdate: "CASCADE",
-  foreignKey: "userId",
-});
-Thought.hasMany(Comment, {
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-  foreignKey: "commentId",
-});

@@ -7,7 +7,7 @@ export type AuthParamList = {
   Landing: undefined;
   NewPin: { phoneNumber: string };
   PhoneNumber: undefined;
-  PinCode: { phoneNumber: string };
+  PinCode: { user: { phoneNumber: string }; country: CountryType };
   SetPhoneNumber: undefined;
   SetPin: { user: { phoneNumber: string }; country: CountryType };
   ConfirmPin: {

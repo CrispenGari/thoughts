@@ -19,14 +19,13 @@ const PinCode: React.FunctionComponent<AuthNavProps<"PinCode">> = ({
   const [state, setState] = React.useState({
     error: "",
     pin: "",
-    phoneNumber: route.params.phoneNumber,
   });
   const [pin, setPin] = React.useState<string>("");
   const { mutateAsync, isLoading } = trpc.login.loginOrFail.useMutation();
   const login = () => {
     mutateAsync({
-      phoneNumber: state.phoneNumber,
-      pin: state.pin,
+      user: { phoneNumber: route.params.user.phoneNumber, pin: state.pin },
+      country: route.params.country,
     }).then(async (res) => {
       if (!!res.error) {
         setState((state) => ({ ...state, error: res.error }));

@@ -12,16 +12,22 @@ import { User } from "../../sequelize/user.model";
 export const loginRouter = router({
   validatePhoneNumber: publicProcedure
     .input(validatePhoneNumberSchema)
-    .mutation(async ({ input: { phoneNumber } }) => {
+    .mutation(async ({ input: { user, country } }) => {
       try {
-        const me = await User.findOne({
-          where: { phoneNumber: phoneNumber.trim() },
-        });
+        const phoneNumber = `${country.phoneCode}${
+          user.phoneNumber.startsWith("0")
+            ? user.phoneNumber.substring(1)
+            : user.phoneNumber
+        }`.replace(/\s/g, "");
         if (!isValidPhoneNumber(phoneNumber.trim())) {
           return {
             error: "Invalid phone number.",
           };
         }
+        const me = await User.findOne({
+          where: { phoneNumber: phoneNumber.trim() },
+        });
+
         if (!!!me) {
           return {
             error: "The phone number does not have an account with us.",
@@ -34,11 +40,17 @@ export const loginRouter = router({
         };
       }
     }),
-
   loginOrFail: publicProcedure
     .input(loginOrFailSchema)
-    .mutation(async ({ input: { phoneNumber, pin } }) => {
+    .mutation(async ({ input: { user, country } }) => {
       try {
+        const phoneNumber = user.phoneNumber.startsWith("+")
+          ? user.phoneNumber
+          : `${country.phoneCode}${
+              user.phoneNumber.startsWith("0")
+                ? user.phoneNumber.substring(1)
+                : user.phoneNumber
+            }`.replace(/\s/g, "");
         const me = await User.findOne({
           where: { phoneNumber: phoneNumber.trim() },
         });
@@ -54,7 +66,7 @@ export const loginRouter = router({
               "You have exceeded the pin trials, your account has been blocked.",
           };
         }
-        const valid = await verify(__me.pin, pin);
+        const valid = await verify(__me.pin, user.pin);
         if (!valid) {
           await me.increment("pinTrials", { by: 1 });
           const uu = await me.save();
@@ -64,7 +76,6 @@ export const loginRouter = router({
             } left!`,
           };
         }
-
         const __u = await me.update({
           pinTrials: 0,
           online: true,
