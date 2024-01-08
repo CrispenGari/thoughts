@@ -6,12 +6,29 @@ import { getContactNumbers } from "../../utils";
 import { COLORS } from "../../constants";
 import { styles } from "../../styles";
 import { trpc } from "../../utils/trpc";
+import { useMeStore } from "../../store";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { AppParamList } from "../../params";
 
-const Contacts = () => {
+interface Props {
+  navigation: StackNavigationProp<AppParamList, "Home">;
+}
+const Contacts: React.FunctionComponent<Props> = ({ navigation }) => {
   const { contacts } = useContacts();
   const contactNumbers = getContactNumbers(contacts);
+  const { me } = useMeStore();
+  const { data, refetch } = trpc.user.all.useQuery();
 
-  const { data } = trpc.user.all.useQuery();
+  trpc.register.onNewUser.useSubscription(
+    {
+      userId: me?.id || 0,
+    },
+    {
+      onData: async (data) => {
+        await refetch();
+      },
+    }
+  );
   return (
     <SafeAreaView style={{ backgroundColor: COLORS.primary }}>
       <View
@@ -53,7 +70,17 @@ const Contacts = () => {
           keyExtractor={({ id }) => id.toString()}
           horizontal
           renderItem={({ item }) => {
-            return <Contact contact={item} />;
+            return (
+              <Contact
+                contact={item}
+                onPress={() => {
+                  navigation.navigate("Profile", {
+                    isMe: false,
+                    userId: item.id,
+                  });
+                }}
+              />
+            );
           }}
         />
       </View>

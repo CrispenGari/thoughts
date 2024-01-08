@@ -110,13 +110,21 @@ const UserProfile: React.FunctionComponent<Props> = ({
                 onLoad={() => {
                   setState((state) => ({ ...state, loaded: true }));
                 }}
-                source={{
-                  uri: !!state.image
-                    ? state.image.uri
-                    : !!state.imageUrl
-                    ? serverBaseHttpURL.concat(state.imageUrl)
-                    : Image.resolveAssetSource(profile).uri,
-                }}
+                source={
+                  isMe
+                    ? {
+                        uri: !!state.image
+                          ? state.image.uri
+                          : !!state.imageUrl
+                          ? serverBaseHttpURL.concat(state.imageUrl)
+                          : Image.resolveAssetSource(profile).uri,
+                      }
+                    : {
+                        uri: !!user
+                          ? serverBaseHttpURL.concat(user?.avatar || "")
+                          : Image.resolveAssetSource(profile).uri,
+                      }
+                }
                 style={{
                   width: 130,
                   height: 130,

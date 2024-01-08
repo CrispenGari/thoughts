@@ -215,13 +215,13 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
     }
   }, [state]);
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ flex: 1 }}
-    >
-      <View style={{ flex: 1 }}>
-        <LinearGradientProvider>
+    <LinearGradientProvider>
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ flex: 1 }}
+      >
+        <View style={{ flex: 1 }}>
           <View
             style={{
               flex: 1,
@@ -470,9 +470,9 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
               ) : null}
             </View>
           </View>
-        </LinearGradientProvider>
-      </View>
-    </KeyboardAwareScrollView>
+        </View>
+      </KeyboardAwareScrollView>
+    </LinearGradientProvider>
   );
 };
 

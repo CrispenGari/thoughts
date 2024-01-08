@@ -14,16 +14,19 @@ export const loginRouter = router({
     .input(validatePhoneNumberSchema)
     .mutation(async ({ input: { user, country } }) => {
       try {
-        const phoneNumber = `${country.phoneCode}${
-          user.phoneNumber.startsWith("0")
-            ? user.phoneNumber.substring(1)
-            : user.phoneNumber
-        }`.replace(/\s/g, "");
+        const phoneNumber = user.phoneNumber.startsWith("+")
+          ? user.phoneNumber
+          : `${country.phoneCode}${
+              user.phoneNumber.startsWith("0")
+                ? user.phoneNumber.substring(1)
+                : user.phoneNumber
+            }`.replace(/\s/g, "");
         if (!isValidPhoneNumber(phoneNumber.trim())) {
           return {
             error: "Invalid phone number.",
           };
         }
+
         const me = await User.findOne({
           where: { phoneNumber: phoneNumber.trim() },
         });
@@ -51,6 +54,7 @@ export const loginRouter = router({
                 ? user.phoneNumber.substring(1)
                 : user.phoneNumber
             }`.replace(/\s/g, "");
+
         const me = await User.findOne({
           where: { phoneNumber: phoneNumber.trim() },
         });

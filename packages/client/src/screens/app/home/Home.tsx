@@ -15,7 +15,7 @@ const Home = ({ navigation }: AppNavProps<"Home">) => {
   return (
     <LinearGradientProvider>
       <MyThought />
-      <Contacts />
+      <Contacts navigation={navigation} />
     </LinearGradientProvider>
   );
 };
