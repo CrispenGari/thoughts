@@ -6,6 +6,7 @@ import {
   onUserUpdateSchema,
   statusUpdateSchema,
   updatePhoneNumberSchema,
+  updateProfileSchema,
 } from "../../schema/user.schema";
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
@@ -15,6 +16,12 @@ import { Op } from "sequelize";
 import { isValidPhoneNumber } from "../../utils/regexp";
 import { User } from "../../sequelize/user.model";
 import { Country } from "../../sequelize/country.model";
+import path from "path";
+import fs from "fs/promises";
+import { existsSync } from "fs";
+const storagePath = path.resolve(
+  path.join(__dirname.replace(`\\src\\routes\\user`, ""), "storage", "images")
+);
 
 const ee = new EventEmitter();
 export const userRouter = router({
@@ -40,6 +47,8 @@ export const userRouter = router({
       return observable<UserType>((emit) => {
         const handler = (payload: UserType) => {
           if (payload.id !== userId) {
+            emit.next(payload);
+          } else {
             emit.next(payload);
           }
         };
@@ -162,6 +171,52 @@ export const userRouter = router({
       } catch (error: any) {
         return {
           error: "Failed to update phone number for whatever reason.",
+        };
+      }
+    }),
+
+  updateProfile: publicProcedure
+    .input(updateProfileSchema)
+    .mutation(async ({ input: { name, image }, ctx: { me } }) => {
+      try {
+        if (!!!me) {
+          return {
+            error: "You are not authenticated.",
+            success: false,
+          };
+        }
+        if (name.trim().length < 3 || name.trim().length >= 20) {
+          return {
+            success: false,
+            error:
+              "The name must have a minimum of 3 characters and a maximum of 20 characters.",
+          };
+        }
+        // delete the old image
+        if (me.avatar !== image || !!!image) {
+          const imageName = me.avatar?.replace("/api/storage/images/", "");
+          if (!!imageName) {
+            const absPath = path.resolve(path.join(storagePath, imageName));
+            const exists = existsSync(absPath);
+            if (exists) {
+              await fs.unlink(absPath);
+            }
+          }
+        }
+        await User.update(
+          {
+            name: name.trim(),
+            avatar: image ? image : undefined,
+          },
+          { where: { id: me.id } }
+        );
+
+        ee.emit(Events.ON_USER_UPDATE, { ...me, avatar: image });
+        return { success: true };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.message,
         };
       }
     }),

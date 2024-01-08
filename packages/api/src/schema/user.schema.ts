@@ -11,6 +11,10 @@ export const contactsSchema = z.object({
 export const contactSchema = z.object({
   id: z.number(),
 });
+export const updateProfileSchema = z.object({
+  image: z.string().nullable(),
+  name: z.string(),
+});
 
 export const getSchema = z.object({ id: z.number() });
 export const statusUpdateSchema = z.object({ status: z.boolean() });

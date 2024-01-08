@@ -20,7 +20,7 @@ import { useMeStore, useSubscriptionsStore } from "../../store";
 const Stack = createStackNavigator<AppParamList>();
 
 export const AppTabs = () => {
-  const { me } = useMeStore();
+  const { me, setMe } = useMeStore();
   const { setUser, setThought } = useSubscriptionsStore();
   // listen to all subscriptions here
   trpc.thought.onUpdate.useSubscription(
@@ -53,6 +53,17 @@ export const AppTabs = () => {
     { userId: me?.id || 0 },
     {
       onData: (data) => {
+        setUser(data.id || 0);
+      },
+    }
+  );
+  trpc.user.onUserUpdate.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: (data) => {
+        if (data.id === me?.id) {
+          setMe(data);
+        }
         setUser(data.id || 0);
       },
     }

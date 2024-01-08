@@ -18,7 +18,7 @@ export const COLORS = {
   white: "white",
   red: "#FF3953",
   black: "#000000",
-  gray: "#f5f5f5",
+  gray: "#9D9C9D",
 };
 export const Fonts = {
   PhilosopherItalic: require("../../assets/fonts/Philosopher-Italic.ttf"),
@@ -35,3 +35,19 @@ export const FONTS = {
 
 export const logo = require("../../assets/logo.png");
 export const profile = require("../../assets/profile.png");
+
+export const relativeTimeObject = {
+  future: "in %s",
+  past: "%s",
+  s: "now",
+  m: "1m",
+  mm: "%dm",
+  h: "1h",
+  hh: "%dh",
+  d: "1d",
+  dd: "%dd",
+  M: "1M",
+  MM: "%dM",
+  y: "1y",
+  yy: "%dy",
+};

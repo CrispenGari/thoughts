@@ -8,16 +8,23 @@ import { trpc } from "../../utils/trpc";
 import Form from "../Form/Form";
 import EditThought from "../Form/EditThought";
 import { useMeStore, useSubscriptionsStore } from "../../store";
+import Circular from "../Circular/Circular";
+import ContentLoader from "../ContentLoader/ContentLoader";
+import ImageViewer from "../ImageViewer/ImageViewer";
 
 const MyThought = () => {
   const { thought: thoughtPayload, setThought } = useSubscriptionsStore();
   const { me } = useMeStore();
+  const [openImageViewer, setOpenImageViewer] = React.useState(false);
+  const toggleImageViewer = () => setOpenImageViewer((state) => !state);
+
   const [openCreateForm, setOpenCreateForm] = React.useState(false);
   const toggleCreateForm = () => setOpenCreateForm((state) => !state);
   const [openEditThought, setOpenEditThought] = React.useState(false);
   const toggleEditThought = () => setOpenEditThought((state) => !state);
   const { data: thought, refetch: refetchMyThought } =
     trpc.thought.get.useQuery();
+  const [loaded, setLoaded] = React.useState(true);
 
   React.useEffect(() => {
     if (!!thoughtPayload && !!me) {
@@ -39,6 +46,16 @@ const MyThought = () => {
         alignItems: "center",
       }}
     >
+      <Modal
+        open={openImageViewer}
+        toggle={toggleImageViewer}
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <ImageViewer user={me} isMe={true} />
+      </Modal>
       {thought ? (
         <Modal open={openEditThought} toggle={toggleEditThought}>
           <EditThought thought={thought} toggle={toggleEditThought} />
@@ -131,20 +148,61 @@ const MyThought = () => {
               <Ionicons name="add" size={18} color={COLORS.white} />
             </TouchableOpacity>
           ) : null}
-          <Image
+
+          {!loaded ? (
+            <ContentLoader
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 100,
+                marginBottom: 3,
+                backgroundColor: COLORS.gray,
+                overflow: "hidden",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Circular
+                size={20}
+                trackColor={COLORS.primary}
+                color={COLORS.tertiary}
+              />
+            </ContentLoader>
+          ) : null}
+          <TouchableOpacity
             style={{
-              width: 100,
-              height: 100,
-              borderRadius: 100,
-              marginBottom: 3,
-              resizeMode: "contain",
+              display: loaded ? "flex" : "none",
             }}
-            source={{
-              uri: !!me?.avatar
-                ? serverBaseHttpURL.concat(me.avatar)
-                : Image.resolveAssetSource(profile).uri,
-            }}
-          />
+            activeOpacity={0.7}
+            onPress={toggleImageViewer}
+          >
+            <Image
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 100,
+                marginBottom: 3,
+                resizeMode: "contain",
+              }}
+              onError={(error) => {
+                setLoaded(true);
+              }}
+              onLoadEnd={() => {
+                setLoaded(true);
+              }}
+              onLoadStart={() => {
+                setLoaded(false);
+              }}
+              onLoad={() => {
+                setLoaded(true);
+              }}
+              source={{
+                uri: !!me?.avatar
+                  ? serverBaseHttpURL.concat(me.avatar)
+                  : Image.resolveAssetSource(profile).uri,
+              }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     </View>

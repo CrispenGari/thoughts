@@ -39,7 +39,10 @@ export type AppParamList = {
   BlockedContact: undefined;
   ChangePin: undefined;
   Notifications: undefined;
-  Profile: undefined;
+  Profile: {
+    userId: number;
+    isMe: boolean;
+  };
   AppTermsOfUse: {
     from: keyof AppParamList;
   };

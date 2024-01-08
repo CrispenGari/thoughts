@@ -6,12 +6,15 @@ import { COLORS, logo } from "../../constants";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AppParamList } from "../../params";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useMeStore } from "../../store";
 
 const AppHeader = ({
   navigation,
 }: {
   navigation: StackNavigationProp<AppParamList, "Home">;
 }) => {
+  const { me } = useMeStore();
+
   return (
     <View
       style={{
@@ -36,7 +39,13 @@ const AppHeader = ({
       />
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
-          onPress={() => navigation.navigate("Profile")}
+          onPress={() => {
+            if (!!!me) return;
+            navigation.navigate("Profile", {
+              userId: me.id!,
+              isMe: true,
+            });
+          }}
           activeOpacity={0.7}
           style={{
             justifyContent: "center",

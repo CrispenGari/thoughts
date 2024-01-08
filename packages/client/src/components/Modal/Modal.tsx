@@ -1,4 +1,11 @@
-import { View, Text, Modal as M, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Modal as M,
+  TouchableOpacity,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import React from "react";
 import { styles } from "../../styles";
 import { COLORS } from "../../constants";
@@ -8,9 +15,15 @@ interface Props {
   open: boolean;
   toggle: () => void;
   children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
-const Modal: React.FunctionComponent<Props> = ({ open, toggle, children }) => {
+const Modal: React.FunctionComponent<Props> = ({
+  open,
+  toggle,
+  children,
+  style,
+}) => {
   return (
     <M
       animationType="fade"
@@ -24,13 +37,16 @@ const Modal: React.FunctionComponent<Props> = ({ open, toggle, children }) => {
         contentContainerStyle={{ flex: 1 }}
       >
         <View
-          style={{
-            flex: 1,
-            justifyContent: "flex-end",
-            alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, .3)",
-            padding: 5,
-          }}
+          style={[
+            {
+              flex: 1,
+              justifyContent: "flex-end",
+              alignItems: "center",
+              backgroundColor: "rgba(0, 0, 0, .3)",
+              padding: 5,
+            },
+            style,
+          ]}
         >
           {children}
           <TouchableOpacity
