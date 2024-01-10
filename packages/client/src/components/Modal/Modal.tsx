@@ -1,5 +1,4 @@
 import {
-  View,
   Text,
   Modal as M,
   TouchableOpacity,
@@ -36,7 +35,9 @@ const Modal: React.FunctionComponent<Props> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ flex: 1 }}
       >
-        <View
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={toggle}
           style={[
             {
               flex: 1,
@@ -68,7 +69,7 @@ const Modal: React.FunctionComponent<Props> = ({
               close
             </Text>
           </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       </KeyboardAwareScrollView>
     </M>
   );

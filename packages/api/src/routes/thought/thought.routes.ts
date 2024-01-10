@@ -144,6 +144,7 @@ export const thoughtRouter = router({
       if (!!!me) return null;
       const payload = await Thought.findOne({
         where: { userId: me.id },
+        include: ["user"],
       });
       return !!payload ? payload.toJSON() : null;
     } catch (error) {
@@ -156,6 +157,7 @@ export const thoughtRouter = router({
       try {
         const payload = await Thought.findOne({
           where: { userId },
+          include: ["user"],
         });
         return !!payload ? payload.toJSON() : null;
       } catch (error) {

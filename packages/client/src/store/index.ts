@@ -1,4 +1,4 @@
-import { UserType } from "@thoughts/api/src/types";
+import { UserType, NotificationType } from "@thoughts/api/src/types";
 import { create } from "zustand";
 
 export const useMeStore = create<{
@@ -15,6 +15,20 @@ export const useCountryCodeStore = create<{
 }>((set) => ({
   code: null,
   setCode: (code) => set({ code }),
+}));
+
+export const useNotificationsStore = create<{
+  notifications: NotificationType[];
+  isFetching: boolean;
+  setNotifications: (
+    notifications: NotificationType[],
+    isFetching: boolean
+  ) => void;
+}>((set) => ({
+  notifications: [],
+  isFetching: false,
+  setNotifications: (notifications, isFetching) =>
+    set({ notifications, isFetching }),
 }));
 
 export const useSubscriptionsStore = create<{

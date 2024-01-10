@@ -6,7 +6,7 @@ import Contacts from "../../../components/Contacts/Contacts";
 import { AppNavProps } from "../../../params";
 import AppHeader from "../../../components/AppHeader/AppHeader";
 
-const Home = ({ navigation }: AppNavProps<"Home">) => {
+const Home: React.FunctionComponent<AppNavProps<"Home">> = ({ navigation }) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       header: (props) => <AppHeader {...props} navigation={navigation} />,

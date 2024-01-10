@@ -77,7 +77,7 @@ const SetPhoneNumber: React.FunctionComponent<
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ flex: 1 }}
     >
-      <View style={{ flex: 1, backgroundColor: "red" }}>
+      <View style={{ flex: 1 }}>
         <LinearGradientProvider>
           <View
             style={{

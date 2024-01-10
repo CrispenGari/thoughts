@@ -49,6 +49,11 @@ export type AppParamList = {
   AppPrivacyPolicy: {
     from: keyof AppParamList;
   };
+  Thought: {
+    id: number;
+    notificationId: number;
+    read: boolean;
+  };
 };
 
 export type AppNavProps<T extends keyof AppParamList> = {

@@ -6,7 +6,7 @@ import { COLORS, logo } from "../../constants";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AppParamList } from "../../params";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useMeStore } from "../../store";
+import { useMeStore, useNotificationsStore } from "../../store";
 
 const AppHeader = ({
   navigation,
@@ -14,6 +14,7 @@ const AppHeader = ({
   navigation: StackNavigationProp<AppParamList, "Home">;
 }) => {
   const { me } = useMeStore();
+  const { notifications } = useNotificationsStore();
 
   return (
     <View
@@ -72,6 +73,20 @@ const AppHeader = ({
             backgroundColor: COLORS.tertiary,
           }}
         >
+          {notifications.filter((n) => !n.read).length !== 0 ? (
+            <View
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: 10,
+                zIndex: 1,
+                top: 5,
+                right: 3,
+                backgroundColor: COLORS.red,
+                position: "absolute",
+              }}
+            />
+          ) : null}
           <Ionicons name="notifications" size={24} color={COLORS.main} />
         </TouchableOpacity>
         <TouchableOpacity

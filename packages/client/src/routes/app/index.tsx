@@ -12,16 +12,28 @@ import {
   BlockedContacts,
   ChangePin,
   UpdatePhoneNumber,
+  Thought,
 } from "../../screens/app";
 import { AppState } from "react-native";
 import { trpc } from "../../utils/trpc";
-import { useMeStore, useSubscriptionsStore } from "../../store";
+import {
+  useMeStore,
+  useNotificationsStore,
+  useSubscriptionsStore,
+} from "../../store";
 
 const Stack = createStackNavigator<AppParamList>();
 
 export const AppTabs = () => {
   const { me, setMe } = useMeStore();
   const { setUser, setThought } = useSubscriptionsStore();
+  const { setNotifications } = useNotificationsStore();
+  const {
+    data: notifications,
+    isFetching: fetchingNotifications,
+    refetch: refetchNotifications,
+  } = trpc.notification.all.useQuery();
+
   // listen to all subscriptions here
   trpc.thought.onUpdate.useSubscription(
     { userId: me?.id || 0 },
@@ -68,12 +80,44 @@ export const AppTabs = () => {
       },
     }
   );
-
+  trpc.comment.onNewCommentNotification.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+      },
+    }
+  );
+  trpc.notification.onRead.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+      },
+    }
+  );
+  trpc.notification.onUnRead.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+      },
+    }
+  );
+  trpc.notification.onDelete.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+      },
+    }
+  );
   const { mutateAsync } = trpc.user.statusUpdate.useMutation();
   const appState = React.useRef(AppState.currentState);
   const [isOnline, setIsOnline] = React.useState<boolean>(
     appState.current === "active"
   );
+
   React.useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       setIsOnline(nextAppState === "active");
@@ -86,6 +130,12 @@ export const AppTabs = () => {
   React.useEffect(() => {
     mutateAsync({ status: isOnline }).then((res) => {});
   }, [isOnline]);
+
+  React.useEffect(() => {
+    if (!!notifications) {
+      setNotifications(notifications, fetchingNotifications);
+    }
+  }, [notifications, fetchingNotifications, setNotifications]);
 
   return (
     <Stack.Navigator
@@ -102,6 +152,7 @@ export const AppTabs = () => {
       }}
     >
       <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="Thought" component={Thought} />
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="Notifications" component={Notifications} />

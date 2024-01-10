@@ -1,21 +1,26 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { CommentType } from "../types";
+import { NotificationType } from "../types";
 
-export const Comment: ModelDefined<
-  Required<CommentType>,
-  CommentType
+export const Notification: ModelDefined<
+  Required<NotificationType>,
+  NotificationType
 > = sequelize.define(
-  "comments",
+  "notifications",
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    text: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    read: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   { freezeTableName: true, timestamps: true }

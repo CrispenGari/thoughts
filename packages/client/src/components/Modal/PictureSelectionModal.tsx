@@ -1,4 +1,4 @@
-import { View, Modal as M } from "react-native";
+import { Modal as M, TouchableOpacity } from "react-native";
 import React from "react";
 
 interface Props {
@@ -19,7 +19,7 @@ const PictureSelectionModal: React.FunctionComponent<Props> = ({
       visible={open}
       onRequestClose={toggle}
     >
-      <View
+      <TouchableOpacity
         style={{
           flex: 1,
           justifyContent: "flex-end",
@@ -27,9 +27,11 @@ const PictureSelectionModal: React.FunctionComponent<Props> = ({
           backgroundColor: "rgba(0, 0, 0, .3)",
           padding: 5,
         }}
+        activeOpacity={0.7}
+        onPress={toggle}
       >
         {children}
-      </View>
+      </TouchableOpacity>
     </M>
   );
 };

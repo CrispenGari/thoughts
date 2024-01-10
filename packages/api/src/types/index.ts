@@ -1,7 +1,33 @@
 export interface ThoughtType {
   id?: number;
   text: string;
+  userId: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  // relations
+  user?: UserType;
+}
+export interface NotificationType {
+  id?: number;
+  title: string;
+  thoughtId: number;
+  userId: number;
+  read: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  // relations
+  user?: UserType;
+  thought?: ThoughtType;
+}
+
+export interface CommentType {
+  id?: number;
+  text: string;
   userId?: number;
+  commentId?: number;
+  thoughtId?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CountryType {
@@ -11,6 +37,8 @@ export interface CountryType {
   flag: string;
   countryCode: string;
   userId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface UserType {

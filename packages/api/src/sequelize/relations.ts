@@ -1,5 +1,6 @@
 import { Comment } from "./comment.model";
 import { Country } from "./country.model";
+import { Notification } from "./notification.model";
 import { Thought } from "./thought.model";
 import { User } from "./user.model";
 
@@ -35,3 +36,21 @@ Comment.belongsTo(User, {
   onUpdate: "CASCADE",
   foreignKey: "userId",
 });
+
+// NOTIFICATION AND USER
+User.hasMany(Notification, {});
+Notification.belongsTo(User, {
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  foreignKey: "userId",
+});
+
+// NOTIFICATION AND THOUGHT
+Thought.hasMany(Notification, {});
+Notification.belongsTo(Thought, {
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  foreignKey: "thoughtId",
+});
+// COMMENT TO COMMENT
+Comment.hasMany(Comment, { as: "replies" });
