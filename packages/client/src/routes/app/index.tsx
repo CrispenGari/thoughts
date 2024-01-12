@@ -28,11 +28,8 @@ export const AppTabs = () => {
   const { me, setMe } = useMeStore();
   const { setUser, setThought } = useSubscriptionsStore();
   const { setNotifications } = useNotificationsStore();
-  const {
-    data: notifications,
-    isFetching: fetchingNotifications,
-    refetch: refetchNotifications,
-  } = trpc.notification.all.useQuery();
+  const { data: notifications, refetch: refetchNotifications } =
+    trpc.notification.all.useQuery();
 
   // listen to all subscriptions here
   trpc.thought.onUpdate.useSubscription(
@@ -96,14 +93,7 @@ export const AppTabs = () => {
       },
     }
   );
-  trpc.notification.onUnRead.useSubscription(
-    { userId: me?.id || 0 },
-    {
-      onData: async (data) => {
-        await refetchNotifications();
-      },
-    }
-  );
+
   trpc.notification.onDelete.useSubscription(
     { userId: me?.id || 0 },
     {
@@ -133,9 +123,9 @@ export const AppTabs = () => {
 
   React.useEffect(() => {
     if (!!notifications) {
-      setNotifications(notifications, fetchingNotifications);
+      setNotifications(notifications);
     }
-  }, [notifications, fetchingNotifications, setNotifications]);
+  }, [notifications, setNotifications]);
 
   return (
     <Stack.Navigator

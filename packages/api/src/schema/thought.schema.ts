@@ -6,6 +6,9 @@ export const createSchema = z.object({
 export const onUpdateSchema = z.object({
   userId: z.number(),
 });
+export const getByIdSchema = z.object({
+  id: z.number(),
+});
 export const onDeleteSchema = z.object({
   userId: z.number(),
 });

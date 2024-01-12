@@ -3,6 +3,7 @@ import {
   createSchema,
   onCreateSchema,
   onNewCommentNotificationSchema,
+  replySchema,
 } from "../../schema/comment.schema";
 import { Comment } from "../../sequelize/comment.model";
 import { Thought } from "../../sequelize/thought.model";
@@ -61,7 +62,35 @@ export const commentRouter = router({
           userId: me.id,
         });
         const notification = await Notification.create({
-          title: `${me.name} commented on your thought.`,
+          title: `comment(s) on your thought.`,
+          thoughtId: thought.toJSON().id,
+          userId: thought.toJSON().userId,
+          read: false,
+        });
+
+        ee.emit(Events.ON_NEW_NOTIFICATION, notification);
+        ee.emit(Events.ON_CREATE_COMMENT, comment);
+        return { success: true };
+      } catch (error) {
+        return { success: false };
+      }
+    }),
+  reply: publicProcedure
+    .input(replySchema)
+    .mutation(async ({ ctx: { me }, input: { commentId, text } }) => {
+      try {
+        if (!!!text.trim()) return { success: false };
+        if (!!!me) return { success: false };
+        const cmt = await Comment.findByPk(commentId);
+        if (!!!cmt) return { success: false };
+        const comment = await Comment.create({
+          text: text.trim(),
+          thoughtId: thought.toJSON().id,
+          userId: me.id,
+          replyId: cmt.id,
+        });
+        const notification = await Notification.create({
+          title: `comment(s) on your thought.`,
           thoughtId: thought.toJSON().id,
           userId: thought.toJSON().userId,
           read: false,

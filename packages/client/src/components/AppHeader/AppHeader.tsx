@@ -73,7 +73,7 @@ const AppHeader = ({
             backgroundColor: COLORS.tertiary,
           }}
         >
-          {notifications.filter((n) => !n.read).length !== 0 ? (
+          {notifications.unread?.length ? (
             <View
               style={{
                 width: 10,

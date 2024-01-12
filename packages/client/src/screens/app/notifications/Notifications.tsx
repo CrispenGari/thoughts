@@ -11,6 +11,7 @@ import Notification from "../../../components/Notification/Notification";
 import { RefreshControl } from "react-native-gesture-handler";
 import { trpc } from "../../../utils/trpc";
 import { styles } from "../../../styles";
+import * as lodash from "lodash";
 
 const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
   navigation,
@@ -25,7 +26,7 @@ const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
 
   React.useEffect(() => {
     if (!!notifications) {
-      setNotifications(notifications, fetching);
+      setNotifications(notifications);
     }
   }, [notifications, fetching]);
 
@@ -80,7 +81,7 @@ const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
         >
           <Divider color={COLORS.tertiary} title="UNREAD NOTIFICATIONS" />
 
-          {notifications?.filter((n) => !n.read).length === 0 ? (
+          {!!!notifications?.unread || notifications.unread.length === 0 ? (
             <View
               style={{
                 justifyContent: "center",
@@ -93,19 +94,21 @@ const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
               </Text>
             </View>
           ) : (
-            notifications
-              ?.filter((n) => !n.read)
+            Object.entries(
+              lodash.groupBy(notifications.unread, (not) => not.thoughtId)
+            )
+              .map(([id, not], i) => ({ id, not }))
               .map((not) => (
                 <Notification
                   key={not.id}
                   navigation={navigation}
-                  notification={not}
+                  notifications={not.not}
                   refetchNotifications={refetchNotifications}
                 />
               ))
           )}
           <Divider color={COLORS.tertiary} title="OLD NOTIFICATIONS" />
-          {notifications?.filter((n) => n.read).length === 0 ? (
+          {!!!notifications?.read || notifications.read.length === 0 ? (
             <View
               style={{
                 justifyContent: "center",
@@ -118,13 +121,15 @@ const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
               </Text>
             </View>
           ) : (
-            notifications
-              ?.filter((n) => n.read)
+            Object.entries(
+              lodash.groupBy(notifications.read, (not) => not.thoughtId)
+            )
+              .map(([id, not], i) => ({ id, not }))
               .map((not) => (
                 <Notification
                   key={not.id}
                   navigation={navigation}
-                  notification={not}
+                  notifications={not.not}
                   refetchNotifications={refetchNotifications}
                 />
               ))

@@ -10,11 +10,7 @@ import dayjs from "dayjs";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
-import {
-  QueryObserverResult,
-  RefetchOptions,
-  RefetchQueryFilters,
-} from "react-query";
+
 import { trpc } from "../../utils/trpc";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
@@ -25,18 +21,17 @@ dayjs.updateLocale("en", {
 
 interface Props {
   refetchNotifications: () => Promise<any>;
-  notification: NotificationType;
+  notifications: NotificationType[];
   navigation: StackNavigationProp<AppParamList, "Notifications">;
 }
 const Notification: React.FunctionComponent<Props> = ({
   navigation,
-  notification,
+  notifications,
   refetchNotifications,
 }) => {
   const swipeableRef = React.useRef<Swipeable | undefined>();
-  const { mutateAsync: read } = trpc.notification.read.useMutation();
-  const { mutateAsync: unread } = trpc.notification.unRead.useMutation();
   const { mutateAsync: del } = trpc.notification.del.useMutation();
+  const notification = notifications[0];
   const open = () => {
     if (!!notification.thought?.id) {
       navigation.navigate("Thought", {
@@ -46,24 +41,7 @@ const Notification: React.FunctionComponent<Props> = ({
       });
     }
   };
-  const readNotification = () => {
-    if (notification.id) {
-      read({ id: notification.id }).then(async (res) => {
-        if (res.success) {
-          await refetchNotifications();
-        }
-      });
-    }
-  };
-  const unReadNotification = () => {
-    if (notification.id) {
-      unread({ id: notification.id }).then(async (res) => {
-        if (res.success) {
-          await refetchNotifications();
-        }
-      });
-    }
-  };
+
   const deleteNotification = () => {
     if (notification.id) {
       del({ id: notification.id }).then(async (res) => {
@@ -95,47 +73,6 @@ const Notification: React.FunctionComponent<Props> = ({
             >
               <MaterialIcons name="delete" size={24} color={COLORS.white} />
             </TouchableOpacity>
-            {notification.read ? (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  minWidth: 50,
-                  backgroundColor: COLORS.tertiary,
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                  height: "100%",
-                }}
-                onPress={unReadNotification}
-              >
-                <MaterialIcons
-                  name="mark-email-unread"
-                  size={24}
-                  color={COLORS.white}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  minWidth: 50,
-                  backgroundColor: COLORS.tertiary,
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                  height: "100%",
-                }}
-                onPress={readNotification}
-              >
-                <MaterialIcons
-                  name="mark-email-read"
-                  size={24}
-                  color={COLORS.white}
-                />
-              </TouchableOpacity>
-            )}
           </View>
         );
       }}
@@ -172,6 +109,7 @@ const Notification: React.FunctionComponent<Props> = ({
               },
             ]}
           >
+            {`${notifications.length} ${notification.read ? "old" : "new"}`}{" "}
             {notification.title}
           </Text>
         </View>

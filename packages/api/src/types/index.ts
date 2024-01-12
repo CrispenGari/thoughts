@@ -6,6 +6,7 @@ export interface ThoughtType {
   updatedAt?: Date;
   // relations
   user?: UserType;
+  comments?: CommentType[];
 }
 export interface NotificationType {
   id?: number;
@@ -28,6 +29,9 @@ export interface CommentType {
   thoughtId?: number;
   createdAt?: Date;
   updatedAt?: Date;
+
+  user?: UserType;
+  replies?: CommentType[];
 }
 
 export interface CountryType {

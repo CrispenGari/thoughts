@@ -6,6 +6,7 @@ import {
   onUpdateSchema,
   updateSchema,
   getUserThoughtSchema,
+  getByIdSchema,
 } from "../../schema/thought.schema";
 
 import { publicProcedure, router } from "../../trpc";
@@ -14,6 +15,7 @@ import { Events } from "../../constants";
 import { ThoughtType } from "../../types";
 import { Thought } from "../../sequelize/thought.model";
 import { User } from "../../sequelize/user.model";
+import { Comment } from "../../sequelize/comment.model";
 
 const ee = new EventEmitter();
 export const thoughtRouter = router({
@@ -83,7 +85,7 @@ export const thoughtRouter = router({
           };
         const payload = await Thought.create({
           text: thought.trim(),
-          userId: me.id,
+          userId: me.id!,
         });
         ee.emit(Events.ON_CREATE_THOUGHT, payload.toJSON());
         return { thought: payload.toJSON() };
@@ -139,6 +141,32 @@ export const thoughtRouter = router({
     }
   }),
 
+  getById: publicProcedure
+    .input(getByIdSchema)
+    .query(async ({ input: { id }, ctx: { me } }) => {
+      try {
+        if (!!!me) return null;
+        const payload = await Thought.findByPk(id, {
+          include: [
+            {
+              model: User,
+            },
+            {
+              model: Comment,
+              include: [
+                { model: User },
+                { model: Comment, as: "replies", include: ["user"] },
+              ],
+            },
+          ],
+        });
+        console.log(payload);
+        return !!payload ? payload.toJSON() : null;
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    }),
   get: publicProcedure.query(async ({ ctx: { me } }) => {
     try {
       if (!!!me) return null;

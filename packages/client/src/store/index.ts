@@ -17,18 +17,16 @@ export const useCountryCodeStore = create<{
   setCode: (code) => set({ code }),
 }));
 
+interface NType {
+  read?: NotificationType[];
+  unread?: NotificationType[];
+}
 export const useNotificationsStore = create<{
-  notifications: NotificationType[];
-  isFetching: boolean;
-  setNotifications: (
-    notifications: NotificationType[],
-    isFetching: boolean
-  ) => void;
+  notifications: NType;
+  setNotifications: (notifications: NType) => void;
 }>((set) => ({
-  notifications: [],
-  isFetching: false,
-  setNotifications: (notifications, isFetching) =>
-    set({ notifications, isFetching }),
+  notifications: { read: undefined, undefined: undefined },
+  setNotifications: (notifications) => set({ notifications }),
 }));
 
 export const useSubscriptionsStore = create<{
