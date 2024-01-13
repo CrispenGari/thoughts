@@ -130,13 +130,18 @@ export const thoughtRouter = router({
   del: publicProcedure.mutation(async ({ ctx: { me } }) => {
     try {
       if (!!!me) return false;
-      const payload = await Thought.findOne({ where: { userId: me.id } });
+      const payload = await Thought.findOne({
+        where: {
+          userId: me.id,
+        },
+      });
       const thought_ = payload?.toJSON();
       if (!!!thought_) return false;
       ee.emit(Events.ON_DELETE_THOUGHT, thought_);
-      await Thought.destroy({ where: { userId: me.id } });
+      await payload?.destroy({ force: true });
       return true;
     } catch (error) {
+      console.log(error);
       return false;
     }
   }),

@@ -28,6 +28,7 @@ import PublicDetails from "../../../components/ProfileComponents/PublicDetails";
 import UserProfile from "../../../components/ProfileComponents/UserProfile";
 import Modal from "../../../components/Modal/Modal";
 import ImageViewer from "../../../components/ImageViewer/ImageViewer";
+import UserCurrentThought from "../../../components/UserCurrentThought/UserCurrentThought";
 
 const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   navigation,
@@ -430,10 +431,21 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
                   ) : null}
                 </TouchableOpacity>
               ) : null}
+              <Divider
+                color={COLORS.tertiary}
+                title={
+                  route.params.isMe
+                    ? "YOUR CURRENT THOUGHT"
+                    : "USER'S CURRENT THOUGHT"
+                }
+              />
+              <UserCurrentThought
+                isMe={route.params.isMe}
+                user={user}
+                gettingUser={gettingUser}
+              />
               <Divider color={COLORS.tertiary} title="PUBLIC DETAILS" />
-
               <PublicDetails user={user} gettingUser={gettingUser} />
-
               {route.params.isMe ? (
                 <>
                   <Divider color={COLORS.tertiary} title="SIGN OUT" />

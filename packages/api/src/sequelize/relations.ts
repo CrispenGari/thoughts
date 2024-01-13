@@ -7,7 +7,7 @@ import { User } from "./user.model";
 // user and thought
 User.hasOne(Thought, {});
 Thought.belongsTo(User, {
-  onDelete: "RESTRICT",
+  onDelete: "CASCADE",
   onUpdate: "CASCADE",
   foreignKey: "userId",
 });
