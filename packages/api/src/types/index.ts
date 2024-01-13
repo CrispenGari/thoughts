@@ -27,7 +27,7 @@ export interface CommentType {
   id?: number;
   text: string;
   userId?: number;
-  commentId?: number;
+  commentId?: number | null;
   thoughtId?: number;
   createdAt?: Date;
   updatedAt?: Date;

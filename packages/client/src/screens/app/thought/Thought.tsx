@@ -28,6 +28,8 @@ import updateLocal from "dayjs/plugin/updateLocale";
 import Comment from "../../../components/Comment/Comment";
 import ContentLoader from "../../../components/ContentLoader/ContentLoader";
 import { useMeStore } from "../../../store";
+import Comments from "../../../components/Comments/Comments";
+import { ThemeProvider } from "@react-navigation/native";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -85,7 +87,7 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
     }
   }, [params]);
 
-  if (!!!thought)
+  if (!!!thought && !isLoadingThought)
     return (
       <LinearGradientProvider>
         <KeyboardAwareScrollView
@@ -315,22 +317,9 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
             </View>
 
             <Divider color={COLORS.black} title="USER COMMENTS" />
-
-            <View style={{ flex: 1 }}>
-              {!!!thought?.comments || thought.comments.length === 0 ? (
-                <Text style={[styles.h1, { marginVertical: 10 }]}>
-                  No comments.
-                </Text>
-              ) : (
-                thought.comments.map((comment) => (
-                  <Comment
-                    key={comment.id}
-                    comment={comment}
-                    navigation={navigation}
-                  />
-                ))
-              )}
-            </View>
+            {thought?.id ? (
+              <Comments navigation={navigation} thoughtId={thought.id} />
+            ) : null}
           </View>
         </ScrollView>
       </LinearGradientProvider>

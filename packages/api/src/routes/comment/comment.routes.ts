@@ -2,6 +2,8 @@ import EventEmitter from "events";
 import {
   createSchema,
   getCommentSchema,
+  getCommentsSchema,
+  getRepliesSchema,
   getReplySchema,
   onCreateSchema,
   onNewCommentNotificationSchema,
@@ -135,6 +137,7 @@ export const commentRouter = router({
         return { success: false };
       }
     }),
+
   getComment: publicProcedure
     .input(getCommentSchema)
     .query(async ({ input: { id } }) => {
@@ -144,16 +147,67 @@ export const commentRouter = router({
             {
               model: User,
             },
-            {
-              model: Comment,
-              attributes: ["id"],
-              as: "replies",
-            },
           ],
         });
         return !!payload ? payload.toJSON() : null;
       } catch (error) {
         return null;
+      }
+    }),
+  getComments: publicProcedure
+    .input(getCommentsSchema)
+    .query(async ({ input: { thoughtId, limit, cursor } }) => {
+      try {
+        const offset = cursor ? cursor : 0;
+        const payload = await Comment.findAll({
+          where: { thoughtId, commentId: null },
+          attributes: ["id"],
+          order: [["createdAt", "DESC"]],
+          limit: limit + 1,
+          offset,
+        });
+        let nextCursor: typeof offset | undefined = undefined;
+        if (payload.length > limit) {
+          payload.pop();
+          nextCursor = offset + limit;
+        }
+        return {
+          nextCursor,
+          comments: payload.map((c) => c.toJSON()),
+        };
+      } catch (error) {
+        return {
+          nextCursor: undefined,
+          comments: [],
+        };
+      }
+    }),
+  getReplies: publicProcedure
+    .input(getRepliesSchema)
+    .query(async ({ input: { commentId, limit, cursor } }) => {
+      try {
+        const offset = cursor ? cursor : 0;
+        const payload = await Comment.findAll({
+          where: { commentId },
+          attributes: ["id"],
+          order: [["createdAt", "ASC"]],
+          limit: limit + 1,
+          offset,
+        });
+        let nextCursor: typeof offset | undefined = undefined;
+        if (payload.length > limit) {
+          payload.pop();
+          nextCursor = offset + limit;
+        }
+        return {
+          nextCursor,
+          replies: payload.map((c) => c.toJSON()),
+        };
+      } catch (error) {
+        return {
+          nextCursor: undefined,
+          replies: [],
+        };
       }
     }),
   getReply: publicProcedure
@@ -169,7 +223,6 @@ export const commentRouter = router({
         });
         return !!payload ? payload.toJSON() : null;
       } catch (error) {
-        console.log({ error });
         return null;
       }
     }),

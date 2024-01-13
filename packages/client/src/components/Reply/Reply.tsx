@@ -28,7 +28,9 @@ dayjs.updateLocale("en", {
 });
 
 interface Props {
-  reply: CommentType;
+  reply: {
+    id: number;
+  };
   navigation: StackNavigationProp<AppParamList, "Thought">;
   setReplyTo: React.Dispatch<React.SetStateAction<UserType | undefined>>;
   inputRef: React.RefObject<TextInput>;
@@ -66,7 +68,7 @@ const Reply: React.FunctionComponent<Props> = ({
               width: 20,
               height: 20,
               borderRadius: 20,
-              display: loaded ? "flex" : "none",
+
               backgroundColor: COLORS.gray,
               overflow: "hidden",
             }}

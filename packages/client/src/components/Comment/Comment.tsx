@@ -28,6 +28,7 @@ import Reply from "../Reply/Reply";
 import { useMeStore } from "../../store";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AppParamList } from "../../params";
+import Replies from "../Replies/Replies";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -36,7 +37,9 @@ dayjs.updateLocale("en", {
 });
 
 interface Props {
-  comment: CommentType;
+  comment: {
+    id: number;
+  };
   navigation: StackNavigationProp<AppParamList, "Thought">;
 }
 const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
@@ -54,16 +57,6 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
   const [replyTo, setReplyTo] = React.useState<UserType | undefined>(undefined);
   const { isLoading: replying, mutateAsync: mutateReplyComment } =
     trpc.comment.reply.useMutation();
-
-  // comment listiners
-  trpc.comment.onReply.useSubscription(
-    { commentId: comment.id!, userId: me?.id || 0 },
-    {
-      onData: async () => {
-        await refetchComment();
-      },
-    }
-  );
 
   const reply = () => {
     if (cmt?.id) {
@@ -100,7 +93,6 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
               width: 20,
               height: 20,
               borderRadius: 20,
-              display: loaded ? "flex" : "none",
               backgroundColor: COLORS.gray,
               overflow: "hidden",
             }}
@@ -295,15 +287,14 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-      {cmt?.replies?.map((reply) => (
-        <Reply
-          setReplyTo={setReplyTo}
-          reply={reply}
-          key={reply.id}
+      {cmt?.id ? (
+        <Replies
+          commentId={cmt.id}
           navigation={navigation}
-          inputRef={inputRef as any}
+          inputRef={inputRef}
+          setReplyTo={setReplyTo}
         />
-      ))}
+      ) : null}
 
       <View style={{ maxWidth: "90%", marginTop: 5, alignSelf: "flex-end" }}>
         {!!replyTo ? (

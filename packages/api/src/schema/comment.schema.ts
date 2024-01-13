@@ -7,6 +7,17 @@ export const createSchema = z.object({
 export const getReplySchema = z.object({
   id: z.number(),
 });
+export const getCommentsSchema = z.object({
+  thoughtId: z.number(),
+  cursor: z.number().optional(),
+  limit: z.number(),
+});
+
+export const getRepliesSchema = z.object({
+  commentId: z.number(),
+  cursor: z.number().optional(),
+  limit: z.number(),
+});
 export const getCommentSchema = z.object({
   id: z.number(),
 });
