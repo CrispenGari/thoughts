@@ -42,6 +42,7 @@ export type AppParamList = {
   Profile: {
     userId: number;
     isMe: boolean;
+    from: keyof AppParamList;
   };
   AppTermsOfUse: {
     from: keyof AppParamList;

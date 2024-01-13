@@ -77,6 +77,7 @@ const Contacts: React.FunctionComponent<Props> = ({ navigation }) => {
                   navigation.navigate("Profile", {
                     isMe: false,
                     userId: item.id,
+                    from: "Home",
                   });
                 }}
               />

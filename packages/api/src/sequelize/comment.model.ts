@@ -18,5 +18,6 @@ export const Comment: ModelDefined<
       allowNull: false,
     },
   },
+
   { freezeTableName: true, timestamps: true }
 );

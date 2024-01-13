@@ -14,6 +14,8 @@ export interface NotificationType {
   thoughtId: number;
   userId: number;
   read: boolean;
+
+  type?: "comment" | "reply" | "reaction";
   createdAt?: Date;
   updatedAt?: Date;
   // relations

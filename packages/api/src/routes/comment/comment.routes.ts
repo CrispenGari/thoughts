@@ -1,8 +1,11 @@
 import EventEmitter from "events";
 import {
   createSchema,
+  getCommentSchema,
+  getReplySchema,
   onCreateSchema,
   onNewCommentNotificationSchema,
+  onReplySchema,
   replySchema,
 } from "../../schema/comment.schema";
 import { Comment } from "../../sequelize/comment.model";
@@ -12,6 +15,7 @@ import { observable } from "@trpc/server/observable";
 import { Events } from "../../constants";
 import { CommentType, NotificationType } from "../../types";
 import { Notification } from "../../sequelize/notification.model";
+import { User } from "../../sequelize/user.model";
 
 const ee = new EventEmitter();
 export const commentRouter = router({
@@ -48,6 +52,21 @@ export const commentRouter = router({
         };
       });
     }),
+  onReply: publicProcedure
+    .input(onReplySchema)
+    .subscription(async ({ input: { commentId } }) => {
+      return observable<CommentType>((emit) => {
+        const handler = (payload: CommentType) => {
+          if (payload.commentId === commentId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_COMMENT_REPLY, handler);
+        return () => {
+          ee.off(Events.ON_COMMENT_REPLY, handler);
+        };
+      });
+    }),
   create: publicProcedure
     .input(createSchema)
     .mutation(async ({ ctx: { me }, input: { thoughtId, text } }) => {
@@ -66,41 +85,92 @@ export const commentRouter = router({
           thoughtId: thought.toJSON().id,
           userId: thought.toJSON().userId,
           read: false,
+          type: "comment",
         });
 
-        ee.emit(Events.ON_NEW_NOTIFICATION, notification);
-        ee.emit(Events.ON_CREATE_COMMENT, comment);
+        ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
+        ee.emit(Events.ON_CREATE_COMMENT, comment.toJSON());
         return { success: true };
       } catch (error) {
+        console.log(error);
         return { success: false };
       }
     }),
   reply: publicProcedure
     .input(replySchema)
-    .mutation(async ({ ctx: { me }, input: { commentId, text } }) => {
+    .mutation(async ({ ctx: { me }, input: { commentId, text, mentions } }) => {
       try {
         if (!!!text.trim()) return { success: false };
         if (!!!me) return { success: false };
         const cmt = await Comment.findByPk(commentId);
         if (!!!cmt) return { success: false };
-        const comment = await Comment.create({
+        const reply = await Comment.create({
           text: text.trim(),
-          thoughtId: thought.toJSON().id,
+          thoughtId: cmt.toJSON().thoughtId,
           userId: me.id,
-          replyId: cmt.id,
+          commentId: cmt.toJSON().id,
+        });
+        mentions.forEach(async (mention) => {
+          const notification = await Notification.create({
+            title: `reply on your comment.`,
+            thoughtId: cmt.toJSON().id,
+            userId: mention,
+            read: false,
+            type: "reply",
+          });
+          ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
         });
         const notification = await Notification.create({
-          title: `comment(s) on your thought.`,
-          thoughtId: thought.toJSON().id,
-          userId: thought.toJSON().userId,
+          title: `reply on your comment.`,
+          thoughtId: cmt.toJSON().id,
+          userId: cmt.toJSON().userId,
           read: false,
+          type: "reply",
         });
+        ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
 
-        ee.emit(Events.ON_NEW_NOTIFICATION, notification);
-        ee.emit(Events.ON_CREATE_COMMENT, comment);
+        ee.emit(Events.ON_COMMENT_REPLY, reply.toJSON());
         return { success: true };
       } catch (error) {
         return { success: false };
+      }
+    }),
+  getComment: publicProcedure
+    .input(getCommentSchema)
+    .query(async ({ input: { id } }) => {
+      try {
+        const payload = await Comment.findByPk(id, {
+          include: [
+            {
+              model: User,
+            },
+            {
+              model: Comment,
+              attributes: ["id"],
+              as: "replies",
+            },
+          ],
+        });
+        return !!payload ? payload.toJSON() : null;
+      } catch (error) {
+        return null;
+      }
+    }),
+  getReply: publicProcedure
+    .input(getReplySchema)
+    .query(async ({ input: { id } }) => {
+      try {
+        const payload = await Comment.findByPk(id, {
+          include: [
+            {
+              model: User,
+            },
+          ],
+        });
+        return !!payload ? payload.toJSON() : null;
+      } catch (error) {
+        console.log({ error });
+        return null;
       }
     }),
 });

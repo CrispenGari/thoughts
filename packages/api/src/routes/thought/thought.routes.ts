@@ -153,14 +153,11 @@ export const thoughtRouter = router({
             },
             {
               model: Comment,
-              include: [
-                { model: User },
-                { model: Comment, as: "replies", include: ["user"] },
-              ],
+              attributes: ["id"],
+              where: { commentId: null },
             },
           ],
         });
-        console.log(payload);
         return !!payload ? payload.toJSON() : null;
       } catch (error) {
         console.log(error);

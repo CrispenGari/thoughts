@@ -35,7 +35,7 @@ const ContentLoader: React.FunctionComponent<Props> = ({
   });
 
   return (
-    <View style={style}>
+    <View style={[{ overflow: "hidden" }, style]}>
       <Animated.View
         style={{
           backgroundColor: "rgba(255, 255, 255, 0.05)",

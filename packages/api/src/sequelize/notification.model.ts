@@ -22,6 +22,11 @@ export const Notification: ModelDefined<
       allowNull: false,
       defaultValue: false,
     },
+
+    type: {
+      allowNull: false,
+      type: DataTypes.ENUM("comment", "reaction", "reply"),
+    },
   },
   { freezeTableName: true, timestamps: true }
 );

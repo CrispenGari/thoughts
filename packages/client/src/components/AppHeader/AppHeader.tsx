@@ -45,6 +45,7 @@ const AppHeader = ({
             navigation.navigate("Profile", {
               userId: me.id!,
               isMe: true,
+              from: "Home",
             });
           }}
           activeOpacity={0.7}
