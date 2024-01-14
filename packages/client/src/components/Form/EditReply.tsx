@@ -2,29 +2,29 @@ import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "../../constants";
 import { styles } from "../../styles";
-import { CommentType } from "@thoughts/api/src/types";
+import { ReplyType } from "@thoughts/api/src/types";
 import { trpc } from "../../utils/trpc";
 import Ripple from "../Ripple/Ripple";
 
 interface Props {
-  comment: CommentType;
+  reply: ReplyType;
   toggle: () => void;
   toggleParentModal: () => void;
 }
-const EditComment: React.FunctionComponent<Props> = ({
+const EditReply: React.FunctionComponent<Props> = ({
   toggleParentModal,
-  comment,
+  reply,
   toggle,
 }) => {
   const [state, setState] = React.useState({
-    text: comment.text || "",
+    text: reply.text || "",
     error: "",
   });
 
-  const { isLoading: editing, mutateAsync } = trpc.comment.edit.useMutation();
+  const { isLoading: editing, mutateAsync } = trpc.reply.edit.useMutation();
   const save = () => {
-    if (!!!comment.id) return;
-    mutateAsync({ commentId: comment.id, text: state.text }).then((res) => {
+    if (!!!reply.id) return;
+    mutateAsync({ replyId: reply.id, text: state.text }).then((res) => {
       if (res.success) {
         toggle();
         toggleParentModal();
@@ -70,7 +70,7 @@ const EditComment: React.FunctionComponent<Props> = ({
             maxHeight: 30,
           }}
         >
-          <Text style={[styles.h1]}>UPDATE YOUR COMMENT</Text>
+          <Text style={[styles.h1]}>UPDATE YOUR REPLY</Text>
         </View>
         <TextInput
           maxLength={200}
@@ -129,4 +129,4 @@ const EditComment: React.FunctionComponent<Props> = ({
   );
 };
 
-export default EditComment;
+export default EditReply;

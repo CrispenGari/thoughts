@@ -104,7 +104,6 @@ export const commentRouter = router({
           read: false,
           type: "comment",
         });
-
         ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
         ee.emit(Events.ON_CREATE_COMMENT, comment.toJSON());
         return { success: true };

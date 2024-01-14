@@ -20,6 +20,9 @@ import { useMeStore } from "../../store";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AppParamList } from "../../params";
 import { TextInput } from "react-native-gesture-handler";
+import ReplySkeleton from "./ReplySkeleton";
+import Modal from "../Modal/Modal";
+import ReplyControls from "./ReplyControls";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -51,7 +54,8 @@ const Reply: React.FunctionComponent<Props> = ({
   } = trpc.reply.getReply.useQuery({
     id: reply.id!,
   });
-
+  const [openControls, setOpenControls] = React.useState(false);
+  const toggleOpenControls = () => setOpenControls((state) => !state);
   // subscriptions
   trpc.reply.onEdited.useSubscription(
     { replyId: reply.id! },
@@ -61,88 +65,19 @@ const Reply: React.FunctionComponent<Props> = ({
       },
     }
   );
-  if (fetchingResponse) {
-    return (
-      <View style={{ width: "90%", marginVertical: 10, alignSelf: "flex-end" }}>
-        <View
-          style={{
-            backgroundColor: COLORS.white,
-            position: "relative",
-            padding: 10,
-            borderRadius: 5,
-          }}
-        >
-          <ContentLoader
-            style={{
-              zIndex: 1,
-              position: "absolute",
-              top: -10,
-              right: 0,
-              width: 20,
-              height: 20,
-              borderRadius: 20,
-
-              backgroundColor: COLORS.gray,
-              overflow: "hidden",
-            }}
-          />
-
-          <ContentLoader
-            style={{
-              width: "100%",
-              padding: 5,
-              borderRadius: 2,
-              backgroundColor: COLORS.gray,
-              marginBottom: 2,
-            }}
-          />
-          <ContentLoader
-            style={{
-              width: "80%",
-              padding: 5,
-              borderRadius: 2,
-              backgroundColor: COLORS.gray,
-              marginBottom: 3,
-            }}
-          />
-
-          <ContentLoader
-            style={{
-              width: "40%",
-              padding: 5,
-              borderRadius: 2,
-              backgroundColor: COLORS.gray,
-            }}
-          />
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginTop: 3,
-          }}
-        >
-          {Array(3)
-            .fill(null)
-            .map((_, i) => (
-              <ContentLoader
-                key={i}
-                style={{
-                  width: 30,
-                  height: 15,
-                  borderRadius: 10,
-                  backgroundColor: COLORS.gray,
-                  marginRight: 10,
-                }}
-              />
-            ))}
-        </View>
-      </View>
-    );
-  }
+  if (fetchingResponse) return <ReplySkeleton />;
 
   return (
-    <View style={{ width: "90%", marginVertical: 10, alignSelf: "flex-end" }}>
+    <TouchableOpacity
+      onPress={toggleOpenControls}
+      activeOpacity={0.7}
+      style={{ width: "90%", marginVertical: 10, alignSelf: "flex-end" }}
+    >
+      {!!response ? (
+        <Modal open={openControls} toggle={toggleOpenControls}>
+          <ReplyControls toggle={toggleOpenControls} reply={response} />
+        </Modal>
+      ) : null}
       <View
         style={{
           backgroundColor: COLORS.white,
@@ -271,7 +206,7 @@ const Reply: React.FunctionComponent<Props> = ({
           </TouchableOpacity>
         ) : null}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
