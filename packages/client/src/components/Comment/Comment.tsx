@@ -7,7 +7,7 @@ import {
   Keyboard,
 } from "react-native";
 import React from "react";
-import { CommentType, UserType } from "@thoughts/api/src/types";
+import { UserType } from "@thoughts/api/src/types";
 import {
   COLORS,
   FONTS,
@@ -24,11 +24,13 @@ import updateLocal from "dayjs/plugin/updateLocale";
 import ContentLoader from "../ContentLoader/ContentLoader";
 import Ripple from "../Ripple/Ripple";
 import { trpc } from "../../utils/trpc";
-import Reply from "../Reply/Reply";
 import { useMeStore } from "../../store";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AppParamList } from "../../params";
 import Replies from "../Replies/Replies";
+import Modal from "../Modal/Modal";
+import CommentControls from "./CommentControls";
+import CommentSkeleton from "./CommentSkeleton";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -56,7 +58,10 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
   const [state, setState] = React.useState({ text: "", reply: false });
   const [replyTo, setReplyTo] = React.useState<UserType | undefined>(undefined);
   const { isLoading: replying, mutateAsync: mutateReplyComment } =
-    trpc.comment.reply.useMutation();
+    trpc.reply.reply.useMutation();
+
+  const [openControls, setOpenControls] = React.useState(false);
+  const toggleOpenControls = () => setOpenControls((state) => !state);
 
   const reply = () => {
     if (cmt?.id) {
@@ -73,86 +78,28 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
     }
   };
 
-  if (fetchingComment && !!!cmt) {
-    return (
-      <View style={{ width: "100%", marginVertical: 10 }}>
-        <View
-          style={{
-            backgroundColor: COLORS.white,
-            position: "relative",
-            padding: 10,
-            borderRadius: 5,
-          }}
-        >
-          <ContentLoader
-            style={{
-              zIndex: 1,
-              position: "absolute",
-              top: -10,
-              right: 0,
-              width: 20,
-              height: 20,
-              borderRadius: 20,
-              backgroundColor: COLORS.gray,
-              overflow: "hidden",
-            }}
-          />
+  // subscriptions
+  trpc.comment.onEdited.useSubscription(
+    { commentId: cmt?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchComment();
+      },
+    }
+  );
 
-          <ContentLoader
-            style={{
-              width: "100%",
-              padding: 5,
-              borderRadius: 2,
-              backgroundColor: COLORS.gray,
-              marginBottom: 2,
-            }}
-          />
-          <ContentLoader
-            style={{
-              width: "80%",
-              padding: 5,
-              borderRadius: 2,
-              backgroundColor: COLORS.gray,
-              marginBottom: 3,
-            }}
-          />
-
-          <ContentLoader
-            style={{
-              width: "40%",
-              padding: 5,
-              borderRadius: 2,
-              backgroundColor: COLORS.gray,
-            }}
-          />
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginTop: 3,
-          }}
-        >
-          {Array(3)
-            .fill(null)
-            .map((_, i) => (
-              <ContentLoader
-                key={i}
-                style={{
-                  width: 30,
-                  height: 15,
-                  borderRadius: 10,
-                  backgroundColor: COLORS.gray,
-                  marginRight: 10,
-                }}
-              />
-            ))}
-        </View>
-      </View>
-    );
-  }
+  if (fetchingComment && !!!cmt) return <CommentSkeleton />;
   return (
-    <View style={{ width: "100%", marginVertical: 10 }}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={{ width: "100%", marginVertical: 10 }}
+      onLongPress={toggleOpenControls}
+    >
+      {!!cmt ? (
+        <Modal open={openControls} toggle={toggleOpenControls}>
+          <CommentControls toggle={toggleOpenControls} comment={cmt} />
+        </Modal>
+      ) : null}
       <View
         style={{
           backgroundColor: COLORS.white,
@@ -380,7 +327,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

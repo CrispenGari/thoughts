@@ -15,7 +15,7 @@ import EventEmitter from "events";
 import { UserType } from "../../types";
 import { observable } from "@trpc/server/observable";
 import { Events } from "../../constants";
-
+import crypto from "crypto";
 const ee = new EventEmitter();
 export const registerRouter = router({
   onNewUser: publicProcedure
@@ -93,6 +93,7 @@ export const registerRouter = router({
         }
         const hashed = await hash(user.pin.trim());
         const loc = await Country.create({ ...country });
+        const newToken = crypto.randomInt(1, 10_000_000);
         const me = await User.create({
           pin: hashed,
           name: user.name.trim(),
@@ -100,6 +101,7 @@ export const registerRouter = router({
           online: true,
           countryId: loc.toJSON().id,
           avatar: user?.image ? user?.image : undefined,
+          tokenVersion: newToken,
         });
         const u = me.toJSON();
 

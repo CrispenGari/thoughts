@@ -1,14 +1,14 @@
 import EventEmitter from "events";
 import {
   createSchema,
+  delSchema,
+  editSchema,
   getCommentSchema,
   getCommentsSchema,
-  getRepliesSchema,
-  getReplySchema,
   onCreateSchema,
+  onDeleteSchema,
+  onEditedSchema,
   onNewCommentNotificationSchema,
-  onReplySchema,
-  replySchema,
 } from "../../schema/comment.schema";
 import { Comment } from "../../sequelize/comment.model";
 import { Thought } from "../../sequelize/thought.model";
@@ -21,6 +21,36 @@ import { User } from "../../sequelize/user.model";
 
 const ee = new EventEmitter();
 export const commentRouter = router({
+  onEdited: publicProcedure
+    .input(onEditedSchema)
+    .subscription(async ({ input: { commentId } }) => {
+      return observable<CommentType>((emit) => {
+        const handler = (payload: CommentType) => {
+          if (payload.id === commentId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_COMMENT_UPDATE, handler);
+        return () => {
+          ee.off(Events.ON_COMMENT_UPDATE, handler);
+        };
+      });
+    }),
+  onDelete: publicProcedure
+    .input(onDeleteSchema)
+    .subscription(async ({ input: { thoughtId } }) => {
+      return observable<CommentType>((emit) => {
+        const handler = (payload: CommentType) => {
+          if (payload.thoughtId === thoughtId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_COMMENT_DELETE, handler);
+        return () => {
+          ee.off(Events.ON_COMMENT_DELETE, handler);
+        };
+      });
+    }),
   onNewCommentNotification: publicProcedure
     .input(onNewCommentNotificationSchema)
     .subscription(async ({ input: { userId } }) => {
@@ -54,21 +84,6 @@ export const commentRouter = router({
         };
       });
     }),
-  onReply: publicProcedure
-    .input(onReplySchema)
-    .subscription(async ({ input: { commentId } }) => {
-      return observable<CommentType>((emit) => {
-        const handler = (payload: CommentType) => {
-          if (payload.commentId === commentId) {
-            emit.next(payload);
-          }
-        };
-        ee.on(Events.ON_COMMENT_REPLY, handler);
-        return () => {
-          ee.off(Events.ON_COMMENT_REPLY, handler);
-        };
-      });
-    }),
   create: publicProcedure
     .input(createSchema)
     .mutation(async ({ ctx: { me }, input: { thoughtId, text } }) => {
@@ -98,46 +113,6 @@ export const commentRouter = router({
         return { success: false };
       }
     }),
-  reply: publicProcedure
-    .input(replySchema)
-    .mutation(async ({ ctx: { me }, input: { commentId, text, mentions } }) => {
-      try {
-        if (!!!text.trim()) return { success: false };
-        if (!!!me) return { success: false };
-        const cmt = await Comment.findByPk(commentId);
-        if (!!!cmt) return { success: false };
-        const reply = await Comment.create({
-          text: text.trim(),
-          thoughtId: cmt.toJSON().thoughtId,
-          userId: me.id,
-          commentId: cmt.toJSON().id,
-        });
-        mentions.forEach(async (mention) => {
-          const notification = await Notification.create({
-            title: `reply on your comment.`,
-            thoughtId: cmt.toJSON().id,
-            userId: mention,
-            read: false,
-            type: "reply",
-          });
-          ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
-        });
-        const notification = await Notification.create({
-          title: `reply on your comment.`,
-          thoughtId: cmt.toJSON().id,
-          userId: cmt.toJSON().userId,
-          read: false,
-          type: "reply",
-        });
-        ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
-
-        ee.emit(Events.ON_COMMENT_REPLY, reply.toJSON());
-        return { success: true };
-      } catch (error) {
-        return { success: false };
-      }
-    }),
-
   getComment: publicProcedure
     .input(getCommentSchema)
     .query(async ({ input: { id } }) => {
@@ -160,7 +135,7 @@ export const commentRouter = router({
       try {
         const offset = cursor ? cursor : 0;
         const payload = await Comment.findAll({
-          where: { thoughtId, commentId: null },
+          where: { thoughtId },
           attributes: ["id"],
           order: [["createdAt", "DESC"]],
           limit: limit + 1,
@@ -182,48 +157,34 @@ export const commentRouter = router({
         };
       }
     }),
-  getReplies: publicProcedure
-    .input(getRepliesSchema)
-    .query(async ({ input: { commentId, limit, cursor } }) => {
+  edit: publicProcedure
+    .input(editSchema)
+    .mutation(async ({ input: { commentId, text }, ctx: { me } }) => {
       try {
-        const offset = cursor ? cursor : 0;
-        const payload = await Comment.findAll({
-          where: { commentId },
-          attributes: ["id"],
-          order: [["createdAt", "ASC"]],
-          limit: limit + 1,
-          offset,
-        });
-        let nextCursor: typeof offset | undefined = undefined;
-        if (payload.length > limit) {
-          payload.pop();
-          nextCursor = offset + limit;
-        }
-        return {
-          nextCursor,
-          replies: payload.map((c) => c.toJSON()),
-        };
+        if (!!!me) return { success: false };
+        if (!!!text.trim()) return { success: false };
+        const comment = await Comment.findByPk(commentId);
+        if (!!!comment) return { success: false };
+        await comment.update({ text: text.trim() });
+        ee.emit(Events.ON_COMMENT_UPDATE, comment.toJSON());
+        return { success: true };
       } catch (error) {
-        return {
-          nextCursor: undefined,
-          replies: [],
-        };
+        return { success: false };
       }
     }),
-  getReply: publicProcedure
-    .input(getReplySchema)
-    .query(async ({ input: { id } }) => {
+
+  del: publicProcedure
+    .input(delSchema)
+    .mutation(async ({ input: { commentId }, ctx: { me } }) => {
       try {
-        const payload = await Comment.findByPk(id, {
-          include: [
-            {
-              model: User,
-            },
-          ],
-        });
-        return !!payload ? payload.toJSON() : null;
+        if (!!!me) return { success: false };
+        const comment = await Comment.findByPk(commentId);
+        if (!!!comment) return { success: false };
+        await comment.destroy({ force: true });
+        ee.emit(Events.ON_COMMENT_DELETE, comment.toJSON());
+        return { success: true };
       } catch (error) {
-        return null;
+        return { success: false };
       }
     }),
 });

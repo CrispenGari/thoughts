@@ -8,14 +8,12 @@ import {
   getUserThoughtSchema,
   getByIdSchema,
 } from "../../schema/thought.schema";
-
 import { publicProcedure, router } from "../../trpc";
 import { observable } from "@trpc/server/observable";
 import { Events } from "../../constants";
 import { ThoughtType } from "../../types";
 import { Thought } from "../../sequelize/thought.model";
 import { User } from "../../sequelize/user.model";
-import { Comment } from "../../sequelize/comment.model";
 
 const ee = new EventEmitter();
 export const thoughtRouter = router({
@@ -141,11 +139,9 @@ export const thoughtRouter = router({
       await payload?.destroy({ force: true });
       return true;
     } catch (error) {
-      console.log(error);
       return false;
     }
   }),
-
   getById: publicProcedure
     .input(getByIdSchema)
     .query(async ({ input: { id }, ctx: { me } }) => {
@@ -156,16 +152,10 @@ export const thoughtRouter = router({
             {
               model: User,
             },
-            {
-              model: Comment,
-              attributes: ["id"],
-              where: { commentId: null },
-            },
           ],
         });
         return !!payload ? payload.toJSON() : null;
       } catch (error) {
-        console.log(error);
         return null;
       }
     }),

@@ -7,9 +7,12 @@ import { User } from "../sequelize/user.model";
 const getMe = async (jwt: string | undefined): Promise<UserType | null> => {
   if (!!!jwt) return null;
   try {
-    const { id } = await verifyJwt(jwt);
+    const { id, tokenVersion } = await verifyJwt(jwt);
     const me = await User.findByPk(id, { include: ["country"] });
-    return !!me ? me.toJSON() : null;
+    if (!!!me) return null;
+    const _me = me.toJSON();
+    if (_me.tokenVersion !== tokenVersion) return null;
+    return _me;
   } catch (error) {
     return null;
   }

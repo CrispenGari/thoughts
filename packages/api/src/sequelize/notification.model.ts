@@ -25,7 +25,13 @@ export const Notification: ModelDefined<
 
     type: {
       allowNull: false,
-      type: DataTypes.ENUM("comment", "reaction", "reply"),
+      type: DataTypes.ENUM(
+        "comment",
+        "reaction",
+        "reply",
+        "comment_reaction",
+        "reply_reaction"
+      ),
     },
   },
   { freezeTableName: true, timestamps: true }

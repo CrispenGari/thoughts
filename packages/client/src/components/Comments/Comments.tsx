@@ -43,9 +43,18 @@ const Comments: React.FunctionComponent<Props> = ({
       getNextPageParam: ({ nextCursor }) => nextCursor,
     }
   );
-
+  // subscriptions
   trpc.comment.onCreate.useSubscription(
     { thoughtId, userId: me?.id || 0 },
+    {
+      onData: async () => {
+        await refetchNewComments();
+      },
+    }
+  );
+
+  trpc.comment.onDelete.useSubscription(
+    { thoughtId },
     {
       onData: async () => {
         await refetchNewComments();

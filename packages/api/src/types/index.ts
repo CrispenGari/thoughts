@@ -15,7 +15,7 @@ export interface NotificationType {
   userId: number;
   read: boolean;
 
-  type?: "comment" | "reply" | "reaction";
+  type?: "comment" | "reply" | "comment_reaction" | "reply_reaction";
   createdAt?: Date;
   updatedAt?: Date;
   // relations
@@ -23,17 +23,49 @@ export interface NotificationType {
   thought?: ThoughtType;
 }
 
+export interface ReplyType {
+  id?: number;
+  text: string;
+  commentId: number;
+  userId: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  // relations
+  user?: UserType;
+}
+export interface BlockedType {
+  id?: number;
+  phoneNumber: string;
+  userId: number;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface UpVoteType {
+  id?: number;
+  commentId?: number;
+  replyId?: number;
+  userId: number;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+export type DownVoteType = UpVoteType;
 export interface CommentType {
   id?: number;
   text: string;
   userId?: number;
-  commentId?: number | null;
-  thoughtId?: number;
+  thoughtId: number;
   createdAt?: Date;
   updatedAt?: Date;
 
+  // relations
+  upvotes?: UpVoteType[];
+  downvotes?: DownVoteType[];
   user?: UserType;
-  replies?: CommentType[];
+  replies?: ReplyType[];
 }
 
 export interface CountryType {
@@ -58,7 +90,9 @@ export interface UserType {
   updatedAt?: Date;
   countryId?: number;
   pinTrials?: number;
+  tokenVersion: number;
 
   // relations
   country?: CountryType;
+  blocked?: UserType[];
 }

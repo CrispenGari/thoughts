@@ -3,7 +3,7 @@ import {
   loginOrFailSchema,
   validatePhoneNumberSchema,
 } from "../../schema/login.schema";
-
+import crypto from "crypto";
 import { publicProcedure, router } from "../../trpc";
 import { isValidPhoneNumber } from "../../utils/regexp";
 import { signJwt } from "../../utils/jwt";
@@ -26,7 +26,6 @@ export const loginRouter = router({
             error: "Invalid phone number.",
           };
         }
-
         const me = await User.findOne({
           where: { phoneNumber: phoneNumber.trim() },
         });
@@ -80,9 +79,11 @@ export const loginRouter = router({
             } left!`,
           };
         }
+        const newToken = crypto.randomInt(1, 10_000_000);
         const __u = await me.update({
           pinTrials: 0,
           online: true,
+          tokenVersion: newToken,
         });
         const u = __u.toJSON();
         const jwt = await signJwt(u);

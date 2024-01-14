@@ -32,7 +32,7 @@ const Replies: React.FunctionComponent<Props> = ({
     hasNextPage,
     refetch: refetchNewReplies,
     isFetchingNextPage,
-  } = trpc.comment.getReplies.useInfiniteQuery(
+  } = trpc.reply.getReplies.useInfiniteQuery(
     {
       limit: 2,
       commentId,
@@ -42,15 +42,23 @@ const Replies: React.FunctionComponent<Props> = ({
       getNextPageParam: ({ nextCursor }) => nextCursor,
     }
   );
-
-  trpc.comment.onReply.useSubscription(
-    { commentId, userId: me?.id || 0 },
+  trpc.reply.onReply.useSubscription(
+    { commentId },
     {
       onData: async () => {
         await refetchNewReplies();
       },
     }
   );
+  trpc.reply.onDelete.useSubscription(
+    { commentId },
+    {
+      onData: async () => {
+        await refetchNewReplies();
+      },
+    }
+  );
+
   React.useEffect(() => {
     if (!!data?.pages) {
       setReplies(data.pages.flatMap((page) => page.replies));

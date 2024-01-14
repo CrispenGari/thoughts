@@ -44,10 +44,23 @@ const Reply: React.FunctionComponent<Props> = ({
 }) => {
   const [loaded, setLoaded] = React.useState(true);
   const { me } = useMeStore();
-  const { data: response, isFetching: fetchingResponse } =
-    trpc.comment.getReply.useQuery({
-      id: reply.id!,
-    });
+  const {
+    data: response,
+    isFetching: fetchingResponse,
+    refetch: refetchReply,
+  } = trpc.reply.getReply.useQuery({
+    id: reply.id!,
+  });
+
+  // subscriptions
+  trpc.reply.onEdited.useSubscription(
+    { replyId: reply.id! },
+    {
+      onData: async () => {
+        await refetchReply();
+      },
+    }
+  );
   if (fetchingResponse) {
     return (
       <View style={{ width: "90%", marginVertical: 10, alignSelf: "flex-end" }}>

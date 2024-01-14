@@ -1,7 +1,6 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
 import { UserType } from "../types";
-import { Country } from "./country.model";
 
 export const User: ModelDefined<
   Required<UserType>,
@@ -39,12 +38,11 @@ export const User: ModelDefined<
       allowNull: false,
       defaultValue: false,
     },
+    tokenVersion: {
+      type: DataTypes.NUMBER,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   { freezeTableName: true, timestamps: true }
 );
-
-User.belongsTo(Country, {
-  onDelete: "RESTRICT",
-  onUpdate: "CASCADE",
-  foreignKey: "countryId",
-});
