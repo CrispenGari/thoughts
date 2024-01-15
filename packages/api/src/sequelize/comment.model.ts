@@ -17,6 +17,10 @@ export const Comment: ModelDefined<
       type: DataTypes.STRING,
       allowNull: false,
     },
+    voteCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
   },
 
   { freezeTableName: true, timestamps: true }

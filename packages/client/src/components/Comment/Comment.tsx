@@ -53,6 +53,9 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
   } = trpc.comment.getComment.useQuery({
     id: comment.id!,
   });
+  const { mutateAsync: mutateVote, isLoading: voting } =
+    trpc.vote.commentVote.useMutation();
+
   const inputRef = React.useRef<TextInput>(null);
   const [loaded, setLoaded] = React.useState(true);
   const [state, setState] = React.useState({ text: "", reply: false });
@@ -64,9 +67,9 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
   const toggleOpenControls = () => setOpenControls((state) => !state);
 
   const reply = () => {
-    if (cmt?.id) {
+    if (cmt?.comment?.id) {
       mutateReplyComment({
-        commentId: cmt.id,
+        commentId: cmt.comment.id,
         text: state.text.trim(),
         mentions: replyTo ? [replyTo.id!] : [],
       }).then((res) => {
@@ -78,9 +81,23 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
     }
   };
 
+  const vote = () => {
+    if (!!cmt?.comment?.id) {
+      mutateVote({ commentId: cmt.comment.id });
+    }
+  };
+
   // subscriptions
   trpc.comment.onEdited.useSubscription(
-    { commentId: cmt?.id || 0 },
+    { commentId: cmt?.comment?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchComment();
+      },
+    }
+  );
+  trpc.vote.onCommentVote.useSubscription(
+    { commentId: cmt?.comment?.id || 0 },
     {
       onData: async (data) => {
         await refetchComment();
@@ -95,9 +112,9 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
       style={{ width: "100%", marginVertical: 10 }}
       onLongPress={toggleOpenControls}
     >
-      {!!cmt ? (
+      {!!cmt?.comment ? (
         <Modal open={openControls} toggle={toggleOpenControls}>
-          <CommentControls toggle={toggleOpenControls} comment={cmt} />
+          <CommentControls toggle={toggleOpenControls} comment={cmt.comment} />
         </Modal>
       ) : null}
       <View
@@ -127,8 +144,8 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
         <TouchableOpacity
           onPress={() =>
             navigation.navigate("Profile", {
-              isMe: me?.id === cmt?.userId,
-              userId: cmt?.userId!,
+              isMe: me?.id === cmt?.comment?.userId,
+              userId: cmt?.comment?.userId!,
               from: "Thought",
             })
           }
@@ -148,8 +165,8 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
               display: loaded ? "flex" : "none",
             }}
             source={{
-              uri: !!cmt?.user?.avatar
-                ? serverBaseHttpURL.concat(cmt?.user?.avatar)
+              uri: !!cmt?.comment?.user?.avatar
+                ? serverBaseHttpURL.concat(cmt?.comment?.user?.avatar)
                 : Image.resolveAssetSource(profile).uri,
             }}
             onError={(error) => {
@@ -167,18 +184,18 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
           />
         </TouchableOpacity>
 
-        <Text style={[styles.h1, {}]}>{cmt?.text}</Text>
+        <Text style={[styles.h1, {}]}>{cmt?.comment?.text}</Text>
         <View
           style={{ flexDirection: "row", alignItems: "center", marginTop: 3 }}
         >
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
-            {dayjs(cmt?.createdAt).fromNow()} ago
+            {dayjs(cmt?.comment?.createdAt).fromNow()} ago
           </Text>
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
             {" • "}
           </Text>
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
-            {cmt?.userId === me?.id ? "you" : cmt?.user.name}
+            {cmt?.comment?.userId === me?.id ? "you" : cmt?.comment?.user?.name}
           </Text>
         </View>
       </View>
@@ -196,22 +213,21 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
             marginRight: 15,
           }}
         >
-          <TouchableOpacity activeOpacity={0.7} style={{}}>
-            <Ionicons name="heart" size={20} color={COLORS.tertiary} />
+          <TouchableOpacity
+            activeOpacity={0.7}
+            disabled={voting}
+            onPress={vote}
+            style={{}}
+          >
+            <Ionicons
+              name={cmt?.voted ? "heart" : "heart-outline"}
+              size={20}
+              color={COLORS.tertiary}
+            />
           </TouchableOpacity>
-          <Text style={[styles.p, { marginLeft: 5, fontSize: 14 }]}>0</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginRight: 15,
-          }}
-        >
-          <TouchableOpacity activeOpacity={0.7} style={{}}>
-            <Ionicons name="heart-dislike" size={20} color={COLORS.tertiary} />
-          </TouchableOpacity>
-          <Text style={[styles.p, { marginLeft: 5, fontSize: 14 }]}>0</Text>
+          <Text style={[styles.h1, { marginLeft: 5, fontSize: 14 }]}>
+            {cmt?.comment?.voteCount}
+          </Text>
         </View>
         <View
           style={{
@@ -234,9 +250,9 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-      {cmt?.id ? (
+      {cmt?.comment?.id ? (
         <Replies
-          commentId={cmt.id}
+          commentId={cmt.comment.id}
           navigation={navigation}
           inputRef={inputRef}
           setReplyTo={setReplyTo}

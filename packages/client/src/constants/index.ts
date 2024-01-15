@@ -1,6 +1,6 @@
 export const APP_NAME = "thoughts";
 
-export const domain: string = "42ae-213-172-134-78.ngrok-free.app";
+export const domain: string = "8a39-213-172-134-231.ngrok-free.app";
 export const serverBaseHttpURL: string = `https://${domain}`;
 export const serverBaseWsURL: string = `wss://${domain}`;
 export const clientHttpURL: string = `${serverBaseHttpURL}/api/trpc`;

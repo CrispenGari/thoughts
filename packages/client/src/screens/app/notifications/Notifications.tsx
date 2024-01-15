@@ -11,11 +11,25 @@ import Notification from "../../../components/Notification/Notification";
 import { RefreshControl } from "react-native-gesture-handler";
 import { trpc } from "../../../utils/trpc";
 import { styles } from "../../../styles";
-import * as lodash from "lodash";
+import { GroupType } from "../../../types";
 
 const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
   navigation,
 }) => {
+  const [groups, setGroups] = React.useState<GroupType>({
+    read: {
+      comment: [],
+      reply: [],
+      comment_reaction: [],
+      reply_reaction: [],
+    },
+    unread: {
+      comment: [],
+      reply: [],
+      comment_reaction: [],
+      reply_reaction: [],
+    },
+  });
   const { os } = usePlatform();
   const { setNotifications } = useNotificationsStore();
   const {
@@ -28,7 +42,48 @@ const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
     if (!!notifications) {
       setNotifications(notifications);
     }
-  }, [notifications, fetching]);
+  }, [notifications]);
+
+  React.useEffect(() => {
+    if (!!notifications) {
+      setGroups((state) => ({
+        ...state,
+        read: {
+          ...state.read,
+          comment:
+            notifications?.read?.filter((n) => n?.type === "comment") ||
+            state.read.comment,
+          comment_reaction:
+            notifications?.read?.filter(
+              (n) => n?.type === "comment_reaction"
+            ) || state.read.comment_reaction,
+          reply:
+            notifications?.read?.filter((n) => n?.type === "reply") ||
+            state.read.reply,
+          reply_reaction:
+            notifications?.read?.filter((n) => n?.type === "reply_reaction") ||
+            state.read.reply_reaction,
+        },
+        unread: {
+          ...state.unread,
+          comment:
+            notifications?.unread?.filter((n) => n?.type === "comment") ||
+            state.unread.comment,
+          comment_reaction:
+            notifications?.unread?.filter(
+              (n) => n?.type === "comment_reaction"
+            ) || state.unread.comment_reaction,
+          reply:
+            notifications?.unread?.filter((n) => n?.type === "reply") ||
+            state.unread.reply,
+          reply_reaction:
+            notifications?.unread?.filter(
+              (n) => n?.type === "reply_reaction"
+            ) || state.unread.reply_reaction,
+        },
+      }));
+    }
+  }, [notifications]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -94,18 +149,19 @@ const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
               </Text>
             </View>
           ) : (
-            Object.entries(
-              lodash.groupBy(notifications.unread, (not) => not.thoughtId)
-            )
-              .map(([id, not], i) => ({ id, not }))
-              .map((not) => (
-                <Notification
-                  key={not.id}
-                  navigation={navigation}
-                  notifications={not.not}
-                  refetchNotifications={refetchNotifications}
-                />
-              ))
+            Object.entries(groups.unread)
+              .map(([name, noti]) => ({ name, noti }))
+              .map((not) => {
+                if (not.noti.length === 0) return null;
+                return (
+                  <Notification
+                    key={not.name}
+                    navigation={navigation}
+                    notifications={not.noti}
+                    refetchNotifications={refetchNotifications}
+                  />
+                );
+              })
           )}
           <Divider color={COLORS.tertiary} title="OLD NOTIFICATIONS" />
           {!!!notifications?.read || notifications.read.length === 0 ? (
@@ -121,18 +177,19 @@ const Notifications: React.FunctionComponent<AppNavProps<"Notifications">> = ({
               </Text>
             </View>
           ) : (
-            Object.entries(
-              lodash.groupBy(notifications.read, (not) => not.thoughtId)
-            )
-              .map(([id, not], i) => ({ id, not }))
-              .map((not) => (
-                <Notification
-                  key={not.id}
-                  navigation={navigation}
-                  notifications={not.not}
-                  refetchNotifications={refetchNotifications}
-                />
-              ))
+            Object.entries(groups.read)
+              .map(([name, noti]) => ({ name, noti }))
+              .map((not) => {
+                if (not.noti.length === 0) return null;
+                return (
+                  <Notification
+                    key={not.name}
+                    navigation={navigation}
+                    notifications={not.noti}
+                    refetchNotifications={refetchNotifications}
+                  />
+                );
+              })
           )}
         </ScrollView>
       </View>

@@ -20,7 +20,6 @@ export interface NotificationType {
   updatedAt?: Date;
   // relations
   user?: UserType;
-  thought?: ThoughtType;
 }
 
 export interface ReplyType {
@@ -28,11 +27,14 @@ export interface ReplyType {
   text: string;
   commentId: number;
   userId: number;
+  voteCount?: number;
+
   createdAt?: Date;
   updatedAt?: Date;
 
   // relations
   user?: UserType;
+  comment?: CommentType;
 }
 export interface BlockedType {
   id?: number;
@@ -43,27 +45,26 @@ export interface BlockedType {
   updatedAt?: Date;
 }
 
-export interface UpVoteType {
+export interface VoteType {
   id?: number;
   commentId?: number;
   replyId?: number;
   userId: number;
-
   createdAt?: Date;
   updatedAt?: Date;
 }
-export type DownVoteType = UpVoteType;
 export interface CommentType {
   id?: number;
+
   text: string;
   userId?: number;
   thoughtId: number;
+  voteCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 
   // relations
-  upvotes?: UpVoteType[];
-  downvotes?: DownVoteType[];
+  votes?: VoteType[];
   user?: UserType;
   replies?: ReplyType[];
 }

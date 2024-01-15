@@ -19,6 +19,8 @@ import { Notification } from "../../sequelize/notification.model";
 import { Comment } from "../../sequelize/comment.model";
 import { User } from "../../sequelize/user.model";
 
+import { Vote } from "../../sequelize/vote.model";
+
 const ee = new EventEmitter();
 export const replyRouter = router({
   onEdited: publicProcedure
@@ -96,7 +98,7 @@ export const replyRouter = router({
         mentions.forEach(async (mention) => {
           const notification = await Notification.create({
             title: `reply on your comment.`,
-            thoughtId: cmt.toJSON().id,
+            thoughtId: cmt.toJSON().thoughtId,
             userId: mention,
             read: false,
             type: "reply",
@@ -105,7 +107,7 @@ export const replyRouter = router({
         });
         const notification = await Notification.create({
           title: `reply on your comment.`,
-          thoughtId: cmt.toJSON().id,
+          thoughtId: cmt.toJSON().thoughtId,
           userId: cmt.toJSON().userId,
           read: false,
           type: "reply",
@@ -147,8 +149,9 @@ export const replyRouter = router({
     }),
   getReply: publicProcedure
     .input(getReplySchema)
-    .query(async ({ input: { id } }) => {
+    .query(async ({ input: { id }, ctx: { me } }) => {
       try {
+        if (!!!me) return null;
         const payload = await Reply.findByPk(id, {
           include: [
             {
@@ -156,7 +159,17 @@ export const replyRouter = router({
             },
           ],
         });
-        return !!payload ? payload.toJSON() : null;
+        if (!!!payload) return null;
+        const voted = await Vote.findOne({
+          where: {
+            userId: me?.id,
+            replyId: payload.toJSON().id,
+          },
+        });
+        return {
+          reply: payload.toJSON(),
+          voted: !!voted,
+        };
       } catch (error) {
         return null;
       }

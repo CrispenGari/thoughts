@@ -17,12 +17,15 @@ export const Notification: ModelDefined<
       type: DataTypes.STRING,
       allowNull: false,
     },
+    thoughtId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     read: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },
-
     type: {
       allowNull: false,
       type: DataTypes.ENUM(

@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 export const delSchema = z.object({
-  id: z.number(),
+  thoughtId: z.number(),
+  type: z.enum(["comment", "reply", "comment_reaction", "reply_reaction"]),
+});
+export const readSchema = z.object({
+  thoughtId: z.number(),
+  type: z.enum(["comment", "reply", "comment_reaction", "reply_reaction"]),
 });
 export const onReadSchema = z.object({
   userId: z.number(),
@@ -9,7 +14,4 @@ export const onReadSchema = z.object({
 
 export const onDeleteSchema = z.object({
   userId: z.number(),
-});
-export const unReadSchema = z.object({
-  id: z.number(),
 });

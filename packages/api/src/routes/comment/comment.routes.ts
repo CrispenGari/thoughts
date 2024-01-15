@@ -18,6 +18,7 @@ import { Events } from "../../constants";
 import { CommentType, NotificationType } from "../../types";
 import { Notification } from "../../sequelize/notification.model";
 import { User } from "../../sequelize/user.model";
+import { Vote } from "../../sequelize/vote.model";
 
 const ee = new EventEmitter();
 export const commentRouter = router({
@@ -68,12 +69,9 @@ export const commentRouter = router({
     }),
   onCreate: publicProcedure
     .input(onCreateSchema)
-    .subscription(async ({ input: { userId, thoughtId } }) => {
+    .subscription(async ({ input: { thoughtId } }) => {
       return observable<CommentType>((emit) => {
         const handler = (payload: CommentType) => {
-          if (payload.userId === userId) {
-            emit.next(payload);
-          }
           if (payload.id === thoughtId) {
             emit.next(payload);
           }
@@ -108,14 +106,14 @@ export const commentRouter = router({
         ee.emit(Events.ON_CREATE_COMMENT, comment.toJSON());
         return { success: true };
       } catch (error) {
-        console.log(error);
         return { success: false };
       }
     }),
   getComment: publicProcedure
     .input(getCommentSchema)
-    .query(async ({ input: { id } }) => {
+    .query(async ({ input: { id }, ctx: { me } }) => {
       try {
+        if (!!!me) return null;
         const payload = await Comment.findByPk(id, {
           include: [
             {
@@ -123,7 +121,18 @@ export const commentRouter = router({
             },
           ],
         });
-        return !!payload ? payload.toJSON() : null;
+        if (!!!payload) return null;
+        const voted = await Vote.findOne({
+          where: {
+            userId: me?.id,
+            commentId: payload.toJSON().id,
+          },
+        });
+
+        return {
+          comment: payload.toJSON(),
+          voted: !!voted,
+        };
       } catch (error) {
         return null;
       }

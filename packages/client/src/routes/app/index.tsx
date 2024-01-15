@@ -85,6 +85,22 @@ export const AppTabs = () => {
       },
     }
   );
+  trpc.vote.onNewCommentVoteNotification.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+      },
+    }
+  );
+  trpc.vote.onNewReplyVoteNotification.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+      },
+    }
+  );
   trpc.notification.onRead.useSubscription(
     { userId: me?.id || 0 },
     {

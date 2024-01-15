@@ -114,6 +114,8 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       },
     });
 
+  const blocking = false;
+  const block = () => {};
   const logout = () => {
     mutateLogout().then(async (res) => {
       if (res) {
@@ -479,7 +481,38 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
                     ) : null}
                   </TouchableOpacity>
                 </>
-              ) : null}
+              ) : (
+                <>
+                  <Divider color={COLORS.tertiary} title="OTHER OPTIONS" />
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      {
+                        backgroundColor: COLORS.red,
+                        marginVertical: 10,
+                        padding: 10,
+                        borderRadius: 5,
+                        maxWidth: 200,
+                      },
+                    ]}
+                    disabled={blocking}
+                    onPress={block}
+                  >
+                    <Text
+                      style={[
+                        styles.button__text,
+                        {
+                          color: COLORS.white,
+                          marginRight: blocking ? 10 : 0,
+                        },
+                      ]}
+                    >
+                      BLOCK USER
+                    </Text>
+                    {blocking ? <Ripple size={5} color={COLORS.white} /> : null}
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </View>
         </View>

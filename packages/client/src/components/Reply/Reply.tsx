@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import React from "react";
-import { CommentType, UserType } from "@thoughts/api/src/types";
+import { UserType } from "@thoughts/api/src/types";
 
 import {
   COLORS,
@@ -56,6 +56,16 @@ const Reply: React.FunctionComponent<Props> = ({
   });
   const [openControls, setOpenControls] = React.useState(false);
   const toggleOpenControls = () => setOpenControls((state) => !state);
+
+  const { mutateAsync: mutateVote, isLoading: voting } =
+    trpc.vote.replyVote.useMutation();
+
+  const vote = () => {
+    if (!!response?.reply?.id) {
+      mutateVote({ replyId: response.reply.id });
+    }
+  };
+
   // subscriptions
   trpc.reply.onEdited.useSubscription(
     { replyId: reply.id! },
@@ -65,7 +75,16 @@ const Reply: React.FunctionComponent<Props> = ({
       },
     }
   );
-  if (fetchingResponse) return <ReplySkeleton />;
+
+  trpc.vote.onReplyVote.useSubscription(
+    { replyId: reply.id! },
+    {
+      onData: async () => {
+        await refetchReply();
+      },
+    }
+  );
+  if (fetchingResponse && !!!response) return <ReplySkeleton />;
 
   return (
     <TouchableOpacity
@@ -73,9 +92,9 @@ const Reply: React.FunctionComponent<Props> = ({
       activeOpacity={0.7}
       style={{ width: "90%", marginVertical: 10, alignSelf: "flex-end" }}
     >
-      {!!response ? (
+      {!!response?.reply ? (
         <Modal open={openControls} toggle={toggleOpenControls}>
-          <ReplyControls toggle={toggleOpenControls} reply={response} />
+          <ReplyControls toggle={toggleOpenControls} reply={response.reply} />
         </Modal>
       ) : null}
       <View
@@ -105,8 +124,8 @@ const Reply: React.FunctionComponent<Props> = ({
           activeOpacity={0.7}
           onPress={() =>
             navigation.navigate("Profile", {
-              isMe: me?.id === response?.userId,
-              userId: response?.userId!,
+              isMe: me?.id === response?.reply?.userId,
+              userId: response?.reply?.userId!,
               from: "Thought",
             })
           }
@@ -125,8 +144,8 @@ const Reply: React.FunctionComponent<Props> = ({
               borderRadius: 20,
             }}
             source={{
-              uri: !!response?.user?.avatar
-                ? serverBaseHttpURL.concat(response?.user?.avatar)
+              uri: !!response?.reply?.user?.avatar
+                ? serverBaseHttpURL.concat(response?.reply?.user?.avatar)
                 : Image.resolveAssetSource(profile).uri,
             }}
             onError={(error) => {
@@ -144,18 +163,20 @@ const Reply: React.FunctionComponent<Props> = ({
           />
         </TouchableOpacity>
 
-        <Text style={[styles.h1, {}]}>{response?.text}</Text>
+        <Text style={[styles.h1, {}]}>{response?.reply?.text}</Text>
         <View
           style={{ flexDirection: "row", alignItems: "center", marginTop: 3 }}
         >
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
-            {dayjs(response?.createdAt).fromNow()} ago
+            {dayjs(response?.reply?.createdAt).fromNow()} ago
           </Text>
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
             {" • "}
           </Text>
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
-            {response?.userId === me?.id ? "you" : response?.user.name}
+            {response?.reply?.userId === me?.id
+              ? "you"
+              : response?.reply?.user.name}
           </Text>
         </View>
       </View>
@@ -173,28 +194,27 @@ const Reply: React.FunctionComponent<Props> = ({
             marginRight: 15,
           }}
         >
-          <TouchableOpacity activeOpacity={0.7} style={{}}>
-            <Ionicons name="heart" size={20} color={COLORS.tertiary} />
+          <TouchableOpacity
+            activeOpacity={0.7}
+            disabled={voting}
+            onPress={vote}
+            style={{}}
+          >
+            <Ionicons
+              name={response?.voted ? "heart" : "heart-outline"}
+              size={20}
+              color={COLORS.tertiary}
+            />
           </TouchableOpacity>
-          <Text style={[styles.p, { marginLeft: 5, fontSize: 14 }]}>0</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginRight: 15,
-          }}
-        >
-          <TouchableOpacity activeOpacity={0.7} style={{}}>
-            <Ionicons name="heart-dislike" size={20} color={COLORS.tertiary} />
-          </TouchableOpacity>
-          <Text style={[styles.p, { marginLeft: 5, fontSize: 14 }]}>0</Text>
+          <Text style={[styles.h1, { marginLeft: 5, fontSize: 14 }]}>
+            {response?.reply?.voteCount}
+          </Text>
         </View>
 
-        {response?.userId !== me?.id ? (
+        {response?.reply?.userId !== me?.id ? (
           <TouchableOpacity
             onPress={() => {
-              setReplyTo(response?.user || undefined);
+              setReplyTo(response?.reply?.user || undefined);
               if (inputRef.current) {
                 inputRef.current.focus();
               }

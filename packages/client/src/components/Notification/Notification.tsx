@@ -33,22 +33,25 @@ const Notification: React.FunctionComponent<Props> = ({
   const { mutateAsync: del } = trpc.notification.del.useMutation();
   const notification = notifications[0];
   const open = () => {
-    if (!!notification.thought?.id) {
+    if (!!notification.thoughtId) {
       navigation.navigate("Thought", {
-        id: notification.thought.id,
+        id: notification.thoughtId,
         notificationId: notification.id!,
         read: notification.read,
+        type: notification.type!,
       });
     }
   };
 
   const deleteNotification = () => {
     if (notification.id) {
-      del({ id: notification.id }).then(async (res) => {
-        if (res.success) {
-          await refetchNotifications();
+      del({ thoughtId: notification.thoughtId, type: notification.type! }).then(
+        async (res) => {
+          if (res.success) {
+            await refetchNotifications();
+          }
         }
-      });
+      );
     }
   };
 
@@ -85,14 +88,15 @@ const Notification: React.FunctionComponent<Props> = ({
           paddingHorizontal: 10,
           backgroundColor: !notification.read ? COLORS.secondary : COLORS.white,
           paddingRight: 20,
+          marginBottom: 2,
         }}
         activeOpacity={0.7}
         onPress={open}
       >
         <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row" }}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={[styles.h1, { fontSize: 16 }]} numberOfLines={1}>
-              {notification.thought?.text}
+              {notification.type}
             </Text>
             <Text style={[styles.p, { fontSize: 16 }]}>
               {" • "}

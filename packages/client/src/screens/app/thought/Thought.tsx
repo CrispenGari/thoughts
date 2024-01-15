@@ -82,8 +82,8 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
   }, [navigation, isLoading]);
 
   React.useEffect(() => {
-    if (params.notificationId) {
-      read();
+    if (params) {
+      read({ thoughtId: params.id, type: params.type });
     }
   }, [params]);
 

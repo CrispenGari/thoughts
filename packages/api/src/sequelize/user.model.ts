@@ -25,7 +25,7 @@ export const User: ModelDefined<
       type: DataTypes.STRING,
     },
     pinTrials: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       defaultValue: 0,
     },
     phoneNumber: {
@@ -34,14 +34,14 @@ export const User: ModelDefined<
       unique: true,
     },
     online: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.TINYINT,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: 0,
     },
     tokenVersion: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: 0,
     },
   },
   { freezeTableName: true, timestamps: true }

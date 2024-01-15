@@ -1,12 +1,12 @@
 import { Blocked } from "./blocked.model";
 import { Comment } from "./comment.model";
 import { Country } from "./country.model";
-import { DownVote } from "./downvote.model";
 import { Notification } from "./notification.model";
 import { Reply } from "./reply.model";
 import { Thought } from "./thought.model";
-import { UpVote } from "./upvotes.model";
+
 import { User } from "./user.model";
+import { Vote } from "./vote.model";
 
 // USER AND THOUGHT
 User.hasOne(Thought, {});
@@ -57,13 +57,6 @@ Notification.belongsTo(User, {
   foreignKey: "userId",
 });
 
-// NOTIFICATION AND THOUGHT
-Thought.hasMany(Notification, {});
-Notification.belongsTo(Thought, {
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-  foreignKey: "thoughtId",
-});
 // COMMENT TO REPLY
 Comment.hasMany(Reply, {});
 Reply.belongsTo(Comment, {
@@ -81,30 +74,16 @@ Blocked.belongsTo(User, {
 });
 
 // COMMENT TO REACTIONS
-Comment.hasMany(UpVote, {});
-UpVote.belongsTo(Comment, {
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-  foreignKey: "commentId",
-});
-
-Comment.hasMany(DownVote, {});
-DownVote.belongsTo(Comment, {
+Comment.hasMany(Vote, {});
+Vote.belongsTo(Comment, {
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
   foreignKey: "commentId",
 });
 
 // REPLY TO REACTIONS
-Reply.hasMany(UpVote, {});
-UpVote.belongsTo(Reply, {
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-  foreignKey: "replyId",
-});
-
-Reply.hasMany(DownVote, {});
-DownVote.belongsTo(Reply, {
+Reply.hasMany(Vote, {});
+Vote.belongsTo(Reply, {
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
   foreignKey: "replyId",

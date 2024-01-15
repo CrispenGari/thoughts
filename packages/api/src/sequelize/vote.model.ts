@@ -1,12 +1,12 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { UpVoteType } from "../types";
+import { VoteType } from "../types";
 
-export const UpVote: ModelDefined<
-  Required<UpVoteType>,
-  UpVoteType
+export const Vote: ModelDefined<
+  Required<VoteType>,
+  VoteType
 > = sequelize.define(
-  "up_votes",
+  "votes",
   {
     id: {
       type: DataTypes.INTEGER,
