@@ -17,6 +17,7 @@ import ImageViewer from "../ImageViewer/ImageViewer";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
+import ContactSkeleton from "./ContactSkeleton";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -33,7 +34,11 @@ const Contact: React.FunctionComponent<{
 }> = ({ contact, onPress }) => {
   const [loaded, setLoaded] = React.useState(true);
   const { user, setUser } = useSubscriptionsStore();
-  const { data, refetch: refetchUser } = trpc.user.contact.useQuery({
+  const {
+    data,
+    refetch: refetchUser,
+    isLoading,
+  } = trpc.user.contact.useQuery({
     id: contact.id,
   });
   const [openImageViewer, setOpenImageViewer] = React.useState(false);
@@ -50,8 +55,9 @@ const Contact: React.FunctionComponent<{
       }
     }
   }, [user, data, setUser]);
-  if (!!!data?.user) return null;
 
+  if (isLoading) return <ContactSkeleton last={false} />;
+  if (!!!data?.user) return null;
   return (
     <TouchableOpacity
       activeOpacity={0.7}
