@@ -26,18 +26,37 @@ const Stack = createStackNavigator<AppParamList>();
 
 export const AppTabs = () => {
   const { me, setMe } = useMeStore();
-  const { setUser, setThought } = useSubscriptionsStore();
+  const { setUser, setThought, setBlock } = useSubscriptionsStore();
   const { setNotifications } = useNotificationsStore();
   const { data: notifications, refetch: refetchNotifications } =
     trpc.notification.all.useQuery();
 
   // listen to all subscriptions here
-  trpc.thought.onUpdate.useSubscription(
+  trpc.thought.onCreate.useSubscription(
     { userId: me?.id || 0 },
     {
       onData: (data) => {
-        if (data) {
-          setThought({ thoughtId: data.id || 0, userId: data.userId || 0 });
+        setThought({ thoughtId: data.id || 0, userId: data.userId || 0 });
+      },
+    }
+  );
+
+  trpc.blocked.onBlocked.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: (data) => {
+        if (data.id) {
+          setBlock(data.id);
+        }
+      },
+    }
+  );
+  trpc.blocked.onUnBlocked.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: (data) => {
+        if (data.id) {
+          setBlock(data.id);
         }
       },
     }

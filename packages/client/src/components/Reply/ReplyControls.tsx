@@ -21,7 +21,17 @@ const ReplyControls: React.FunctionComponent<Props> = ({ reply, toggle }) => {
   const { mutateAsync: mutateDeleteComment, isLoading: deleting } =
     trpc.reply.del.useMutation();
 
-  const blockUser = () => {};
+  const { mutateAsync: mutateBlockUser } = trpc.blocked.block.useMutation();
+
+  const block = () => {
+    if (reply?.userId) {
+      mutateBlockUser({ id: reply.userId }).then((res) => {
+        if (res.success) {
+          toggle();
+        }
+      });
+    }
+  };
   const deleteComment = () => {
     if (!!!reply.id) return;
     mutateDeleteComment({ replyId: reply.id }).then((res) => {
@@ -133,7 +143,7 @@ const ReplyControls: React.FunctionComponent<Props> = ({ reply, toggle }) => {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.7}
-          onPress={() => {}}
+          onPress={block}
           disabled={reply.userId === me?.id}
           style={[
             styles.button,

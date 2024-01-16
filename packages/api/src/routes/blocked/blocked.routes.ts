@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 import {
   blockSchema,
+  getSchema,
   onBlockedSchema,
   unblockSchema,
 } from "../../schema/blocked.schema";
@@ -80,4 +81,45 @@ export const blockedRouter = router({
         };
       }
     }),
+  all: publicProcedure.query(async ({ ctx: { me } }) => {
+    try {
+      if (!!!me)
+        return {
+          count: 0,
+          blocked: [],
+        };
+      const user = await User.findByPk(me.id, {
+        include: ["blocked"],
+      });
+
+      if (!!!user)
+        return {
+          count: 0,
+          blocked: [],
+        };
+      return {
+        blocked: user.toJSON().blocked,
+        count: user.toJSON().blocked.length,
+      };
+    } catch (error) {
+      return {
+        count: 0,
+        blocked: [],
+      };
+    }
+  }),
+  get: publicProcedure.input(getSchema).query(async ({ input: { id } }) => {
+    try {
+      const b = await Blocked.findByPk(id);
+      if (!!!b) return null;
+      const user = await User.findOne({
+        where: { phoneNumber: b.toJSON().phoneNumber },
+      });
+
+      if (!!!user) return null;
+      return user.toJSON();
+    } catch (error) {
+      return null;
+    }
+  }),
 });

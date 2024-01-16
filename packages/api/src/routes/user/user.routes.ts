@@ -19,6 +19,7 @@ import { Country } from "../../sequelize/country.model";
 import path from "path";
 import fs from "fs/promises";
 import { existsSync } from "fs";
+import { Blocked } from "../../sequelize/blocked.model";
 const storagePath = path.resolve(
   path.join(__dirname.replace(`\\src\\routes\\user`, ""), "storage", "images")
 );
@@ -84,16 +85,36 @@ export const userRouter = router({
         user: user ? user.toJSON() : null,
       };
     }),
-  get: publicProcedure.input(getSchema).query(async ({ input: { id } }) => {
-    try {
-      const u = await User.findByPk(id, {
-        include: ["country"],
-      });
-      return !!u ? u.toJSON() : null;
-    } catch (error) {
-      return null;
-    }
-  }),
+  get: publicProcedure
+    .input(getSchema)
+    .query(async ({ input: { id }, ctx: { me } }) => {
+      try {
+        if (!!!me)
+          return {
+            user: null,
+            blocked: false,
+          };
+        const u = await User.findByPk(id, {
+          include: ["country"],
+        });
+        if (!!!u) return { user: null, blocked: false };
+        const b = await Blocked.findOne({
+          where: {
+            userId: me.id,
+            phoneNumber: u.toJSON().phoneNumber,
+          },
+        });
+        return {
+          user: u.toJSON(),
+          blocked: !!b,
+        };
+      } catch (error) {
+        return {
+          user: null,
+          blocked: false,
+        };
+      }
+    }),
   all: publicProcedure.query(async ({ ctx: { me } }) => {
     try {
       const users = await User.findAll({

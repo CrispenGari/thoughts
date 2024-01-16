@@ -21,10 +21,19 @@ const CommentControls: React.FunctionComponent<Props> = ({
   const [editComment, setEditComment] = React.useState(false);
   const toggleEditComment = () => setEditComment((state) => !state);
 
-  const { mutateAsync: mutateDeleteComment, isLoading: deleting } =
-    trpc.comment.del.useMutation();
+  const { mutateAsync: mutateDeleteComment } = trpc.comment.del.useMutation();
 
-  const blockUser = () => {};
+  const { mutateAsync: mutateBlockUser } = trpc.blocked.block.useMutation();
+  const block = () => {
+    if (comment?.userId) {
+      mutateBlockUser({ id: comment.userId }).then((res) => {
+        if (res.success) {
+          toggle();
+        }
+      });
+    }
+  };
+
   const deleteComment = () => {
     if (!!!comment.id) return;
     mutateDeleteComment({ commentId: comment.id }).then((res) => {
@@ -138,7 +147,7 @@ const CommentControls: React.FunctionComponent<Props> = ({
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.7}
-          onPress={() => {}}
+          onPress={block}
           disabled={comment.userId === me?.id}
           style={[
             styles.button,

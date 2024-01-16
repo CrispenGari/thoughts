@@ -95,5 +95,5 @@ export interface UserType {
 
   // relations
   country?: CountryType;
-  blocked?: UserType[];
+  blocked?: BlockedType[];
 }

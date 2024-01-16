@@ -22,7 +22,7 @@ import { del, generateRNFile } from "../../../utils";
 import PictureSelectionModal from "../../../components/Modal/PictureSelectionModal";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useMeStore } from "../../../store";
+import { useMeStore, useSubscriptionsStore } from "../../../store";
 
 import PublicDetails from "../../../components/ProfileComponents/PublicDetails";
 import UserProfile from "../../../components/ProfileComponents/UserProfile";
@@ -34,12 +34,22 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   navigation,
   route,
 }) => {
+  const { setBlock, block: blockedId } = useSubscriptionsStore();
   const { me, setMe } = useMeStore();
   const { mutateAsync: mutateLogout, isLoading: loggingOut } =
     trpc.logout.logout.useMutation();
-  const { data: user, isFetching: gettingUser } = trpc.user.get.useQuery({
+  const {
+    data: user,
+    isLoading: gettingUser,
+    refetch: refetchUser,
+  } = trpc.user.get.useQuery({
     id: route.params.userId,
   });
+  const { isLoading: blocking, mutateAsync: mutateBlockUser } =
+    trpc.blocked.block.useMutation();
+  const { isLoading: unblocking, mutateAsync: mutateUnBlockUser } =
+    trpc.blocked.unblock.useMutation();
+  const { mutateAsync, isLoading } = trpc.user.updateProfile.useMutation();
   const { os } = usePlatform();
   const [open, setOpen] = React.useState(false);
   const [openImageViewer, setOpenImageViewer] = React.useState(false);
@@ -94,7 +104,6 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       toggle();
     }
   };
-  const { mutateAsync, isLoading } = trpc.user.updateProfile.useMutation();
 
   const { isLoading: uploading, mutateAsync: mutateUploadPicture } =
     useMutation({
@@ -114,8 +123,18 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       },
     });
 
-  const blocking = false;
-  const block = () => {};
+  const block = () => {
+    if (user?.user?.id) {
+      mutateBlockUser({ id: user.user.id });
+    }
+  };
+
+  const unblock = () => {
+    if (user?.user?.id) {
+      mutateUnBlockUser({ phoneNumber: user.user.phoneNumber });
+    }
+  };
+
   const logout = () => {
     mutateLogout().then(async (res) => {
       if (res) {
@@ -124,6 +143,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       }
     });
   };
+
   const saveProfile = async () => {
     if (state.image) {
       mutateUploadPicture(
@@ -211,6 +231,16 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       }));
     }
   }, [me, route]);
+
+  React.useEffect(() => {
+    if (!!blockedId) {
+      refetchUser().then((res) => {
+        if (!!res.data) {
+          setBlock(null);
+        }
+      });
+    }
+  }, [blockedId, setBlock]);
 
   React.useEffect(() => {
     if (!!state.error) {
@@ -356,7 +386,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
                 justifyContent: "center",
               }}
             >
-              <ImageViewer user={user} isMe={route.params.isMe} />
+              <ImageViewer user={user?.user} isMe={route.params.isMe} />
             </Modal>
             <View
               style={{
@@ -379,7 +409,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
               </Text>
 
               <UserProfile
-                user={user}
+                user={user?.user}
                 isMe={route.params.isMe}
                 state={state}
                 setState={setState}
@@ -443,11 +473,11 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
               />
               <UserCurrentThought
                 isMe={route.params.isMe}
-                user={user}
+                user={user?.user}
                 gettingUser={gettingUser}
               />
               <Divider color={COLORS.tertiary} title="PUBLIC DETAILS" />
-              <PublicDetails user={user} gettingUser={gettingUser} />
+              <PublicDetails user={user?.user} gettingUser={gettingUser} />
               {route.params.isMe ? (
                 <>
                   <Divider color={COLORS.tertiary} title="SIGN OUT" />
@@ -484,33 +514,67 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
               ) : (
                 <>
                   <Divider color={COLORS.tertiary} title="OTHER OPTIONS" />
-                  <TouchableOpacity
-                    style={[
-                      styles.button,
-                      {
-                        backgroundColor: COLORS.red,
-                        marginVertical: 10,
-                        padding: 10,
-                        borderRadius: 5,
-                        maxWidth: 200,
-                      },
-                    ]}
-                    disabled={blocking}
-                    onPress={block}
-                  >
-                    <Text
+                  {!!!user?.blocked ? (
+                    <TouchableOpacity
                       style={[
-                        styles.button__text,
+                        styles.button,
                         {
-                          color: COLORS.white,
-                          marginRight: blocking ? 10 : 0,
+                          backgroundColor: COLORS.red,
+                          marginVertical: 10,
+                          padding: 10,
+                          borderRadius: 5,
+                          maxWidth: 200,
                         },
                       ]}
+                      disabled={blocking}
+                      onPress={block}
                     >
-                      BLOCK USER
-                    </Text>
-                    {blocking ? <Ripple size={5} color={COLORS.white} /> : null}
-                  </TouchableOpacity>
+                      <Text
+                        style={[
+                          styles.button__text,
+                          {
+                            color: COLORS.white,
+                            marginRight: blocking ? 10 : 0,
+                          },
+                        ]}
+                      >
+                        BLOCK USER
+                      </Text>
+                      {blocking ? (
+                        <Ripple size={5} color={COLORS.white} />
+                      ) : null}
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      style={[
+                        styles.button,
+                        {
+                          backgroundColor: COLORS.red,
+                          marginVertical: 10,
+                          padding: 10,
+                          borderRadius: 5,
+                          maxWidth: 200,
+                        },
+                      ]}
+                      disabled={unblocking}
+                      onPress={unblock}
+                    >
+                      <Text
+                        style={[
+                          styles.button__text,
+                          {
+                            color: COLORS.white,
+                            marginRight: unblocking ? 10 : 0,
+                          },
+                        ]}
+                      >
+                        UNBLOCK USER
+                      </Text>
+                      {unblocking ? (
+                        <Ripple size={5} color={COLORS.white} />
+                      ) : null}
+                    </TouchableOpacity>
+                  )}
                 </>
               )}
             </View>

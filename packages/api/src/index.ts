@@ -30,7 +30,7 @@ const TPRC_API_ENDPOINT = "/api/trpc";
 const TRPC_PLAYGROUND_ENDPOINT = "/api/trpc-playground";
 
 (async () => {
-  await sequelize.sync({ alter: true });
+  await sequelize.sync({ alter: true, force: false });
   const fastify = Fastify({
     logger: false,
     ignoreTrailingSlash: true,

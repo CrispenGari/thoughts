@@ -66,7 +66,7 @@ Reply.belongsTo(Comment, {
 });
 
 // USER TO BLOCKED
-User.hasMany(Blocked, {});
+User.hasMany(Blocked, { as: "blocked" });
 Blocked.belongsTo(User, {
   onDelete: "CASCADE",
   onUpdate: "CASCADE",

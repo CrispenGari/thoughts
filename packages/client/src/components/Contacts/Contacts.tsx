@@ -97,6 +97,67 @@ const Contacts: React.FunctionComponent<Props> = ({ navigation }) => {
       </SafeAreaView>
     );
 
+  if (data?.users.length === 0 && !isLoading) {
+    <SafeAreaView
+      style={{
+        backgroundColor: COLORS.primary,
+        width: "100%",
+        maxWidth: 600,
+        alignSelf: "center",
+        borderTopRightRadius: 5,
+        borderTopLeftRadius: 5,
+      }}
+    >
+      <View
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: 600,
+          alignItems: "center",
+          paddingTop: 20,
+          backgroundColor: COLORS.primary,
+          alignSelf: "center",
+          borderTopLeftRadius: 5,
+          borderTopRightRadius: 5,
+        }}
+      >
+        <View
+          style={{
+            position: "absolute",
+            top: -20,
+            backgroundColor: COLORS.white,
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+            borderRadius: 999,
+            zIndex: 10,
+          }}
+        >
+          <Text style={[styles.h1]}>No contacts with thoughts account?</Text>
+        </View>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          style={{ width: "100%", flexDirection: "row" }}
+          contentContainerStyle={{
+            paddingHorizontal: 10,
+            paddingVertical: 10,
+          }}
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={16}
+          data={
+            width < 600
+              ? Array.from([{ id: 2 }, { id: 3 }])
+              : Array.from([{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }])
+          }
+          keyExtractor={({ id }) => id.toString()}
+          horizontal
+          renderItem={({ item }) => {
+            return <ContactSkeleton last={item.id === 3} />;
+          }}
+        />
+      </View>
+    </SafeAreaView>;
+  }
+
   return (
     <SafeAreaView
       style={{

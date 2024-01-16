@@ -31,6 +31,7 @@ export const useNotificationsStore = create<{
 
 export const useSubscriptionsStore = create<{
   user: number | null;
+  block: number | null;
   thought: {
     userId: number;
     thoughtId: number;
@@ -42,9 +43,13 @@ export const useSubscriptionsStore = create<{
     } | null
   ) => void;
   setUser: (id: number | null) => void;
+  setBlock: (id: number | null) => void;
 }>((set) => ({
+  block: null,
+
   user: null,
   thought: null,
   setUser: (id) => set({ user: id }),
   setThought: (thought) => set({ thought }),
+  setBlock: (id) => set({ block: id }),
 }));
