@@ -46,10 +46,10 @@ export const useSubscriptionsStore = create<{
   setBlock: (id: number | null) => void;
 }>((set) => ({
   block: null,
-
   user: null,
   thought: null,
+
   setUser: (id) => set({ user: id }),
   setThought: (thought) => set({ thought }),
-  setBlock: (id) => set({ block: id }),
+  setBlock: (id) => set({ block: id }), // for the blocks of the user
 }));

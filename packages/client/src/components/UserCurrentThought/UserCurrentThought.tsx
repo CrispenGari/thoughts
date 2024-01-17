@@ -15,11 +15,13 @@ interface Props {
   gettingUser: boolean;
   user: UserType | null | undefined;
   isMe: boolean;
+  isBlocked: boolean;
 }
 const UserCurrentThought: React.FunctionComponent<Props> = ({
   gettingUser,
   user,
   isMe,
+  isBlocked,
 }) => {
   const { setThought, thought: thoughtPayload } = useSubscriptionsStore();
   const {
@@ -69,7 +71,11 @@ const UserCurrentThought: React.FunctionComponent<Props> = ({
         <Text
           style={[
             styles.h1,
-            { fontSize: 16, textAlign: "center", color: COLORS.tertiary },
+            {
+              fontSize: 16,
+              textAlign: "center",
+              color: isBlocked ? COLORS.gray : COLORS.tertiary,
+            },
           ]}
         >
           {isMe

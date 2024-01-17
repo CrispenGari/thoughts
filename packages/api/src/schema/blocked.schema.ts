@@ -9,7 +9,10 @@ export const getSchema = z.object({
 export const unblockSchema = z.object({
   phoneNumber: z.string(),
 });
-export const onBlockedSchema = z.object({
+export const onBlockerSchema = z.object({
+  userId: z.number(),
+});
+export const onBlockedOrUnBlockedSchema = z.object({
   userId: z.number(),
 });
 export const onUnBlockedSchema = z.object({

@@ -40,18 +40,7 @@ export const AppTabs = () => {
       },
     }
   );
-
-  trpc.blocked.onBlocked.useSubscription(
-    { userId: me?.id || 0 },
-    {
-      onData: (data) => {
-        if (data.id) {
-          setBlock(data.id);
-        }
-      },
-    }
-  );
-  trpc.blocked.onUnBlocked.useSubscription(
+  trpc.blocked.onBlockedOrUnBlocked.useSubscription(
     { userId: me?.id || 0 },
     {
       onData: (data) => {

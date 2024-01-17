@@ -43,7 +43,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
     isLoading: gettingUser,
     refetch: refetchUser,
   } = trpc.user.get.useQuery({
-    id: route.params.userId,
+    id: route.params.userId || 0,
   });
   const { isLoading: blocking, mutateAsync: mutateBlockUser } =
     trpc.blocked.block.useMutation();
@@ -247,6 +247,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       Alert.alert(APP_NAME, state.error);
     }
   }, [state]);
+
   return (
     <LinearGradientProvider>
       <KeyboardAwareScrollView
@@ -378,16 +379,22 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
               </View>
             </PictureSelectionModal>
 
-            <Modal
-              open={openImageViewer}
-              toggle={toggleImageViewer}
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ImageViewer user={user?.user} isMe={route.params.isMe} />
-            </Modal>
+            {user ? (
+              <Modal
+                open={openImageViewer}
+                toggle={toggleImageViewer}
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ImageViewer
+                  isBlocked={user?.blockedYou}
+                  user={user?.user}
+                  isMe={route.params.isMe}
+                />
+              </Modal>
+            ) : null}
             <View
               style={{
                 flex: 1,
@@ -416,6 +423,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
                 gettingUser={gettingUser}
                 toggle={toggle}
                 openProfile={toggleImageViewer}
+                isBlocked={user?.blockedYou || false}
               />
 
               <Text
@@ -475,9 +483,14 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
                 isMe={route.params.isMe}
                 user={user?.user}
                 gettingUser={gettingUser}
+                isBlocked={user?.blockedYou || false}
               />
               <Divider color={COLORS.tertiary} title="PUBLIC DETAILS" />
-              <PublicDetails user={user?.user} gettingUser={gettingUser} />
+              <PublicDetails
+                user={user?.user}
+                gettingUser={gettingUser}
+                isBlocked={user?.blockedYou || false}
+              />
               {route.params.isMe ? (
                 <>
                   <Divider color={COLORS.tertiary} title="SIGN OUT" />

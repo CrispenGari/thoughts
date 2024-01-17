@@ -17,10 +17,12 @@ dayjs.updateLocale("en", {
 interface Props {
   gettingUser: boolean;
   user: UserType | null | undefined;
+  isBlocked: boolean;
 }
 const PublicDetails: React.FunctionComponent<Props> = ({
   gettingUser,
   user,
+  isBlocked,
 }) => {
   return (
     <>
@@ -112,7 +114,9 @@ const PublicDetails: React.FunctionComponent<Props> = ({
               },
             ]}
           >
-            {user?.online
+            {isBlocked
+              ? "hidden"
+              : user?.online
               ? "online"
               : `${dayjs(user?.updatedAt).fromNow()} ago`}
           </Text>

@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
 import ContactSkeleton from "./ContactSkeleton";
+import { UserType } from "@thoughts/api/src/types";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -32,7 +33,6 @@ const Contact: React.FunctionComponent<{
   };
   onPress: () => void;
 }> = ({ contact, onPress }) => {
-  const [loaded, setLoaded] = React.useState(true);
   const { user, setUser } = useSubscriptionsStore();
   const {
     data,
@@ -41,9 +41,6 @@ const Contact: React.FunctionComponent<{
   } = trpc.user.contact.useQuery({
     id: contact.id,
   });
-  const [openImageViewer, setOpenImageViewer] = React.useState(false);
-  const toggleImageViewer = () => setOpenImageViewer((state) => !state);
-
   React.useEffect(() => {
     if (!!data?.user?.id && !!user) {
       if (data.user.id === user) {
@@ -58,6 +55,45 @@ const Contact: React.FunctionComponent<{
 
   if (isLoading) return <ContactSkeleton last={false} />;
   if (!!!data?.user) return null;
+  return (
+    <UserContact
+      onPress={onPress}
+      blocked={data.blocked}
+      user={data.user}
+      triggerRefetch={async () => {
+        await refetchUser();
+      }}
+    />
+  );
+};
+export default React.memo(Contact);
+
+interface UserProps {
+  onPress: () => void;
+  user: UserType;
+  blocked: boolean;
+  triggerRefetch: () => Promise<void>;
+}
+
+const UserContact: React.FunctionComponent<UserProps> = ({
+  user,
+  onPress,
+  blocked,
+  triggerRefetch,
+}) => {
+  const [openImageViewer, setOpenImageViewer] = React.useState(false);
+  const toggleImageViewer = () => setOpenImageViewer((state) => !state);
+  const [loaded, setLoaded] = React.useState(true);
+  trpc.blocked.onBlocker.useSubscription(
+    {
+      userId: user.id!,
+    },
+    {
+      onData: async (data) => {
+        await triggerRefetch();
+      },
+    }
+  );
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -84,9 +120,9 @@ const Contact: React.FunctionComponent<{
           justifyContent: "center",
         }}
       >
-        <ImageViewer user={data.user} isMe={true} />
+        <ImageViewer user={user} isMe={true} isBlocked={blocked} />
       </Modal>
-      <ThoughtComponent userId={data.user.id} />
+      {blocked ? null : <ThoughtComponent userId={user.id!} />}
       <View
         style={{
           flex: 1,
@@ -96,13 +132,14 @@ const Contact: React.FunctionComponent<{
         }}
       >
         <View style={{ position: "relative", marginTop: 30 }}>
-          {data.user.online ? (
+          {user.online ? (
             <View
               style={{
                 position: "absolute",
                 top: 0,
                 right: 0,
                 zIndex: 1,
+                display: blocked ? "none" : "flex",
               }}
             >
               <Ripple color={COLORS.tertiary} size={5} />
@@ -118,6 +155,7 @@ const Contact: React.FunctionComponent<{
                 width: 40,
                 alignItems: "center",
                 borderRadius: 999,
+                display: blocked ? "none" : "flex",
               }}
             >
               <Text
@@ -129,7 +167,7 @@ const Contact: React.FunctionComponent<{
                   },
                 ]}
               >
-                {dayjs(data.user.updatedAt).fromNow()}
+                {dayjs(user.updatedAt).fromNow()}
               </Text>
             </View>
           )}
@@ -176,18 +214,19 @@ const Contact: React.FunctionComponent<{
                 marginBottom: 3,
               }}
               source={{
-                uri: !!data.user.avatar
-                  ? serverBaseHttpURL.concat(data.user.avatar)
+                uri: blocked
+                  ? Image.resolveAssetSource(profile).uri
+                  : !!user.avatar
+                  ? serverBaseHttpURL.concat(user.avatar)
                   : Image.resolveAssetSource(profile).uri,
               }}
             />
           </TouchableOpacity>
         </View>
         <Text numberOfLines={1} style={[styles.h1]}>
-          {data.user.name}
+          {user.name}
         </Text>
       </View>
     </TouchableOpacity>
   );
 };
-export default React.memo(Contact);

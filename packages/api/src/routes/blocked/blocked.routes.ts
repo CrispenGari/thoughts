@@ -2,7 +2,8 @@ import EventEmitter from "events";
 import {
   blockSchema,
   getSchema,
-  onBlockedSchema,
+  onBlockedOrUnBlockedSchema,
+  onBlockerSchema,
   unblockSchema,
 } from "../../schema/blocked.schema";
 import { Blocked } from "../../sequelize/blocked.model";
@@ -10,12 +11,12 @@ import { User } from "../../sequelize/user.model";
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
 import { observable } from "@trpc/server/observable";
-import { BlockedType } from "../../types";
+import { BlockedType, UserType } from "../../types";
 
 const ee = new EventEmitter();
 export const blockedRouter = router({
-  onBlocked: publicProcedure
-    .input(onBlockedSchema)
+  onBlockedOrUnBlocked: publicProcedure
+    .input(onBlockedOrUnBlockedSchema)
     .subscription(async ({ input: { userId } }) => {
       return observable<BlockedType>((emit) => {
         const handler = (payload: BlockedType) => {
@@ -23,24 +24,24 @@ export const blockedRouter = router({
             emit.next(payload);
           }
         };
-        ee.on(Events.ON_USER_BLOCK, handler);
+        ee.on(Events.ON_USER_BLOCKED_UNBLOCKED, handler);
         return () => {
-          ee.off(Events.ON_USER_BLOCK, handler);
+          ee.off(Events.ON_USER_BLOCKED_UNBLOCKED, handler);
         };
       });
     }),
-  onUnBlocked: publicProcedure
-    .input(onBlockedSchema)
+  onBlocker: publicProcedure
+    .input(onBlockerSchema)
     .subscription(async ({ input: { userId } }) => {
-      return observable<BlockedType>((emit) => {
-        const handler = (payload: BlockedType) => {
-          if (payload.userId === userId) {
+      return observable<UserType>((emit) => {
+        const handler = (payload: UserType) => {
+          if (payload.id === userId) {
             emit.next(payload);
           }
         };
-        ee.on(Events.ON_USER_UN_BLOCK, handler);
+        ee.on(Events.ON_USER_BLOCKED_ME_OR_UNBLOCKED_ME, handler);
         return () => {
-          ee.off(Events.ON_USER_UN_BLOCK, handler);
+          ee.off(Events.ON_USER_BLOCKED_ME_OR_UNBLOCKED_ME, handler);
         };
       });
     }),
@@ -55,7 +56,8 @@ export const blockedRouter = router({
           phoneNumber: user.toJSON().phoneNumber,
           userId: me.id!,
         });
-        ee.emit(Events.ON_USER_BLOCK, blocked.toJSON());
+        ee.emit(Events.ON_USER_BLOCKED_UNBLOCKED, blocked.toJSON());
+        ee.emit(Events.ON_USER_BLOCKED_ME_OR_UNBLOCKED_ME, me);
         return { success: true };
       } catch (error) {
         return {
@@ -68,12 +70,14 @@ export const blockedRouter = router({
     .mutation(async ({ ctx: { me }, input: { phoneNumber } }) => {
       try {
         if (!!!me) return { success: false };
-        const user = await Blocked.findOne({
+
+        const blocked = await Blocked.findOne({
           where: { phoneNumber: phoneNumber.trim() },
         });
-        if (!!!user) return { success: false };
-        await user.destroy();
-        ee.emit(Events.ON_USER_BLOCK, user.toJSON());
+        if (!!!blocked) return { success: false };
+        await blocked.destroy();
+        ee.emit(Events.ON_USER_BLOCKED_UNBLOCKED, blocked.toJSON());
+        ee.emit(Events.ON_USER_BLOCKED_ME_OR_UNBLOCKED_ME, me);
         return { success: true };
       } catch (error) {
         return {

@@ -1,4 +1,4 @@
-export enum Events {
+export const enum Events {
   ON_HI = "ON_HI",
   // user related
   ON_STATUS = "ON_STATUS",
@@ -30,8 +30,8 @@ export enum Events {
   ON_REPLY_CREATE = "ON_REPLY_CREATE",
 
   // blocks related
-  ON_USER_BLOCK = "ON_USER_BLOCK",
-  ON_USER_UN_BLOCK = "ON_USER_UN_BLOCK",
+  ON_USER_BLOCKED_UNBLOCKED = "ON_USER_BLOCKED_UNBLOCKED",
+  ON_USER_BLOCKED_ME_OR_UNBLOCKED_ME = "ON_USER_BLOCKED_ME_OR_UNBLOCKED_ME",
 
   // reaction related
   ON_COMMENT_VOTE = "ON_COMMENT_VOTE",

@@ -10,8 +10,13 @@ import { Ionicons } from "@expo/vector-icons";
 interface Props {
   user: UserType | undefined | null;
   isMe: boolean;
+  isBlocked: boolean;
 }
-const ImageViewer: React.FunctionComponent<Props> = ({ user, isMe }) => {
+const ImageViewer: React.FunctionComponent<Props> = ({
+  user,
+  isMe,
+  isBlocked,
+}) => {
   const [state, setState] = React.useState({ loaded: true });
 
   return (
@@ -82,7 +87,9 @@ const ImageViewer: React.FunctionComponent<Props> = ({ user, isMe }) => {
             setState((state) => ({ ...state, loaded: true }));
           }}
           source={{
-            uri: user?.avatar
+            uri: isBlocked
+              ? Image.resolveAssetSource(profile).uri
+              : user?.avatar
               ? serverBaseHttpURL.concat(user.avatar)
               : Image.resolveAssetSource(profile).uri,
           }}

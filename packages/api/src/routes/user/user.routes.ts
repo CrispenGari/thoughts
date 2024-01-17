@@ -79,10 +79,23 @@ export const userRouter = router({
   }),
   contact: publicProcedure
     .input(contactSchema)
-    .query(async ({ input: { id } }) => {
-      const user = await User.findByPk(id);
+    .query(async ({ input: { id }, ctx: { me } }) => {
+      const user = await User.findByPk(id, {
+        include: [
+          {
+            model: Blocked,
+            where: {
+              phoneNumber: me?.phoneNumber,
+            },
+            as: "blocked",
+            required: false,
+          },
+        ],
+      });
+      const blocked = !!user?.toJSON().blocked.length;
       return {
         user: user ? user.toJSON() : null,
+        blocked,
       };
     }),
   get: publicProcedure
@@ -93,25 +106,40 @@ export const userRouter = router({
           return {
             user: null,
             blocked: false,
+            blockedYou: false,
           };
         const u = await User.findByPk(id, {
-          include: ["country"],
+          include: [
+            "country",
+            {
+              model: Blocked,
+              where: {
+                phoneNumber: me?.phoneNumber,
+              },
+              as: "blocked",
+              required: false,
+            },
+          ],
         });
-        if (!!!u) return { user: null, blocked: false };
+
+        if (!!!u) return { user: null, blocked: false, blockedYou: false };
         const b = await Blocked.findOne({
           where: {
             userId: me.id,
             phoneNumber: u.toJSON().phoneNumber,
           },
         });
+        const blocked = !!u?.toJSON().blocked.length;
         return {
           user: u.toJSON(),
           blocked: !!b,
+          blockedYou: blocked,
         };
       } catch (error) {
         return {
           user: null,
           blocked: false,
+          blockedYou: false,
         };
       }
     }),

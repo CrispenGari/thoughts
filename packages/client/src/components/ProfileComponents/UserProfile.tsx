@@ -31,6 +31,7 @@ interface Props {
     loaded: boolean;
   };
   openProfile: () => void;
+  isBlocked: boolean;
 }
 const UserProfile: React.FunctionComponent<Props> = ({
   gettingUser,
@@ -40,6 +41,7 @@ const UserProfile: React.FunctionComponent<Props> = ({
   setState,
   state,
   user,
+  isBlocked,
 }) => {
   return (
     <>
@@ -120,7 +122,9 @@ const UserProfile: React.FunctionComponent<Props> = ({
                           : Image.resolveAssetSource(profile).uri,
                       }
                     : {
-                        uri: !!user
+                        uri: isBlocked
+                          ? Image.resolveAssetSource(profile).uri
+                          : !!user
                           ? serverBaseHttpURL.concat(user?.avatar || "")
                           : Image.resolveAssetSource(profile).uri,
                       }
