@@ -20,6 +20,7 @@ import { Notification } from "../../sequelize/notification.model";
 import { User } from "../../sequelize/user.model";
 import { Vote } from "../../sequelize/vote.model";
 import { Blocked } from "../../sequelize/blocked.model";
+import { Op } from "sequelize";
 
 const ee = new EventEmitter();
 export const commentRouter = router({
@@ -97,7 +98,6 @@ export const commentRouter = router({
             success: false,
             error: "The thought might have been deleted or expired.",
           };
-
         const user = await User.findByPk(thought.toJSON().userId, {
           include: [
             {
@@ -162,32 +162,39 @@ export const commentRouter = router({
     }),
   getComments: publicProcedure
     .input(getCommentsSchema)
-    .query(async ({ input: { thoughtId, limit, cursor } }) => {
-      try {
-        const offset = cursor ? cursor : 0;
-        const payload = await Comment.findAll({
-          where: { thoughtId },
-          attributes: ["id"],
-          order: [["createdAt", "DESC"]],
-          limit: limit + 1,
-          offset,
-        });
-        let nextCursor: typeof offset | undefined = undefined;
-        if (payload.length > limit) {
-          payload.pop();
-          nextCursor = offset + limit;
+    .query(
+      async ({ input: { thoughtId, limit, cursor }, ctx: { blocked } }) => {
+        try {
+          const offset = cursor ? cursor : 0;
+          const payload = await Comment.findAll({
+            where: {
+              thoughtId,
+              userId: {
+                [Op.notIn]: blocked,
+              },
+            },
+            attributes: ["id"],
+            order: [["createdAt", "DESC"]],
+            limit: limit + 1,
+            offset,
+          });
+          let nextCursor: typeof offset | undefined = undefined;
+          if (payload.length > limit) {
+            payload.pop();
+            nextCursor = offset + limit;
+          }
+          return {
+            nextCursor,
+            comments: payload.map((c) => c.toJSON()),
+          };
+        } catch (error) {
+          return {
+            nextCursor: undefined,
+            comments: [],
+          };
         }
-        return {
-          nextCursor,
-          comments: payload.map((c) => c.toJSON()),
-        };
-      } catch (error) {
-        return {
-          nextCursor: undefined,
-          comments: [],
-        };
       }
-    }),
+    ),
   edit: publicProcedure
     .input(editSchema)
     .mutation(async ({ input: { commentId, text }, ctx: { me } }) => {

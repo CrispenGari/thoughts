@@ -21,6 +21,7 @@ import { User } from "../../sequelize/user.model";
 
 import { Vote } from "../../sequelize/vote.model";
 import { Blocked } from "../../sequelize/blocked.model";
+import { Op } from "sequelize";
 
 const ee = new EventEmitter();
 export const replyRouter = router({
@@ -148,32 +149,39 @@ export const replyRouter = router({
     }),
   getReplies: publicProcedure
     .input(getRepliesSchema)
-    .query(async ({ input: { commentId, limit, cursor } }) => {
-      try {
-        const offset = cursor ? cursor : 0;
-        const payload = await Reply.findAll({
-          where: { commentId },
-          attributes: ["id"],
-          order: [["createdAt", "ASC"]],
-          limit: limit + 1,
-          offset,
-        });
-        let nextCursor: typeof offset | undefined = undefined;
-        if (payload.length > limit) {
-          payload.pop();
-          nextCursor = offset + limit;
+    .query(
+      async ({ input: { commentId, limit, cursor }, ctx: { blocked } }) => {
+        try {
+          const offset = cursor ? cursor : 0;
+          const payload = await Reply.findAll({
+            where: {
+              commentId,
+              userId: {
+                [Op.notIn]: blocked,
+              },
+            },
+            attributes: ["id"],
+            order: [["createdAt", "ASC"]],
+            limit: limit + 1,
+            offset,
+          });
+          let nextCursor: typeof offset | undefined = undefined;
+          if (payload.length > limit) {
+            payload.pop();
+            nextCursor = offset + limit;
+          }
+          return {
+            nextCursor,
+            replies: payload.map((c) => c.toJSON()),
+          };
+        } catch (error) {
+          return {
+            nextCursor: undefined,
+            replies: [],
+          };
         }
-        return {
-          nextCursor,
-          replies: payload.map((c) => c.toJSON()),
-        };
-      } catch (error) {
-        return {
-          nextCursor: undefined,
-          replies: [],
-        };
       }
-    }),
+    ),
   getReply: publicProcedure
     .input(getReplySchema)
     .query(async ({ input: { id }, ctx: { me } }) => {
