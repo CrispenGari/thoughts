@@ -14,6 +14,7 @@ import { Events } from "../../constants";
 import { ThoughtType } from "../../types";
 import { Thought } from "../../sequelize/thought.model";
 import { User } from "../../sequelize/user.model";
+import { Blocked } from "../../sequelize/blocked.model";
 
 const ee = new EventEmitter();
 export const thoughtRouter = router({
@@ -146,7 +147,11 @@ export const thoughtRouter = router({
     .input(getByIdSchema)
     .query(async ({ input: { id }, ctx: { me } }) => {
       try {
-        if (!!!me) return null;
+        if (!!!me)
+          return {
+            error: "You are not authenticated.",
+            thought: null,
+          };
         const payload = await Thought.findByPk(id, {
           include: [
             {
@@ -154,9 +159,37 @@ export const thoughtRouter = router({
             },
           ],
         });
-        return !!payload ? payload.toJSON() : null;
+        if (!!!payload) {
+          return {
+            error: "The thought might have been deleted",
+            thought: null,
+          };
+        }
+        const user = await User.findByPk(payload.toJSON().userId, {
+          include: [
+            {
+              model: Blocked,
+              where: {
+                phoneNumber: me.phoneNumber,
+              },
+              as: "blocked",
+            },
+          ],
+        });
+        const blocked = !!user?.toJSON().blocked.length;
+        if (blocked) {
+          return { thought: null, error: "You are blocked by this user." };
+        }
+
+        return {
+          error: null,
+          thought: payload.toJSON(),
+        };
       } catch (error) {
-        return null;
+        return {
+          error: "Internal server Error",
+          thought: null,
+        };
       }
     }),
   get: publicProcedure.query(async ({ ctx: { me } }) => {

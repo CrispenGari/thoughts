@@ -108,8 +108,6 @@ export const voteRouter = router({
             include: { all: true },
           }
         );
-        console.log(_newVote.toJSON());
-
         await Comment.increment("voteCount", {
           by: 1,
           where: {

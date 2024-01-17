@@ -5,11 +5,13 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React from "react";
 import { AppNavProps } from "../../../params";
 import AppStackBackButton from "../../../components/AppStackBackButton/AppStackBackButton";
 import {
+  APP_NAME,
   COLORS,
   FONTS,
   profile,
@@ -44,6 +46,8 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
   const { me } = useMeStore();
   const [loaded, setLoaded] = React.useState(true);
   const { mutateAsync: read, isLoading } = trpc.notification.read.useMutation();
+  const { mutateAsync: mutateBlockUser } = trpc.blocked.block.useMutation();
+
   const {
     data: thought,
     isFetching: fetching,
@@ -86,6 +90,32 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
       read({ thoughtId: params.id, type: params.type });
     }
   }, [params]);
+
+  React.useEffect(() => {
+    if (!!thought?.error) {
+      Alert.alert(APP_NAME, thought.error, [
+        {
+          text: "OK",
+          onPress: () => {
+            navigation.goBack();
+          },
+        },
+        {
+          text: "BLOCK USER",
+          style: "destructive",
+          onPress: () => {
+            if (true) {
+              mutateBlockUser({ id: params.userId }).then((res) => {
+                if (res.success) {
+                  navigation.goBack();
+                }
+              });
+            }
+          },
+        },
+      ]);
+    }
+  }, [thought]);
 
   if (!!!thought && !isLoadingThought)
     return (
@@ -253,8 +283,8 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
                   if (thought) {
                     navigation.navigate("Profile", {
                       from: "Thought",
-                      isMe: me?.id === thought?.userId,
-                      userId: thought.userId!,
+                      isMe: me?.id === thought?.thought?.userId,
+                      userId: thought?.thought?.userId!,
                     });
                   }
                 }}
@@ -274,8 +304,8 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
                     borderRadius: 40,
                   }}
                   source={{
-                    uri: !!thought?.user.avatar
-                      ? serverBaseHttpURL.concat(thought?.user.avatar)
+                    uri: !!thought?.thought?.user.avatar
+                      ? serverBaseHttpURL.concat(thought?.thought?.user.avatar)
                       : Image.resolveAssetSource(profile).uri,
                   }}
                   onError={(error) => {
@@ -308,17 +338,20 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
                 <Text
                   style={[styles.p, { color: COLORS.tertiary, fontSize: 14 }]}
                 >
-                  {dayjs(thought?.createdAt).fromNow()} ago
+                  {dayjs(thought?.thought?.createdAt).fromNow()} ago
                 </Text>
               </View>
               <Text style={[styles.h1, { fontSize: 18, marginBottom: 20 }]}>
-                {thought?.text}
+                {thought?.thought?.text}
               </Text>
             </View>
 
             <Divider color={COLORS.black} title="USER COMMENTS" />
-            {thought?.id ? (
-              <Comments navigation={navigation} thoughtId={thought.id} />
+            {thought?.thought?.id ? (
+              <Comments
+                navigation={navigation}
+                thoughtId={thought.thought.id}
+              />
             ) : null}
           </View>
         </ScrollView>

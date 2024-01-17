@@ -55,6 +55,7 @@ export type AppParamList = {
     notificationId: number;
     read: boolean;
     type: "comment" | "reply" | "comment_reaction" | "reply_reaction";
+    userId: number;
   };
 };
 

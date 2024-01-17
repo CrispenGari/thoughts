@@ -34,9 +34,9 @@ export const User: ModelDefined<
       unique: true,
     },
     online: {
-      type: DataTypes.TINYINT,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: false,
     },
     tokenVersion: {
       type: DataTypes.INTEGER,

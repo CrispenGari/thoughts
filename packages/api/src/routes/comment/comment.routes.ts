@@ -19,6 +19,7 @@ import { CommentType, NotificationType } from "../../types";
 import { Notification } from "../../sequelize/notification.model";
 import { User } from "../../sequelize/user.model";
 import { Vote } from "../../sequelize/vote.model";
+import { Blocked } from "../../sequelize/blocked.model";
 
 const ee = new EventEmitter();
 export const commentRouter = router({
@@ -86,10 +87,32 @@ export const commentRouter = router({
     .input(createSchema)
     .mutation(async ({ ctx: { me }, input: { thoughtId, text } }) => {
       try {
-        if (!!!text.trim()) return { success: false };
-        if (!!!me) return { success: false };
+        if (!!!text.trim())
+          return { success: false, error: "The text is required." };
+        if (!!!me)
+          return { success: false, error: "You are not authenticated" };
         const thought = await Thought.findByPk(thoughtId);
-        if (!!!thought) return { success: false };
+        if (!!!thought)
+          return {
+            success: false,
+            error: "The thought might have been deleted or expired.",
+          };
+
+        const user = await User.findByPk(thought.toJSON().userId, {
+          include: [
+            {
+              model: Blocked,
+              where: {
+                phoneNumber: me.phoneNumber,
+              },
+              as: "blocked",
+            },
+          ],
+        });
+        const blocked = !!user?.toJSON().blocked.length;
+        if (blocked) {
+          return { success: false, error: "You are blocked by this user." };
+        }
         const comment = await Comment.create({
           text: text.trim(),
           thoughtId: thought.toJSON().id,
@@ -104,9 +127,9 @@ export const commentRouter = router({
         });
         ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
         ee.emit(Events.ON_CREATE_COMMENT, comment.toJSON());
-        return { success: true };
+        return { success: true, error: null };
       } catch (error) {
-        return { success: false };
+        return { success: false, error: "Internal server error." };
       }
     }),
   getComment: publicProcedure

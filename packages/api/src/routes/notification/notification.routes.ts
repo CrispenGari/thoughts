@@ -1,6 +1,7 @@
 import { EventEmitter } from "stream";
 import {
   delSchema,
+  getSchema,
   onDeleteSchema,
   onReadSchema,
   readSchema,
@@ -11,6 +12,7 @@ import { NotificationType } from "../../types";
 import { Events } from "../../constants";
 import { observable } from "@trpc/server/observable";
 import * as lodash from "lodash";
+import { Thought } from "../../sequelize/thought.model";
 
 const ee = new EventEmitter();
 export const notificationRoute = router({
@@ -45,6 +47,36 @@ export const notificationRoute = router({
       });
     }),
 
+  get: publicProcedure.input(getSchema).query(async ({ input: { id } }) => {
+    try {
+      const notification = await Notification.findByPk(id);
+
+      if (!!!notification)
+        return {
+          thoughtOwner: null,
+          notification: null,
+        };
+      const thought = await Thought.findByPk(notification?.toJSON().thoughtId, {
+        include: ["user"],
+      });
+      if (!!!thought) {
+        return {
+          thoughtOwner: null,
+          notification: notification.toJSON(),
+        };
+      }
+
+      return {
+        thoughtOwner: thought.toJSON().user,
+        notification: notification.toJSON(),
+      };
+    } catch (error) {
+      return {
+        thoughtOwner: null,
+        notification: null,
+      };
+    }
+  }),
   all: publicProcedure.query(async ({ ctx: { me } }) => {
     try {
       if (!!!me) return { read: [], unread: [] };

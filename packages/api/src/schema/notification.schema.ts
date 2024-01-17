@@ -15,3 +15,6 @@ export const onReadSchema = z.object({
 export const onDeleteSchema = z.object({
   userId: z.number(),
 });
+export const getSchema = z.object({
+  id: z.number(),
+});

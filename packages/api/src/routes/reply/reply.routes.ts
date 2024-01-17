@@ -20,6 +20,7 @@ import { Comment } from "../../sequelize/comment.model";
 import { User } from "../../sequelize/user.model";
 
 import { Vote } from "../../sequelize/vote.model";
+import { Blocked } from "../../sequelize/blocked.model";
 
 const ee = new EventEmitter();
 export const replyRouter = router({
@@ -87,9 +88,35 @@ export const replyRouter = router({
     .input(replySchema)
     .mutation(async ({ ctx: { me }, input: { commentId, text, mentions } }) => {
       try {
-        if (!!!text.trim()) return { success: false };
+        if (!!!text.trim())
+          return {
+            success: false,
+            error: "You are not authenticated or the reply has been deleted.",
+          };
         const cmt = await Comment.findByPk(commentId);
-        if (!!!me || !!!cmt) return { success: false };
+
+        if (!!!me || !!!cmt)
+          return {
+            success: false,
+            error: "You are not authenticated or the reply has been deleted.",
+          };
+
+        const user = await User.findByPk(cmt.toJSON().userId, {
+          include: [
+            {
+              model: Blocked,
+              where: {
+                phoneNumber: me.phoneNumber,
+              },
+              as: "blocked",
+            },
+          ],
+        });
+        const blocked = !!user?.toJSON().blocked.length;
+        if (blocked) {
+          return { success: false, error: "You are blocked by this user." };
+        }
+
         const reply = await Reply.create({
           text: text.trim(),
           commentId,
@@ -114,9 +141,9 @@ export const replyRouter = router({
         });
         ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
         ee.emit(Events.ON_REPLY_CREATE, reply.toJSON());
-        return { success: true };
+        return { success: true, error: null };
       } catch (error) {
-        return { success: false };
+        return { success: false, error: "Internal server error." };
       }
     }),
   getReplies: publicProcedure

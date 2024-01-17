@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  Alert,
 } from "react-native";
 import React from "react";
 import { UserType } from "@thoughts/api/src/types";
 import {
+  APP_NAME,
   COLORS,
   FONTS,
   profile,
@@ -76,6 +78,11 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
         if (res.success) {
           setState((state) => ({ ...state, reply: false, text: "" }));
           setReplyTo(undefined);
+        } else {
+          Alert.alert(
+            APP_NAME,
+            res?.error || "There was an error commenting on this thought."
+          );
         }
       });
     }

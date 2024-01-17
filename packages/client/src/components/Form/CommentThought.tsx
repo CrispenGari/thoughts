@@ -38,7 +38,7 @@ const CommentThought: React.FunctionComponent<Props> = ({
         } else {
           Alert.alert(
             APP_NAME,
-            "There was an error commenting on this thought."
+            res?.error || "There was an error commenting on this thought."
           );
         }
       }

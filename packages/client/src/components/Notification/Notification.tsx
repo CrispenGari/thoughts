@@ -12,6 +12,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
 
 import { trpc } from "../../utils/trpc";
+import NotificationSkeleton from "./NotificationSkeleton";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -31,30 +32,37 @@ const Notification: React.FunctionComponent<Props> = ({
 }) => {
   const swipeableRef = React.useRef<Swipeable | undefined>();
   const { mutateAsync: del } = trpc.notification.del.useMutation();
-  const notification = notifications[0];
+  const noti = notifications[0];
+  const { data: notification, isLoading } = trpc.notification.get.useQuery({
+    id: noti.id!,
+  });
+
   const open = () => {
-    if (!!notification.thoughtId) {
+    if (!!notification?.notification && !!notification.thoughtOwner) {
       navigation.navigate("Thought", {
-        id: notification.thoughtId,
-        notificationId: notification.id!,
-        read: notification.read,
-        type: notification.type!,
+        id: notification.notification.thoughtId,
+        notificationId: notification.notification.id!,
+        read: notification.notification.read,
+        type: notification.notification.type!,
+        userId: notification.thoughtOwner.id!,
       });
     }
   };
 
   const deleteNotification = () => {
-    if (notification.id) {
-      del({ thoughtId: notification.thoughtId, type: notification.type! }).then(
-        async (res) => {
-          if (res.success) {
-            await refetchNotifications();
-          }
+    if (notification?.notification?.id) {
+      del({
+        thoughtId: notification.notification.thoughtId,
+        type: notification.notification.type!,
+      }).then(async (res) => {
+        if (res.success) {
+          await refetchNotifications();
         }
-      );
+      });
     }
   };
 
+  if (isLoading) return <NotificationSkeleton read={false} />;
   return (
     <Swipeable
       ref={swipeableRef as any}
@@ -86,7 +94,9 @@ const Notification: React.FunctionComponent<Props> = ({
           justifyContent: "space-between",
           padding: 10,
           paddingHorizontal: 10,
-          backgroundColor: !notification.read ? COLORS.secondary : COLORS.white,
+          backgroundColor: !notification?.notification?.read
+            ? COLORS.secondary
+            : COLORS.white,
           paddingRight: 20,
           marginBottom: 2,
         }}
@@ -96,11 +106,11 @@ const Notification: React.FunctionComponent<Props> = ({
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={[styles.h1, { fontSize: 16 }]} numberOfLines={1}>
-              {notification.type}
+              {notification?.notification?.type}
             </Text>
             <Text style={[styles.p, { fontSize: 16 }]}>
               {" • "}
-              {dayjs(notification.createdAt).fromNow()}
+              {dayjs(notification?.notification?.createdAt).fromNow()}
             </Text>
           </View>
           <Text
@@ -109,12 +119,16 @@ const Notification: React.FunctionComponent<Props> = ({
               styles.p,
               {
                 fontSize: 14,
-                color: !notification.read ? COLORS.white : COLORS.tertiary,
+                color: !notification?.notification?.read
+                  ? COLORS.white
+                  : COLORS.tertiary,
               },
             ]}
           >
-            {`${notifications.length} ${notification.read ? "old" : "new"}`}{" "}
-            {notification.title}
+            {`${notifications.length} ${
+              notification?.notification?.read ? "old" : "new"
+            }`}{" "}
+            {notification?.notification?.title}
           </Text>
         </View>
       </TouchableOpacity>
