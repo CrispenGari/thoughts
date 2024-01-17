@@ -2,9 +2,55 @@
 
 💭 this is a simple mobile social app for sharing thoughts with your contact friends.
 
+<p align="center"><img src="logo.png" alt="logo" width="200"/></p>
+
 ### Idea
 
+Just like whatsapp statuses or to be more specific facebook messenger thoughts this app is implemented for users to share thoughts as statuses among their contacts. In this app users are able to perform the following actions:
+
+1. Authenticate to use the service
+2. Create profile for themselves
+3. Delete their account when tired
+4. Share thoughts with contacts
+5. Delete and edit their thoughts
+6. See the thoughts of their contacts
+7. Comment, Respond and React to comments and comment replies
+8. Delete and update comments
+9. Block Contact on this app
+10. Change settings
+11. Report issues and bugs associated with this app.
+12. Get notifications
+13. Profile updates
+14. Phone number updates
+15. Pin Management
+
+> Note: **The idea of this app is to improve user interactivity in the social-media space so that people won't get depressed or bored while they can be locked in on this social media platform.**
+
 ### Implementation
+
+In this app a mobile application will be created that will be consuming a `trpc` api. Mono-repo approach is going to be used using `yarn-workspaces`. We are going to have `2` packages for this project located in the `packages/` folder which are:
+
+1. `client` - react-native mobile app
+2. `api` - `trpc` server api.
+
+### Techs
+
+The following technologies were used in this app:
+
+1. `react-native (Expo)`
+2. `tRPC`
+3. `yarn-workspaces`
+4. `fastify`
+
+### Tools
+
+The following tools were used to develop this app:
+
+1. NodeJS
+
+### Programming langages
+
+In this project we are using `TypeScript` as a programming language
 
 #### Authentication
 
@@ -48,3 +94,32 @@ Optionally upon registration users can set their `avatar`, in the profile `page`
 ### Storage
 
 In this project we are storing the images which are the profile avatar to the server in the `packages/api/storage/image` folder. These images are uploaded to the server by sending a `POST` request at `/api/upload/images` with an image file. We are not storing the whole image path in the database we are storing the relative path to the server for example if the image url is `http://localhost:3001/api/storage/images/0f5feb01-8a2b-469f-b613-999886ad95bd.jpg` in the database we are going to store the path `/api/storage/images/0f5feb01-8a2b-469f-b613-999886ad95bd.jpg` in the `avatar` field.
+
+### LICENSE
+
+THIS PROJECT IS USING THE [`MIT`](/LICENSE) WHICH READS AS FOLLOWS:
+
+```txt
+MIT License
+
+Copyright (c) 2023 crispengari
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+```

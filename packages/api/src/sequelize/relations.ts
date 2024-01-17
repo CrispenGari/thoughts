@@ -2,7 +2,9 @@ import { Blocked } from "./blocked.model";
 import { Comment } from "./comment.model";
 import { Country } from "./country.model";
 import { Notification } from "./notification.model";
+import { Payment } from "./payment.model";
 import { Reply } from "./reply.model";
+import { Setting } from "./setting.model";
 import { Thought } from "./thought.model";
 
 import { User } from "./user.model";
@@ -21,6 +23,21 @@ User.belongsTo(Country, {
   onDelete: "RESTRICT",
   onUpdate: "CASCADE",
   foreignKey: "countryId",
+});
+
+// SETTING AND USER
+Setting.belongsTo(User, {});
+User.belongsTo(Setting, {
+  onDelete: "RESTRICT",
+  onUpdate: "CASCADE",
+  foreignKey: "countryId",
+});
+// PAYMENTS AND USER
+User.hasMany(Payment, {});
+Payment.belongsTo(User, {
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  foreignKey: "userId",
 });
 
 // COMMENT AND THOUGHT

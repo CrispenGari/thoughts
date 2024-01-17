@@ -10,6 +10,8 @@ import { replyRouter } from "./reply/reply.routes";
 import { thoughtRouter } from "./thought/thought.routes";
 import { voteRouter } from "./vote/vote.routes";
 import { userRouter } from "./user/user.routes";
+import { paymentRouter } from "./payment/payment.routes";
+import { settingRouter } from "./setting/setting.routes";
 
 export const appRouter = router({
   hello: helloRouter,
@@ -21,7 +23,8 @@ export const appRouter = router({
   comment: commentRouter,
   notification: notificationRoute,
   vote: voteRouter,
-
+  payment: paymentRouter,
+  setting: settingRouter,
   reply: replyRouter,
   blocked: blockedRouter,
 });

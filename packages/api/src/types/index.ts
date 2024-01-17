@@ -8,6 +8,29 @@ export interface ThoughtType {
   user?: UserType;
   comments?: CommentType[];
 }
+
+export interface PaymentType {
+  id?: number;
+  category: "active_status" | "general";
+  type: "e-payment" | "cash";
+  currency: string;
+  price: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  // relations
+  user?: UserType;
+}
+
+export interface SettingType {
+  id?: number;
+  activeStatus: boolean;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+  // relations
+  user?: UserType;
+}
+
 export interface NotificationType {
   id?: number;
   title: string;
