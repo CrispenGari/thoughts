@@ -18,6 +18,11 @@ export const Setting: ModelDefined<
       defaultValue: true,
       allowNull: false,
     },
+    notifications: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
   },
   { freezeTableName: true, timestamps: true }
 );

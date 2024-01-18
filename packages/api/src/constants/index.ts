@@ -36,6 +36,9 @@ export const enum Events {
   // reaction related
   ON_COMMENT_VOTE = "ON_COMMENT_VOTE",
   ON_REPLY_VOTE = "ON_REPLY_VOTE",
+
+  // payment related
+  ON_PAY = "ON_PAY",
 }
 
 export const serverURL = new URL("http://localhost:3001/");

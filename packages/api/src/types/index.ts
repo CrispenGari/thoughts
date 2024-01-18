@@ -15,6 +15,8 @@ export interface PaymentType {
   type: "e-payment" | "cash";
   currency: string;
   price: number;
+  userId?: number;
+
   createdAt?: Date;
   updatedAt?: Date;
   // relations
@@ -24,6 +26,7 @@ export interface PaymentType {
 export interface SettingType {
   id?: number;
   activeStatus: boolean;
+  notifications: boolean;
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -119,4 +122,6 @@ export interface UserType {
   // relations
   country?: CountryType;
   blocked?: BlockedType[];
+  settings?: SettingType;
+  payments?: PaymentType[];
 }

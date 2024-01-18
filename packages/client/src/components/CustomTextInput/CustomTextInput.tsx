@@ -9,12 +9,14 @@ import {
   NativeSyntheticEvent,
   TextStyle,
   TextInputContentSizeChangeEventData,
+  ColorValue,
 } from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "../../constants";
 
 interface Props {
   inputStyle: StyleProp<TextStyle>;
+  placeholderTextColor?: ColorValue | undefined;
   placeholder: string;
   keyboardType: KeyboardTypeOptions;
   text: string;
@@ -50,6 +52,7 @@ const CustomTextInput: React.FunctionComponent<Partial<Props>> = ({
   leftIcon,
   rightIcon,
   containerStyles,
+  placeholderTextColor,
 }) => {
   return (
     <View
@@ -93,6 +96,7 @@ const CustomTextInput: React.FunctionComponent<Partial<Props>> = ({
         secureTextEntry={secureTextEntry}
         numberOfLines={numberOfLines}
         multiline={multiline}
+        placeholderTextColor={placeholderTextColor}
       />
       <TouchableOpacity activeOpacity={0.7} onPress={onRightIconPress}>
         {rightIcon}

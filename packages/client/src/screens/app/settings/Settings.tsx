@@ -19,6 +19,7 @@ import SettingItem from "../../../components/SettingItem/SettingItem";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
 import { styles } from "../../../styles";
 import Ripple from "../../../components/Ripple/Ripple";
+import PaymentBottomSheet from "../../../components/PaymentBottomSheet/PaymentBottomSheet";
 
 const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
   navigation,
@@ -27,6 +28,8 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
   const { mutateAsync: mutateLogout, isLoading: loggingOut } =
     trpc.logout.logout.useMutation();
   const { me, setMe } = useMeStore();
+  const [open, setOpen] = React.useState(false);
+  const toggle = () => setOpen((state) => !state);
 
   const logout = () => {
     mutateLogout().then(async (res) => {
@@ -36,6 +39,8 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
       }
     });
   };
+
+  const toggleInvisibleMode = () => {};
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -63,6 +68,7 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
   }, [navigation]);
   return (
     <LinearGradientProvider>
+      <PaymentBottomSheet open={open} toggle={toggle} />
       <View
         style={{
           flex: 1,
@@ -142,7 +148,14 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
           <SettingItem
             title={"Show Active Status"}
             Icon={<Ionicons name="eye" size={18} color={COLORS.tertiary} />}
-            onPress={() => {}}
+            onPress={() => {
+              if (
+                !!!me?.payments?.find((p) => p.category === "active_status")
+              ) {
+                toggle();
+              }
+              toggleInvisibleMode();
+            }}
           />
           <SettingItem
             title={"Blocked Contacts"}

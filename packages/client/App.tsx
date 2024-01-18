@@ -9,6 +9,7 @@ import * as Notifications from "expo-notifications";
 import Loading from "./src/components/Loading/Loading";
 import LinearGradientProvider from "./src/providers/LinearGradientProvider";
 import ReactQueryProvider from "./src/providers/ReactQueryProvider";
+import StripeProvider from "./src/providers/StripeProvider";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -31,12 +32,14 @@ const App = () => {
     );
   return (
     <TRPCProvider>
-      <LinearGradientProvider>
-        <StatusBar barStyle={"light-content"} />
-        <ReactQueryProvider>
-          <Routes />
-        </ReactQueryProvider>
-      </LinearGradientProvider>
+      <StripeProvider>
+        <LinearGradientProvider>
+          <StatusBar barStyle={"light-content"} />
+          <ReactQueryProvider>
+            <Routes />
+          </ReactQueryProvider>
+        </LinearGradientProvider>
+      </StripeProvider>
     </TRPCProvider>
   );
 };

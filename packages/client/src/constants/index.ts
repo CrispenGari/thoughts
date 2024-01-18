@@ -35,6 +35,9 @@ export const FONTS = {
 
 export const logo = require("../../assets/logo.png");
 export const profile = require("../../assets/profile.png");
+export const simcard = require("../../assets/simcard.png");
+export const paywave = require("../../assets/paywave.png");
+export const mastercard = require("../../assets/mastercard.png");
 
 export const relativeTimeObject = {
   future: "in %s",

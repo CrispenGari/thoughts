@@ -74,6 +74,17 @@ export const AppTabs = () => {
       },
     }
   );
+
+  trpc.payment.onPay.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: (data) => {
+        if (data.id === me?.id) {
+          setMe(data);
+        }
+      },
+    }
+  );
   trpc.user.onUserUpdate.useSubscription(
     { userId: me?.id || 0 },
     {

@@ -110,6 +110,7 @@ export const userRouter = router({
           };
         const u = await User.findByPk(id, {
           include: [
+            "settings",
             "country",
             {
               model: Blocked,
