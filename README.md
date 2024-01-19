@@ -23,6 +23,7 @@ Just like whatsapp statuses or to be more specific facebook messenger thoughts t
 13. Profile updates
 14. Phone number updates
 15. Pin Management
+16. In App Payments
 
 > Note: **The idea of this app is to improve user interactivity in the social-media space so that people won't get depressed or bored while they can be locked in on this social media platform.**
 
@@ -41,6 +42,7 @@ The following technologies were used in this app:
 2. `tRPC`
 3. `yarn-workspaces`
 4. `fastify`
+5. `stripe`
 
 ### Tools
 
@@ -48,7 +50,7 @@ The following tools were used to develop this app:
 
 1. NodeJS
 
-### Programming langages
+### Programming languages
 
 In this project we are using `TypeScript` as a programming language
 
@@ -90,6 +92,46 @@ Optionally upon registration users can set their `avatar`, in the profile `page`
 > Note that the users that have their account setup they can login with any device at any time. Now this is where the tokenVersion come to play. When you login on another version of phone we will have to update the `tokenVersion` meaning that the only device that will have access to your account is the current device.
 
 #### Database and Associations
+
+In this project the `postgres` database is used to store all the data of the app. The following models were created and their associations were mapped.
+
+1. `User`
+   - A user has 1 `thought`
+   - A user has many `notifications`
+   - A user has many `votes`
+   - A user can make many `payments`
+   - A user has many `comments`
+   - A user has many `replies`
+   - A user has many `blocked` contacts
+   - A user belongs to 1 `country`
+   - A user has a single instance of `settings`
+2. `Thought`
+   - A thought has a `1` to `1` relationship with the user
+   - A thought has many comments
+3. `Vote`
+   - A vote has a `N` to `1` relationship with the user
+   - 1 vote belongs to a single instance of a `reply`
+   - 1 vote belongs to a single instance of a `comment`
+4. `Comment`
+   - A comment has a `N` to `1` relationship with the user
+   - A comment has many `votes`
+   - A comment has many `replies`
+5. `Reply`
+   - A reply have a `N` to `1` relationship with the `user`.
+   - A reply belongs to a single `comment`
+   - A reply has many `votes`
+   -
+6. `Payment`
+   - A payment have a `1` to `N` relationship with the `user`.
+7. `Notification`
+   - A notification have a `1` to `N` relationship with the `user`.
+   -
+8. `Setting`
+   - A setting model have a `1` to `1` relationship with the `user`.
+9. `Country`
+   - A country have a `1` to `1` relationship with the `user`.
+10. `Blocked`
+    - A blocked have a `1` to `N` relationship with the `user`.
 
 ### Storage
 
