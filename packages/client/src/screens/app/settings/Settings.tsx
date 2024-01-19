@@ -30,6 +30,12 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
   const { me, setMe } = useMeStore();
   const [open, setOpen] = React.useState(false);
   const toggle = () => setOpen((state) => !state);
+  const { isLoading: updatingVisibility, mutateAsync: mutateUpdateVisibility } =
+    trpc.setting.updateVisibility.useMutation();
+  const {
+    isLoading: updatingNotifications,
+    mutateAsync: mutateUpdateNotifications,
+  } = trpc.setting.updateNotifications.useMutation();
 
   const logout = () => {
     mutateLogout().then(async (res) => {
@@ -39,8 +45,14 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
       }
     });
   };
-
-  const toggleInvisibleMode = () => {};
+  const toggleInvisibleMode = () => {
+    if (updatingVisibility) return;
+    mutateUpdateVisibility();
+  };
+  const toggleNotifications = () => {
+    if (updatingNotifications) return;
+    mutateUpdateNotifications();
+  };
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -66,6 +78,7 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
       ),
     });
   }, [navigation]);
+
   return (
     <LinearGradientProvider>
       <PaymentBottomSheet open={open} toggle={toggle} />
@@ -144,10 +157,42 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
               })
             }
           />
+          <Divider color={COLORS.tertiary} title="PUSH NOTIFICATIONS" />
+          <SettingItem
+            title={
+              !!!me?.setting?.notifications
+                ? "Enable Notifications"
+                : "Disable Notifications"
+            }
+            Icon={
+              <Ionicons
+                name={
+                  !!!me?.setting?.notifications
+                    ? "notifications-off"
+                    : "notifications"
+                }
+                size={18}
+                color={COLORS.tertiary}
+              />
+            }
+            onPress={() => {
+              toggleNotifications();
+            }}
+          />
           <Divider color={COLORS.tertiary} title="USER PRIVACY" />
           <SettingItem
-            title={"Show Active Status"}
-            Icon={<Ionicons name="eye" size={18} color={COLORS.tertiary} />}
+            title={
+              !!!me?.setting?.activeStatus
+                ? "Show Active Status"
+                : "Hide Active Status"
+            }
+            Icon={
+              <Ionicons
+                name={!!!me?.setting?.activeStatus ? "eye-off" : "eye"}
+                size={18}
+                color={COLORS.tertiary}
+              />
+            }
             onPress={() => {
               if (
                 !!!me?.payments?.find((p) => p.category === "active_status")

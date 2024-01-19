@@ -1,4 +1,8 @@
-import { UserType, NotificationType } from "@thoughts/api/src/types";
+import {
+  UserType,
+  NotificationType,
+  SettingType,
+} from "@thoughts/api/src/types";
 import { create } from "zustand";
 
 export const useMeStore = create<{

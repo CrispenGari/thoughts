@@ -18,20 +18,21 @@ Thought.belongsTo(User, {
   foreignKey: "userId",
 });
 // COUNTRY AND USER
-Country.belongsTo(User, {});
-User.belongsTo(Country, {
-  onDelete: "RESTRICT",
+User.hasOne(Country);
+Country.belongsTo(User, {
+  onDelete: "CASCADE",
   onUpdate: "CASCADE",
-  foreignKey: "countryId",
+  foreignKey: "userId",
 });
 
 // SETTING AND USER
-Setting.belongsTo(User, {});
-User.belongsTo(Setting, {
-  onDelete: "RESTRICT",
+User.hasOne(Setting);
+Setting.belongsTo(User, {
+  onDelete: "CASCADE",
   onUpdate: "CASCADE",
-  foreignKey: "countryId",
+  foreignKey: "userId",
 });
+
 // PAYMENTS AND USER
 User.hasMany(Payment, {});
 Payment.belongsTo(User, {

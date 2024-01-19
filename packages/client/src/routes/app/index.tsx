@@ -26,6 +26,7 @@ const Stack = createStackNavigator<AppParamList>();
 
 export const AppTabs = () => {
   const { me, setMe } = useMeStore();
+
   const { setUser, setThought, setBlock } = useSubscriptionsStore();
   const { setNotifications } = useNotificationsStore();
   const { data: notifications, refetch: refetchNotifications } =
@@ -74,8 +75,17 @@ export const AppTabs = () => {
       },
     }
   );
-
   trpc.payment.onPay.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: (data) => {
+        if (data.id === me?.id) {
+          setMe(data);
+        }
+      },
+    }
+  );
+  trpc.setting.onSettingsUpdate.useSubscription(
     { userId: me?.id || 0 },
     {
       onData: (data) => {

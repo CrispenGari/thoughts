@@ -76,7 +76,18 @@ export const paymentRouter = router({
           currency: "usd",
           userId: me.id,
         });
-        ee.emit(Events.ON_PAY, me);
+
+        const u = await User.findByPk(me.id, {
+          include: ["country", "setting", "payments"],
+        });
+        if (!!!u) {
+          return {
+            error: "Unable to retrive the user.",
+            secrete,
+            success: false,
+          };
+        }
+        ee.emit(Events.ON_PAY, u.toJSON());
         return {
           success: true,
           error: null,

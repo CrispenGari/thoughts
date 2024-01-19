@@ -15,11 +15,12 @@ import { UserType } from "../../types";
 import { Op } from "sequelize";
 import { isValidPhoneNumber } from "../../utils/regexp";
 import { User } from "../../sequelize/user.model";
-import { Country } from "../../sequelize/country.model";
+
 import path from "path";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import { Blocked } from "../../sequelize/blocked.model";
+import { Country } from "../../sequelize/country.model";
 const storagePath = path.resolve(
   path.join(__dirname.replace(`\\src\\routes\\user`, ""), "storage", "images")
 );
@@ -90,6 +91,7 @@ export const userRouter = router({
             as: "blocked",
             required: false,
           },
+          "setting",
         ],
       });
       const blocked = !!user?.toJSON().blocked.length;
@@ -110,7 +112,7 @@ export const userRouter = router({
           };
         const u = await User.findByPk(id, {
           include: [
-            "settings",
+            "setting",
             "country",
             {
               model: Blocked,
@@ -207,7 +209,7 @@ export const userRouter = router({
           {
             ...country,
           },
-          { where: { id: me.country?.id } }
+          { where: { userId: me.id } }
         );
         await User.update(
           { phoneNumber: phoneNumber.trim() },

@@ -10,7 +10,7 @@ import { styles } from "../../styles";
 import Ripple from "../Ripple/Ripple";
 import { trpc } from "../../utils/trpc";
 import ThoughtComponent from "../ThoughtComponent/ThoughtComponent";
-import { useSubscriptionsStore } from "../../store";
+import { useMeStore, useSubscriptionsStore } from "../../store";
 import ContentLoader from "../ContentLoader/ContentLoader";
 import Modal from "../Modal/Modal";
 import ImageViewer from "../ImageViewer/ImageViewer";
@@ -84,7 +84,18 @@ const UserContact: React.FunctionComponent<UserProps> = ({
   const [openImageViewer, setOpenImageViewer] = React.useState(false);
   const toggleImageViewer = () => setOpenImageViewer((state) => !state);
   const [loaded, setLoaded] = React.useState(true);
+  const { me } = useMeStore();
   trpc.blocked.onBlocker.useSubscription(
+    {
+      userId: user.id!,
+    },
+    {
+      onData: async (data) => {
+        await triggerRefetch();
+      },
+    }
+  );
+  trpc.setting.onUserSettingsUpdate.useSubscription(
     {
       userId: user.id!,
     },
@@ -132,46 +143,49 @@ const UserContact: React.FunctionComponent<UserProps> = ({
         }}
       >
         <View style={{ position: "relative", marginTop: 30 }}>
-          {user.online ? (
-            <View
-              style={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                zIndex: 1,
-                display: blocked ? "none" : "flex",
-              }}
-            >
-              <Ripple color={COLORS.tertiary} size={5} />
-            </View>
-          ) : (
-            <View
-              style={{
-                position: "absolute",
-                top: 0,
-                right: -30,
-                zIndex: 1,
-                backgroundColor: COLORS.white,
-                width: 40,
-                alignItems: "center",
-                borderRadius: 999,
-                display: blocked ? "none" : "flex",
-              }}
-            >
-              <Text
-                style={[
-                  styles.p,
-                  {
-                    color: COLORS.red,
-                    fontSize: 14,
-                  },
-                ]}
-              >
-                {dayjs(user.updatedAt).fromNow()}
-              </Text>
-            </View>
-          )}
-
+          {me?.setting?.activeStatus && user?.setting?.activeStatus ? (
+            <>
+              {user.online ? (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    zIndex: 1,
+                    display: blocked ? "none" : "flex",
+                  }}
+                >
+                  <Ripple color={COLORS.tertiary} size={5} />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: -30,
+                    zIndex: 1,
+                    backgroundColor: COLORS.white,
+                    width: 40,
+                    alignItems: "center",
+                    borderRadius: 999,
+                    display: blocked ? "none" : "flex",
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.p,
+                      {
+                        color: COLORS.red,
+                        fontSize: 14,
+                      },
+                    ]}
+                  >
+                    {dayjs(user.updatedAt).fromNow()}
+                  </Text>
+                </View>
+              )}
+            </>
+          ) : null}
           {!loaded ? (
             <ContentLoader
               style={{

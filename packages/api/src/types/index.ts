@@ -27,6 +27,7 @@ export interface SettingType {
   id?: number;
   activeStatus: boolean;
   notifications: boolean;
+  userId?: number;
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -101,7 +102,7 @@ export interface CountryType {
   phoneCode: string;
   flag: string;
   countryCode: string;
-  userId?: string;
+  userId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -115,13 +116,12 @@ export interface UserType {
   online?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  countryId?: number;
   pinTrials?: number;
   tokenVersion: number;
 
   // relations
   country?: CountryType;
   blocked?: BlockedType[];
-  settings?: SettingType;
+  setting?: SettingType;
   payments?: PaymentType[];
 }

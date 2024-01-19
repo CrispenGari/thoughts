@@ -16,6 +16,7 @@ import { UserType } from "../../types";
 import { observable } from "@trpc/server/observable";
 import { Events } from "../../constants";
 import crypto from "crypto";
+import { Setting } from "../../sequelize/setting.model";
 const ee = new EventEmitter();
 export const registerRouter = router({
   onNewUser: publicProcedure
@@ -92,19 +93,23 @@ export const registerRouter = router({
           };
         }
         const hashed = await hash(user.pin.trim());
-        const loc = await Country.create({ ...country });
+
         const newToken = crypto.randomInt(1, 10_000_000);
         const me = await User.create({
           pin: hashed,
           name: user.name.trim(),
           phoneNumber: user.phoneNumber.trim(),
           online: true,
-          countryId: loc.toJSON().id,
           avatar: user?.image ? user?.image : undefined,
           tokenVersion: newToken,
         });
         const u = me.toJSON();
-
+        await Country.create({ ...country, userId: u.id });
+        await Setting.create({
+          activeStatus: true,
+          notifications: true,
+          userId: u.id,
+        });
         ee.emit(Events.ON_NEW_USER, u);
         const jwt = await signJwt(u);
         return { jwt };

@@ -39,6 +39,11 @@ export const enum Events {
 
   // payment related
   ON_PAY = "ON_PAY",
+
+  // settings
+
+  ON_USER_SETTINGS_UPDATE = "ON_USER_SETTINGS_UPDATE",
+  ON_SETTINGS_UPDATE = "ON_SETTINGS_UPDATE",
 }
 
 export const serverURL = new URL("http://localhost:3001/");
