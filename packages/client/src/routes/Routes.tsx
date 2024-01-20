@@ -26,6 +26,17 @@ const Routes = () => {
       },
     }
   );
+  trpc.user.onDeleteAccount.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        const res = await del(KEYS.TOKEN_KEY);
+        if (res) {
+          setUser(data);
+        }
+      },
+    }
+  );
   React.useEffect(() => {
     setUser(me);
   }, [me]);

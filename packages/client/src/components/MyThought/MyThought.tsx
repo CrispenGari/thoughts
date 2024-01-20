@@ -54,7 +54,7 @@ const MyThought = () => {
           justifyContent: "center",
         }}
       >
-        <ImageViewer user={me} isMe={true} />
+        <ImageViewer isBlocked={false} user={me} isMe={true} />
       </Modal>
       {thought ? (
         <Modal open={openEditThought} toggle={toggleEditThought}>

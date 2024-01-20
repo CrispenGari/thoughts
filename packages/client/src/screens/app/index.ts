@@ -6,5 +6,7 @@ export { default as Notifications } from "./notifications/Notifications";
 export { default as Profile } from "./profile/Profile";
 export { default as UpdatePhoneNumber } from "./phone/ChangePhoneNumber";
 export { default as ChangePin } from "./pin/ChangePin";
+export { default as DeleteAccount } from "./delete/DeleteAccount";
+export { default as ConfirmDeleteAccount } from "./delete/ConfirmDeleteAccount";
 export { default as Thought } from "./thought/Thought";
 export { default as BlockedContacts } from "./blocked/BlockedContact";

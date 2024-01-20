@@ -13,6 +13,8 @@ import {
   ChangePin,
   UpdatePhoneNumber,
   Thought,
+  DeleteAccount,
+  ConfirmDeleteAccount,
 } from "../../screens/app";
 import { AppState } from "react-native";
 import { trpc } from "../../utils/trpc";
@@ -188,6 +190,11 @@ export const AppTabs = () => {
     >
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Thought" component={Thought} />
+      <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
+      <Stack.Screen
+        name="ConfirmDeleteAccount"
+        component={ConfirmDeleteAccount}
+      />
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="Notifications" component={Notifications} />

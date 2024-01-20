@@ -9,6 +9,14 @@ export interface ThoughtType {
   comments?: CommentType[];
 }
 
+export interface SurveyType {
+  id?: number;
+  reason: string;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface PaymentType {
   id?: number;
   category: "active_status" | "general";

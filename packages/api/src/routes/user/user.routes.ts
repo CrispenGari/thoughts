@@ -8,6 +8,7 @@ import {
   updatePhoneNumberSchema,
   updateProfileSchema,
   onUserDeleteAccountSchema,
+  deleteAccountSchema,
 } from "../../schema/user.schema";
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
@@ -22,12 +23,29 @@ import fs from "fs/promises";
 import { existsSync } from "fs";
 import { Blocked } from "../../sequelize/blocked.model";
 import { Country } from "../../sequelize/country.model";
+import { Survey } from "../../sequelize/survey.model";
+import { verify } from "argon2";
 const storagePath = path.resolve(
   path.join(__dirname.replace(`\\src\\routes\\user`, ""), "storage", "images")
 );
 
 const ee = new EventEmitter();
 export const userRouter = router({
+  onDeleteAccount: publicProcedure
+    .input(onUserDeleteAccountSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<null>((emit) => {
+        const handler = (payload: UserType) => {
+          if (payload.id === userId) {
+            emit.next(null);
+          }
+        };
+        ee.on(Events.ON_DELETE_ACCOUNT, handler);
+        return () => {
+          ee.off(Events.ON_DELETE_ACCOUNT, handler);
+        };
+      });
+    }),
   onUserDeleteAccount: publicProcedure
     .input(onUserDeleteAccountSchema)
     .subscription(async ({ input: { userId } }) => {
@@ -286,43 +304,68 @@ export const userRouter = router({
       }
     }),
 
-  deleteAccount: publicProcedure.mutation(async ({ ctx: { me } }) => {
-    try {
-      if (!!!me)
-        return {
-          success: false,
-          error: "You are not authenticated",
-        };
-      const user = await User.findByPk(me.id);
-      if (!!!user)
-        return {
-          success: false,
-          error: "The user might have been deleted",
-        };
+  deleteAccount: publicProcedure
+    .input(deleteAccountSchema)
+    .mutation(async ({ ctx: { me }, input: { reason, pin } }) => {
+      try {
+        if (!!!me)
+          return {
+            success: false,
+            error: "You are not authenticated",
+          };
+        const user = await User.findByPk(me.id);
+        if (!!!user)
+          return {
+            success: false,
+            error: "The user might have been deleted",
+          };
 
-      const imageURL = user.toJSON().avatar;
-      if (!!imageURL) {
-        // delete the image
-        const imageName = imageURL.replace("/api/storage/images/", "");
-        if (!!imageName) {
-          const absPath = path.resolve(path.join(storagePath, imageName));
-          const exists = existsSync(absPath);
-          if (exists) {
-            await fs.unlink(absPath);
+        const __me = user.toJSON();
+        if (__me.pinTrials === 5) {
+          return {
+            success: false,
+            error:
+              "You have exceeded the pin trials, your account has been blocked.",
+          };
+        }
+        const valid = await verify(__me.pin, pin);
+        if (!valid) {
+          await user.increment("pinTrials", { by: 1 });
+          const uu = await user.save();
+          return {
+            error: `Invalid pin code, try again ${
+              4 - uu.toJSON().pinTrials
+            } left!`,
+            success: false,
+          };
+        }
+        const imageURL = user.toJSON().avatar;
+        if (!!imageURL) {
+          // delete the image
+          const imageName = imageURL.replace("/api/storage/images/", "");
+          if (!!imageName) {
+            const absPath = path.resolve(path.join(storagePath, imageName));
+            const exists = existsSync(absPath);
+            if (exists) {
+              await fs.unlink(absPath);
+            }
           }
         }
+        await user.destroy();
+        await Survey.create({
+          reason,
+        });
+        ee.emit(Events.ON_USER_DELETE, me);
+        ee.emit(Events.ON_DELETE_ACCOUNT, me);
+        return {
+          success: true,
+          error: null,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: "Internal server error.",
+        };
       }
-      await user.destroy();
-      ee.emit(Events.ON_USER_DELETE, me);
-      return {
-        success: true,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: "Internal server error.",
-      };
-    }
-  }),
+    }),
 });

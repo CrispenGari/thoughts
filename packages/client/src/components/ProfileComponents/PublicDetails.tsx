@@ -96,6 +96,44 @@ const PublicDetails: React.FunctionComponent<Props> = ({
           borderRadius: 5,
         }}
       >
+        <Text style={[styles.h1]}>Joined</Text>
+
+        {gettingUser ? (
+          <ContentLoader
+            style={{
+              backgroundColor: COLORS.gray,
+              borderRadius: 2,
+              width: "25%",
+              padding: 7,
+              marginTop: 3,
+              overflow: "hidden",
+            }}
+          />
+        ) : (
+          <Text
+            style={[
+              styles.p,
+              {
+                color: user?.online ? COLORS.tertiary : COLORS.red,
+              },
+            ]}
+          >
+            {isBlocked
+              ? "hidden"
+              : user?.online
+              ? "online"
+              : `${dayjs(user?.createdAt).fromNow()} ago`}
+          </Text>
+        )}
+      </View>
+      <View
+        style={{
+          backgroundColor: COLORS.white,
+          padding: 5,
+          marginBottom: 5,
+          borderRadius: 5,
+        }}
+      >
         <Text style={[styles.h1]}>Last Seen</Text>
         {me?.setting?.activeStatus && user?.setting?.activeStatus ? (
           <>

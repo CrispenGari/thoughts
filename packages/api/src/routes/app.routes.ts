@@ -12,6 +12,7 @@ import { voteRouter } from "./vote/vote.routes";
 import { userRouter } from "./user/user.routes";
 import { paymentRouter } from "./payment/payment.routes";
 import { settingRouter } from "./setting/setting.routes";
+import { surveyRouter } from "./survey/survey.routes";
 
 export const appRouter = router({
   hello: helloRouter,
@@ -27,6 +28,7 @@ export const appRouter = router({
   setting: settingRouter,
   reply: replyRouter,
   blocked: blockedRouter,
+  survey: surveyRouter,
 });
 
 export type AppRouter = typeof appRouter;

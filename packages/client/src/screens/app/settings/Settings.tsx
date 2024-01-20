@@ -237,56 +237,22 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
             }}
           />
           <Divider color={COLORS.tertiary} title="MANAGE ACCOUNT" />
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              paddingHorizontal: 10,
-            }}
-          >
-            <TouchableOpacity
-              style={[
-                styles.button,
-                {
-                  backgroundColor: COLORS.secondary,
-                  marginVertical: 10,
-                  padding: 10,
-                  borderRadius: 5,
-                  flex: 1,
-                },
-              ]}
-              disabled={loggingOut}
-              onPress={logout}
-            >
-              <Text
-                style={[
-                  styles.button__text,
-                  { color: COLORS.black, marginRight: loggingOut ? 10 : 0 },
-                ]}
-              >
-                LOGOUT
-              </Text>
-              {loggingOut ? <Ripple size={5} color={COLORS.tertiary} /> : null}
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.button,
-                {
-                  backgroundColor: COLORS.red,
-                  marginVertical: 10,
-                  padding: 10,
-                  borderRadius: 5,
-                  flex: 1,
-                  marginLeft: 10,
-                },
-              ]}
-            >
-              <Text style={[styles.button__text, { color: COLORS.white }]}>
-                DELETE ACCOUNT
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SettingItem
+            title="Logout"
+            titleColor={COLORS.tertiary}
+            Icon={<Ionicons name="log-in" size={18} color={COLORS.tertiary} />}
+            onPress={() => {
+              if (loggingOut) return;
+              logout();
+            }}
+          />
+          <SettingItem
+            title="Delete Account"
+            titleColor={COLORS.red}
+            Icon={<MaterialIcons name="delete" size={18} color={COLORS.red} />}
+            onPress={() => navigation.navigate("DeleteAccount")}
+          />
         </ScrollView>
       </View>
     </LinearGradientProvider>

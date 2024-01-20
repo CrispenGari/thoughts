@@ -17,6 +17,10 @@ export const updateProfileSchema = z.object({
 });
 
 export const getSchema = z.object({ id: z.number() });
+export const deleteAccountSchema = z.object({
+  reason: z.string(),
+  pin: z.string(),
+});
 export const statusUpdateSchema = z.object({ status: z.boolean() });
 export const onStatusSchema = z.object({ userId: z.number() });
 export const onUserDeleteAccountSchema = z.object({ userId: z.number() });

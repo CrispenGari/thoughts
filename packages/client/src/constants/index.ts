@@ -54,3 +54,13 @@ export const relativeTimeObject = {
   y: "1y",
   yy: "%dy",
 };
+export const reasons = [
+  "This app was too time-consuming.",
+  "Privacy concerns influenced my decision.",
+  "I experienced negative impacts on my mental health.",
+  "Encountered cyber-bullying or harassment on this app.",
+  "Dissatisfaction with platform policies or changes.",
+  "Life events or changes in priorities prompted me to delete.",
+  "Perceived a negative impact on my self-esteem.",
+  "I have my own reason.",
+].map((r, index) => ({ title: r, id: index.toString() }));

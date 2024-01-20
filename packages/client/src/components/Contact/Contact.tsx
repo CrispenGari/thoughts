@@ -105,6 +105,16 @@ const UserContact: React.FunctionComponent<UserProps> = ({
       },
     }
   );
+
+  trpc.user.onUserDeleteAccount.useSubscription(
+    { userId: user.id! },
+    {
+      onData: async (data) => {
+        console.log({ data });
+        await triggerRefetch();
+      },
+    }
+  );
   return (
     <TouchableOpacity
       activeOpacity={0.7}
