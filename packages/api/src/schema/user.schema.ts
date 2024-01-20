@@ -19,6 +19,7 @@ export const updateProfileSchema = z.object({
 export const getSchema = z.object({ id: z.number() });
 export const statusUpdateSchema = z.object({ status: z.boolean() });
 export const onStatusSchema = z.object({ userId: z.number() });
+export const onUserDeleteAccountSchema = z.object({ userId: z.number() });
 export const onUserUpdateSchema = z.object({ userId: z.number() });
 export const updatePhoneNumberSchema = z.object({
   user: z.object({

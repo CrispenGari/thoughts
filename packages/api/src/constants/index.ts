@@ -3,6 +3,8 @@ export const enum Events {
   // user related
   ON_STATUS = "ON_STATUS",
   ON_NEW_USER = "ON_NEW_USER",
+  ON_USER_DELETE = "ON_USER_DELETE",
+  ON_AUTH_STATE_CHANGED = "ON_AUTH_STATE_CHANGED",
 
   // thought related
   ON_DELETE_THOUGHT = "ON_DELETE_THOUGHT",

@@ -7,6 +7,7 @@ import {
   statusUpdateSchema,
   updatePhoneNumberSchema,
   updateProfileSchema,
+  onUserDeleteAccountSchema,
 } from "../../schema/user.schema";
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
@@ -27,6 +28,21 @@ const storagePath = path.resolve(
 
 const ee = new EventEmitter();
 export const userRouter = router({
+  onUserDeleteAccount: publicProcedure
+    .input(onUserDeleteAccountSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<UserType>((emit) => {
+        const handler = (payload: UserType) => {
+          if (payload.id === userId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_USER_UPDATE, handler);
+        return () => {
+          ee.off(Events.ON_USER_UPDATE, handler);
+        };
+      });
+    }),
   onStatus: publicProcedure
     .input(onStatusSchema)
     .subscription(async ({ input: { userId } }) => {
@@ -42,7 +58,6 @@ export const userRouter = router({
         };
       });
     }),
-
   onUserUpdate: publicProcedure
     .input(onUserUpdateSchema)
     .subscription(async ({ input: { userId } }) => {
@@ -173,7 +188,6 @@ export const userRouter = router({
       };
     }
   }),
-
   updatePhoneNumber: publicProcedure
     .input(updatePhoneNumberSchema)
     .mutation(async ({ ctx: { me }, input: { user, country } }) => {
@@ -226,7 +240,6 @@ export const userRouter = router({
         };
       }
     }),
-
   updateProfile: publicProcedure
     .input(updateProfileSchema)
     .mutation(async ({ input: { name, image }, ctx: { me } }) => {
@@ -272,4 +285,44 @@ export const userRouter = router({
         };
       }
     }),
+
+  deleteAccount: publicProcedure.mutation(async ({ ctx: { me } }) => {
+    try {
+      if (!!!me)
+        return {
+          success: false,
+          error: "You are not authenticated",
+        };
+      const user = await User.findByPk(me.id);
+      if (!!!user)
+        return {
+          success: false,
+          error: "The user might have been deleted",
+        };
+
+      const imageURL = user.toJSON().avatar;
+      if (!!imageURL) {
+        // delete the image
+        const imageName = imageURL.replace("/api/storage/images/", "");
+        if (!!imageName) {
+          const absPath = path.resolve(path.join(storagePath, imageName));
+          const exists = existsSync(absPath);
+          if (exists) {
+            await fs.unlink(absPath);
+          }
+        }
+      }
+      await user.destroy();
+      ee.emit(Events.ON_USER_DELETE, me);
+      return {
+        success: true,
+        error: null,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Internal server error.",
+      };
+    }
+  }),
 });

@@ -8,6 +8,7 @@ import { UserType } from "@thoughts/api/src/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
+import { useMeStore } from "../../store";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -24,6 +25,8 @@ const PublicDetails: React.FunctionComponent<Props> = ({
   user,
   isBlocked,
 }) => {
+  const { me } = useMeStore();
+
   return (
     <>
       <View
@@ -94,31 +97,46 @@ const PublicDetails: React.FunctionComponent<Props> = ({
         }}
       >
         <Text style={[styles.h1]}>Last Seen</Text>
-        {gettingUser ? (
-          <ContentLoader
-            style={{
-              backgroundColor: COLORS.gray,
-              borderRadius: 2,
-              width: "25%",
-              padding: 7,
-              marginTop: 3,
-              overflow: "hidden",
-            }}
-          />
+        {me?.setting?.activeStatus && user?.setting?.activeStatus ? (
+          <>
+            {gettingUser ? (
+              <ContentLoader
+                style={{
+                  backgroundColor: COLORS.gray,
+                  borderRadius: 2,
+                  width: "25%",
+                  padding: 7,
+                  marginTop: 3,
+                  overflow: "hidden",
+                }}
+              />
+            ) : (
+              <Text
+                style={[
+                  styles.p,
+                  {
+                    color: user?.online ? COLORS.tertiary : COLORS.red,
+                  },
+                ]}
+              >
+                {isBlocked
+                  ? "hidden"
+                  : user?.online
+                  ? "online"
+                  : `${dayjs(user?.updatedAt).fromNow()} ago`}
+              </Text>
+            )}
+          </>
         ) : (
           <Text
             style={[
               styles.p,
               {
-                color: user?.online ? COLORS.tertiary : COLORS.red,
+                color: COLORS.red,
               },
             ]}
           >
-            {isBlocked
-              ? "hidden"
-              : user?.online
-              ? "online"
-              : `${dayjs(user?.updatedAt).fromNow()} ago`}
+            {me?.id === user?.id ? "online" : "hidden"}
           </Text>
         )}
       </View>

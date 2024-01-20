@@ -3,13 +3,7 @@ import React from "react";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
 import { AppNavProps } from "../../../params";
 import { useImagePickerPermission, usePlatform } from "../../../hooks";
-import {
-  APP_NAME,
-  COLORS,
-  FONTS,
-  KEYS,
-  serverBaseHttpURL,
-} from "../../../constants";
+import { APP_NAME, COLORS, FONTS, serverBaseHttpURL } from "../../../constants";
 import AppStackBackButton from "../../../components/AppStackBackButton/AppStackBackButton";
 import Divider from "../../../components/Divider/Divider";
 import Ripple from "../../../components/Ripple/Ripple";
@@ -18,7 +12,7 @@ import { trpc } from "../../../utils/trpc";
 import { useMutation } from "react-query";
 import { ReactNativeFile } from "apollo-upload-client";
 import * as ImagePicker from "expo-image-picker";
-import { del, generateRNFile } from "../../../utils";
+import { generateRNFile } from "../../../utils";
 import PictureSelectionModal from "../../../components/Modal/PictureSelectionModal";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -35,7 +29,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   route,
 }) => {
   const { setBlock, block: blockedId } = useSubscriptionsStore();
-  const { me, setMe } = useMeStore();
+  const { me } = useMeStore();
   const { mutateAsync: mutateLogout, isLoading: loggingOut } =
     trpc.logout.logout.useMutation();
   const {
@@ -136,12 +130,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   };
 
   const logout = () => {
-    mutateLogout().then(async (res) => {
-      if (res) {
-        await del(KEYS.TOKEN_KEY);
-        setMe(null);
-      }
-    });
+    mutateLogout();
   };
 
   const saveProfile = async () => {

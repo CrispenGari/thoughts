@@ -7,13 +7,13 @@ import {
 } from "react-native";
 import React from "react";
 import type { AppNavProps } from "../../../params";
-import { COLORS, FONTS, KEYS } from "../../../constants";
+import { COLORS, FONTS } from "../../../constants";
 import AppStackBackButton from "../../../components/AppStackBackButton/AppStackBackButton";
 import { usePlatform } from "../../../hooks";
 import Divider from "../../../components/Divider/Divider";
 import { useMeStore } from "../../../store";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
-import { del, onFetchUpdateAsync, rateApp } from "../../../utils";
+import { onFetchUpdateAsync, rateApp } from "../../../utils";
 import { trpc } from "../../../utils/trpc";
 import SettingItem from "../../../components/SettingItem/SettingItem";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
@@ -27,7 +27,7 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
   const { os } = usePlatform();
   const { mutateAsync: mutateLogout, isLoading: loggingOut } =
     trpc.logout.logout.useMutation();
-  const { me, setMe } = useMeStore();
+  const { me } = useMeStore();
   const [open, setOpen] = React.useState(false);
   const toggle = () => setOpen((state) => !state);
   const { isLoading: updatingVisibility, mutateAsync: mutateUpdateVisibility } =
@@ -38,12 +38,7 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
   } = trpc.setting.updateNotifications.useMutation();
 
   const logout = () => {
-    mutateLogout().then(async (res) => {
-      if (res) {
-        await del(KEYS.TOKEN_KEY);
-        setMe(null);
-      }
-    });
+    mutateLogout();
   };
   const toggleInvisibleMode = () => {
     if (updatingVisibility) return;
@@ -198,6 +193,7 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
                 !!!me?.payments?.find((p) => p.category === "active_status")
               ) {
                 toggle();
+                return;
               }
               toggleInvisibleMode();
             }}
