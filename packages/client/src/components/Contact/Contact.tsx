@@ -54,7 +54,7 @@ const Contact: React.FunctionComponent<{
   }, [user, data, setUser]);
 
   if (isLoading) return <ContactSkeleton last={false} />;
-  if (!!!data?.user) return null;
+  if (!!!data?.user) return <ContactSkeleton last={false} />;
   return (
     <UserContact
       onPress={onPress}
@@ -110,7 +110,6 @@ const UserContact: React.FunctionComponent<UserProps> = ({
     { userId: user.id! },
     {
       onData: async (data) => {
-        console.log({ data });
         await triggerRefetch();
       },
     }

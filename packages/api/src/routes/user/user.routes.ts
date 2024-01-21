@@ -55,9 +55,9 @@ export const userRouter = router({
             emit.next(payload);
           }
         };
-        ee.on(Events.ON_USER_UPDATE, handler);
+        ee.on(Events.ON_USER_DELETE, handler);
         return () => {
-          ee.off(Events.ON_USER_UPDATE, handler);
+          ee.off(Events.ON_USER_DELETE, handler);
         };
       });
     }),

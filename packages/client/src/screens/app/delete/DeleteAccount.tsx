@@ -144,7 +144,7 @@ const DeleteAccount: React.FunctionComponent<AppNavProps<"DeleteAccount">> = ({
               selectionColor={COLORS.black}
               value={state.text}
               onChangeText={(text) => setState((state) => ({ ...state, text }))}
-              placeholder={`Reply on this comment thread...`}
+              placeholder={`Write a reason why you are deleting your thoughts account...`}
             />
           ) : null}
           {!!state.text ? (
