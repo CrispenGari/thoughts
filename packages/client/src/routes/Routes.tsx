@@ -26,6 +26,17 @@ const Routes = () => {
       },
     }
   );
+  trpc.user.onAuthStateChanged.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        if (data === null) {
+          const res = await del(KEYS.TOKEN_KEY);
+        }
+        setUser(data);
+      },
+    }
+  );
   trpc.user.onDeleteAccount.useSubscription(
     { userId: me?.id || 0 },
     {

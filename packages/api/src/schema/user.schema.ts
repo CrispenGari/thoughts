@@ -21,9 +21,18 @@ export const deleteAccountSchema = z.object({
   reason: z.string(),
   pin: z.string(),
 });
+export const changePinSchema = z.object({
+  pin2: z.string(),
+  pin1: z.string(),
+});
+
+export const verifyPinSchema = z.object({
+  pin: z.string(),
+});
 export const statusUpdateSchema = z.object({ status: z.boolean() });
 export const onStatusSchema = z.object({ userId: z.number() });
 export const onUserDeleteAccountSchema = z.object({ userId: z.number() });
+export const onAuthStateChangedSchema = z.object({ userId: z.number() });
 export const onUserUpdateSchema = z.object({ userId: z.number() });
 export const updatePhoneNumberSchema = z.object({
   user: z.object({

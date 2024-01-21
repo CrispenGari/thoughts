@@ -35,6 +35,9 @@ export type AuthNavProps<T extends keyof AuthParamList> = {
 export type AppParamList = {
   DeleteAccount: undefined;
   ConfirmDeleteAccount: { reason: string };
+  ConfirmNewPin: { pin1: string };
+  NewPin: undefined;
+  ForgotPin: undefined;
   Home: undefined;
   Settings: undefined;
   UpdatePhoneNumber: undefined;

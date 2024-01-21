@@ -28,7 +28,8 @@ const PinCode: React.FunctionComponent<AuthNavProps<"PinCode">> = ({
       country: route.params.country,
     }).then(async (res) => {
       if (!!res.error) {
-        setState((state) => ({ ...state, error: res.error }));
+        setState((state) => ({ ...state, error: res.error, pin: "" }));
+        setPin("");
       } else {
         setState((state) => ({
           ...state,
@@ -36,6 +37,7 @@ const PinCode: React.FunctionComponent<AuthNavProps<"PinCode">> = ({
           pin: "",
           phoneNumber: "",
         }));
+        setPin("");
         await store(KEYS.TOKEN_KEY, res.jwt!).then(() => {
           navigation.replace("Landing");
         });

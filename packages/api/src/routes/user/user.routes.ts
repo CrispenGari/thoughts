@@ -9,6 +9,9 @@ import {
   updateProfileSchema,
   onUserDeleteAccountSchema,
   deleteAccountSchema,
+  changePinSchema,
+  verifyPinSchema,
+  onAuthStateChangedSchema,
 } from "../../schema/user.schema";
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
@@ -17,20 +20,39 @@ import { UserType } from "../../types";
 import { Op } from "sequelize";
 import { isValidPhoneNumber } from "../../utils/regexp";
 import { User } from "../../sequelize/user.model";
-
+import crypto from "crypto";
 import path from "path";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import { Blocked } from "../../sequelize/blocked.model";
 import { Country } from "../../sequelize/country.model";
 import { Survey } from "../../sequelize/survey.model";
-import { verify } from "argon2";
+import { hash, verify } from "argon2";
+import { signJwt } from "../../utils/jwt";
 const storagePath = path.resolve(
   path.join(__dirname.replace(`\\src\\routes\\user`, ""), "storage", "images")
 );
 
 const ee = new EventEmitter();
 export const userRouter = router({
+  onAuthStateChanged: publicProcedure
+    .input(onAuthStateChangedSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<UserType | null>((emit) => {
+        const handler = (payload: {
+          user: UserType;
+          payload: UserType | null;
+        }) => {
+          if (payload.user?.id === userId) {
+            emit.next(payload.payload);
+          }
+        };
+        ee.on(Events.ON_AUTH_STATE_CHANGED, handler);
+        return () => {
+          ee.off(Events.ON_AUTH_STATE_CHANGED, handler);
+        };
+      });
+    }),
   onDeleteAccount: publicProcedure
     .input(onUserDeleteAccountSchema)
     .subscription(async ({ input: { userId } }) => {
@@ -366,6 +388,111 @@ export const userRouter = router({
           success: false,
           error: "Internal server error.",
         };
+      }
+    }),
+  verifyPin: publicProcedure
+    .input(verifyPinSchema)
+    .mutation(async ({ input: { pin }, ctx: { me } }) => {
+      try {
+        if (!!!me)
+          return { success: false, error: "You are not authenticated." };
+        const user = await User.findByPk(me.id);
+        if (!!!user) {
+          return {
+            error: "You are not authenticated.",
+            success: false,
+          };
+        }
+        const __me = user.toJSON();
+        if (__me.pinTrials === 5) {
+          return {
+            error:
+              "You have exceeded the pin trials, your account has been blocked.",
+            success: false,
+          };
+        }
+        const valid = await verify(__me.pin, pin);
+        if (!valid) {
+          await user.increment("pinTrials", { by: 1 });
+          const uu = await user.save();
+          return {
+            error: `Invalid pin code, try again ${
+              4 - uu.toJSON().pinTrials
+            } left!`,
+            success: false,
+          };
+        }
+        await user.update({
+          pinTrials: 0,
+        });
+        return {
+          success: true,
+          error: null,
+        };
+      } catch (error) {
+        return { success: false, error: "Internal server error." };
+      }
+    }),
+  changePin: publicProcedure
+    .input(changePinSchema)
+    .mutation(async ({ input: { pin1, pin2 }, ctx: { me } }) => {
+      try {
+        if (!!!me)
+          return {
+            retry: true,
+            success: false,
+            error: "You are not authenticated.",
+          };
+        const user = await User.findByPk(me.id);
+        if (!!!user) {
+          return {
+            error: "You are not authenticated.",
+            success: false,
+            retry: true,
+          };
+        }
+
+        if (pin1.trim().length !== 5) {
+          return {
+            retry: true,
+            error: "The pin code can only be 5 digits.",
+            success: false,
+          };
+        }
+        if (pin1.trim() !== pin2.trim()) {
+          return {
+            retry: true,
+            error: "Pin miss match try again.",
+            success: false,
+          };
+        }
+        const __me = user.toJSON();
+        const valid = await verify(__me.pin, pin1);
+        if (valid) {
+          return {
+            retry: true,
+            error: "You can not change your pin code to the old pin.",
+            success: false,
+          };
+        }
+        const hashedPin = await hash(pin1);
+        const newToken = crypto.randomInt(1, 10_000_000);
+        await user.update({
+          pin: hashedPin,
+          tokenVersion: newToken,
+          online: false,
+          pinTrials: 0,
+        });
+        const u = await user.save();
+        const jwt = await signJwt(u.toJSON());
+        return {
+          success: true,
+          error: null,
+          retry: false,
+          jwt,
+        };
+      } catch (error) {
+        return { success: false, error: "Internal server error.", retry: true };
       }
     }),
 });

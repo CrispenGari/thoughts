@@ -15,6 +15,9 @@ import {
   Thought,
   DeleteAccount,
   ConfirmDeleteAccount,
+  ConfirmNewPin,
+  ForgotPin,
+  NewPin,
 } from "../../screens/app";
 import { AppState } from "react-native";
 import { trpc } from "../../utils/trpc";
@@ -195,6 +198,9 @@ export const AppTabs = () => {
         name="ConfirmDeleteAccount"
         component={ConfirmDeleteAccount}
       />
+      <Stack.Screen name="ForgotPin" component={ForgotPin} />
+      <Stack.Screen name="ConfirmNewPin" component={ConfirmNewPin} />
+      <Stack.Screen name="NewPin" component={NewPin} />
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="Notifications" component={Notifications} />

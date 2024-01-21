@@ -8,6 +8,9 @@ import { APP_NAME } from "../constants";
 import { ReactNativeFile } from "apollo-upload-client";
 import * as mime from "react-native-mime-types";
 
+export const reloadApp = () => {
+  Updates.reloadAsync();
+};
 export const generateRNFile = ({
   uri,
   name,

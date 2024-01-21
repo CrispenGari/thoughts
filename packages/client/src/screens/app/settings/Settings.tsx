@@ -219,8 +219,9 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
           />
           <SettingItem
             title={"Forgot Pin"}
+            titleColor={COLORS.red}
             Icon={<Ionicons name="key" size={18} color={COLORS.red} />}
-            onPress={() => {}}
+            onPress={() => navigation.navigate("ForgotPin")}
           />
 
           <Divider color={COLORS.tertiary} title="ISSUES & BUGS" />

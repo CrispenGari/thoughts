@@ -1,41 +1,57 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import React from "react";
 import { AppNavProps } from "../../../params";
-import LinearGradientProvider from "../../../providers/LinearGradientProvider";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { styles } from "../../../styles";
-import { COLORS, FONTS } from "../../../constants";
-import { usePlatform } from "../../../hooks";
 import AppStackBackButton from "../../../components/AppStackBackButton/AppStackBackButton";
+import { FONTS, COLORS, APP_NAME, KEYS } from "../../../constants";
+import { usePlatform } from "../../../hooks";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
+import LinearGradientProvider from "../../../providers/LinearGradientProvider";
+import { styles } from "../../../styles";
 import PinInput from "../../../components/PinInput/PinInput";
 import { trpc } from "../../../utils/trpc";
 import Ripple from "../../../components/Ripple/Ripple";
+import { del, reloadApp } from "../../../utils";
 
-const ChangePin: React.FunctionComponent<AppNavProps<"ChangePin">> = ({
+const ConfirmNewPin: React.FunctionComponent<AppNavProps<"ConfirmNewPin">> = ({
   navigation,
+  route,
 }) => {
   const { os } = usePlatform();
   const [state, setState] = React.useState({ error: "", pin: "" });
   const [pin, setPin] = React.useState<string>("");
+  const { mutateAsync: mutateChangePin, isLoading: changing } =
+    trpc.user.changePin.useMutation();
 
-  const { isLoading: verifying, mutateAsync: mutateVerifyPin } =
-    trpc.user.verifyPin.useMutation();
-  const validateOldPin = () => {
-    mutateVerifyPin({ pin: state.pin }).then((res) => {
-      if (!!res.error) {
+  const changePin = () => {
+    mutateChangePin({
+      pin1: route.params.pin1,
+      pin2: state.pin,
+    }).then(async (res) => {
+      if (res.error) {
         setState((state) => ({ ...state, error: res.error, pin: "" }));
         setPin("");
-        return;
-      } else {
-        setState((state) => ({ ...state, error: "" }));
-        setPin("");
-        navigation.navigate("NewPin");
+      }
+      if (res.retry && res.error) {
+        Alert.alert(APP_NAME, res.error, [
+          {
+            text: "OK",
+            onPress: () => {
+              navigation.replace("NewPin");
+            },
+          },
+        ]);
+      }
+
+      if (res.success && !!res.jwt && !!!res.error) {
+        await del(KEYS.TOKEN_KEY);
+        reloadApp();
       }
     });
   };
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Change Pin",
+      headerTitle: "Confirm Pin",
       headerShown: true,
       headerTitleStyle: {
         fontFamily: FONTS.regularBold,
@@ -47,7 +63,7 @@ const ChangePin: React.FunctionComponent<AppNavProps<"ChangePin">> = ({
       },
       headerLeft: () => (
         <AppStackBackButton
-          label={os === "ios" ? "Settings" : ""}
+          label={os === "ios" ? "New Pin" : ""}
           onPress={() => {
             navigation.goBack();
           }}
@@ -82,7 +98,7 @@ const ChangePin: React.FunctionComponent<AppNavProps<"ChangePin">> = ({
                 },
               ]}
             >
-              Current Pin
+              Current New Pin
             </Text>
             <PinInput
               pin={pin}
@@ -109,10 +125,10 @@ const ChangePin: React.FunctionComponent<AppNavProps<"ChangePin">> = ({
             </Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={validateOldPin}
-              disabled={!!!state.pin}
+              onPress={changePin}
+              disabled={!!!state.pin || changing}
               style={{
-                backgroundColor: !!state.pin ? COLORS.tertiary : COLORS.gray,
+                backgroundColor: !!state.pin ? COLORS.red : COLORS.gray,
                 padding: 10,
                 width: 200,
                 justifyContent: "center",
@@ -128,13 +144,13 @@ const ChangePin: React.FunctionComponent<AppNavProps<"ChangePin">> = ({
                   styles.button__text,
                   {
                     color: COLORS.white,
-                    marginRight: verifying ? 10 : 0,
+                    marginRight: changing ? 10 : 0,
                   },
                 ]}
               >
-                Next
+                Confirm
               </Text>
-              {verifying ? <Ripple size={5} color={COLORS.white} /> : null}
+              {changing ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
           </View>
         </View>
@@ -143,4 +159,4 @@ const ChangePin: React.FunctionComponent<AppNavProps<"ChangePin">> = ({
   );
 };
 
-export default ChangePin;
+export default ConfirmNewPin;

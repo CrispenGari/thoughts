@@ -81,13 +81,13 @@ const ChangePhoneNumber: React.FunctionComponent<
     });
   }, [navigation]);
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ flex: 1 }}
-    >
-      <View style={{ flex: 1 }}>
-        <LinearGradientProvider>
+    <LinearGradientProvider>
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ flex: 1 }}
+      >
+        <View style={{ flex: 1 }}>
           <View
             style={{
               flex: 1,
@@ -138,10 +138,13 @@ const ChangePhoneNumber: React.FunctionComponent<
                 {
                   backgroundColor: COLORS.tertiary,
                   padding: 10,
-                  borderRadius: 5,
                   alignSelf: "flex-start",
-                  marginBottom: 20,
-                  maxWidth: 200,
+                  width: 200,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 5,
+                  marginTop: 10,
+                  flexDirection: "row",
                 },
               ]}
             >
@@ -159,9 +162,9 @@ const ChangePhoneNumber: React.FunctionComponent<
               {isLoading ? <Ripple color={COLORS.white} size={5} /> : null}
             </TouchableOpacity>
           </View>
-        </LinearGradientProvider>
-      </View>
-    </KeyboardAwareScrollView>
+        </View>
+      </KeyboardAwareScrollView>
+    </LinearGradientProvider>
   );
 };
 
