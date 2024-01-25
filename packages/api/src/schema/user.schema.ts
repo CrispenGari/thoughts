@@ -14,6 +14,8 @@ export const contactSchema = z.object({
 export const updateProfileSchema = z.object({
   image: z.string().nullable(),
   name: z.string(),
+  bio: z.string(),
+  gender: z.enum(["MALE", "FEMALE", "TRANS-GENDER"]),
 });
 
 export const getSchema = z.object({ id: z.number() });

@@ -1,5 +1,6 @@
 export { default as SetPhoneNumber } from "./register/SetPhoneNumber";
 export { default as SetProfile } from "./register/SetProfile";
+export { default as SetPassKey } from "./register/SetPassKey";
 export { default as PhoneNumber } from "./login/PhoneNumber";
 export { default as PinCode } from "./login/PinCode";
 export { default as NewPin } from "./login/NewPin";

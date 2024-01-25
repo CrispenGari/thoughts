@@ -37,6 +37,76 @@ const PublicDetails: React.FunctionComponent<Props> = ({
           borderRadius: 5,
         }}
       >
+        <Text style={[styles.h1]}>Biography</Text>
+        {gettingUser ? (
+          <>
+            {Array(2)
+              .fill(null)
+              .map((_e, i) => (
+                <ContentLoader
+                  key={i}
+                  style={{
+                    backgroundColor: COLORS.gray,
+                    borderRadius: 2,
+                    width: "100%",
+                    padding: 5,
+                    marginTop: 3,
+                    overflow: "hidden",
+                  }}
+                />
+              ))}
+
+            <ContentLoader
+              style={{
+                backgroundColor: COLORS.gray,
+                borderRadius: 2,
+                width: "50%",
+                padding: 5,
+                marginTop: 3,
+                overflow: "hidden",
+              }}
+            />
+          </>
+        ) : (
+          <Text style={[styles.p, { color: COLORS.tertiary }]}>
+            {user?.bio}
+          </Text>
+        )}
+      </View>
+      <View
+        style={{
+          backgroundColor: COLORS.white,
+          padding: 5,
+          marginBottom: 5,
+          borderRadius: 5,
+        }}
+      >
+        <Text style={[styles.h1]}>Gender</Text>
+        {gettingUser ? (
+          <ContentLoader
+            style={{
+              backgroundColor: COLORS.gray,
+              borderRadius: 2,
+              width: "30%",
+              padding: 7,
+              marginTop: 3,
+              overflow: "hidden",
+            }}
+          />
+        ) : (
+          <Text style={[styles.p, { color: COLORS.tertiary }]}>
+            {user?.gender.toLowerCase()}
+          </Text>
+        )}
+      </View>
+      <View
+        style={{
+          backgroundColor: COLORS.white,
+          padding: 5,
+          marginBottom: 5,
+          borderRadius: 5,
+        }}
+      >
         <Text style={[styles.h1]}>Phone Number</Text>
         {gettingUser ? (
           <ContentLoader

@@ -282,7 +282,7 @@ export const userRouter = router({
     }),
   updateProfile: publicProcedure
     .input(updateProfileSchema)
-    .mutation(async ({ input: { name, image }, ctx: { me } }) => {
+    .mutation(async ({ input: { name, image, gender, bio }, ctx: { me } }) => {
       try {
         if (!!!me) {
           return {
@@ -312,6 +312,8 @@ export const userRouter = router({
           {
             name: name.trim(),
             avatar: image ? image : undefined,
+            gender,
+            bio,
           },
           { where: { id: me.id } }
         );

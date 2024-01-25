@@ -27,6 +27,7 @@ const SetPhoneNumber: React.FunctionComponent<
   const { mutateAsync, isLoading } =
     trpc.register.validatePhoneNumber.useMutation();
   const validateNumber = () => {
+    if (!!!phoneInputState.country) return;
     mutateAsync({
       user: { phoneNumber: phoneInputState.number },
       country: {
@@ -56,15 +57,15 @@ const SetPhoneNumber: React.FunctionComponent<
           navigation.replace("SetPin", {
             user: { phoneNumber: res.phoneNumber! },
             country: {
-              countryCode: phoneInputState.country.code,
-              phoneCode: phoneInputState.country.phone.code,
-              flag: phoneInputState.country.emoji,
-              name: phoneInputState.country.name,
+              countryCode: phoneInputState.country!.code,
+              phoneCode: phoneInputState.country!.phone.code,
+              flag: phoneInputState.country!.emoji,
+              name: phoneInputState.country!.name,
             },
           });
         }
       })
-      .catch((error) =>
+      .catch((_error) =>
         setState((state) => ({
           ...state,
           error: "Unknown request error. Try Again.",

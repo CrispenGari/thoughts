@@ -9,13 +9,22 @@ export type AuthParamList = {
   PhoneNumber: undefined;
   PinCode: { user: { phoneNumber: string }; country: CountryType };
   SetPhoneNumber: undefined;
+  SetPassKey: {
+    user: { phoneNumber: string; pin: string };
+    country: CountryType;
+  };
   SetPin: { user: { phoneNumber: string }; country: CountryType };
   ConfirmPin: {
     user: { phoneNumber: string; pin1: string };
     country: CountryType;
   };
   SetProfile: {
-    user: { phoneNumber: string; pin: string };
+    user: {
+      phoneNumber: string;
+      pin: string;
+      passkeyQuestion: string;
+      passkey: string;
+    };
     country: CountryType;
   };
   AuthTermsOfUse: {

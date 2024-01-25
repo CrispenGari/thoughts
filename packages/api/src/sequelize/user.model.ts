@@ -38,6 +38,23 @@ export const User: ModelDefined<
       allowNull: false,
       defaultValue: false,
     },
+    gender: {
+      type: DataTypes.ENUM("MALE", "FEMALE", "TRANS-GENDER"),
+      allowNull: false,
+    },
+    passkey: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    bio: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "Hey there, I am using thoughts.",
+    },
+    passkeyQuestion: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     tokenVersion: {
       type: DataTypes.INTEGER,
       allowNull: false,

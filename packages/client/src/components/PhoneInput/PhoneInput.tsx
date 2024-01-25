@@ -21,18 +21,20 @@ const formatPhoneNumber = (num: string) => {
 };
 
 interface PhoneInputStateType {
-  country: {
-    name: string;
-    code: string;
-    emoji: string;
-    flag: {
-      image: string;
-      unicode: string;
-    };
-    phone: {
-      code: string;
-    };
-  };
+  country:
+    | {
+        name: string;
+        code: string;
+        emoji: string;
+        flag: {
+          image: string;
+          unicode: string;
+        };
+        phone: {
+          code: string;
+        };
+      }
+    | undefined;
   number: string;
 }
 interface Props {
@@ -104,7 +106,7 @@ const PhoneInput: React.FunctionComponent<Props> = ({
                 countrySelectorTextStyle,
               ]}
             >
-              {state.country.emoji}
+              {state.country?.emoji}
             </Text>
             <Text
               style={[
@@ -112,7 +114,7 @@ const PhoneInput: React.FunctionComponent<Props> = ({
                 countrySelectorTextStyle,
               ]}
             >
-              {state.country.phone.code}
+              {state.country?.phone.code}
             </Text>
           </TouchableOpacity>
         }

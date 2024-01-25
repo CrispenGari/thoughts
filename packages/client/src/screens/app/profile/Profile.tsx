@@ -32,6 +32,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   const { me } = useMeStore();
   const { mutateAsync: mutateLogout, isLoading: loggingOut } =
     trpc.logout.logout.useMutation();
+
   const {
     data: user,
     isLoading: gettingUser,
@@ -39,6 +40,8 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   } = trpc.user.get.useQuery({
     id: route.params.userId || 0,
   });
+
+  console.log({ user: user?.user?.avatar });
   const { isLoading: blocking, mutateAsync: mutateBlockUser } =
     trpc.blocked.block.useMutation();
   const { isLoading: unblocking, mutateAsync: mutateUnBlockUser } =
@@ -55,12 +58,16 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
     name: string;
     imageUrl: string;
     loaded: boolean;
+    gender: "MALE" | "FEMALE" | "TRANS-GENDER";
+    bio: string;
   }>({
     error: "",
     image: null,
     name: "",
     imageUrl: "",
     loaded: true,
+    gender: "MALE",
+    bio: "",
   });
   const { camera, gallery } = useImagePickerPermission();
   const takeImage = async () => {
@@ -77,7 +84,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
         return;
       }
 
-      setState((state) => ({ ...state, image: images.assets[0] }));
+      setState((state) => ({ ...state, image: images.assets[0] ?? null }));
       toggle();
     }
   };
@@ -94,7 +101,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
         toggle();
         return;
       }
-      setState((state) => ({ ...state, image: images.assets[0] }));
+      setState((state) => ({ ...state, image: images.assets[0] ?? null }));
       toggle();
     }
   };
@@ -134,7 +141,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   };
 
   const saveProfile = async () => {
-    if (state.image) {
+    if (!!state.image) {
       mutateUploadPicture(
         {
           image: generateRNFile({
@@ -143,11 +150,13 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
           }),
         },
         {
-          onSuccess: (data, variables, context) => {
+          onSuccess: (data, _variables, _context) => {
             if (data.success && !!data.image) {
               mutateAsync({
                 name: state.name,
                 image: data.image,
+                gender: state.gender,
+                bio: state.bio,
               }).then(async (res) => {
                 if (!!res.error) {
                   setState((state) => ({ ...state, error: res.error }));
@@ -157,6 +166,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
                     error: "",
                     image: null,
                   }));
+                  await refetchUser();
                 }
               });
             } else {
@@ -172,6 +182,8 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       mutateAsync({
         image: state.imageUrl ? state.imageUrl : null,
         name: state.name,
+        gender: state.gender,
+        bio: state.bio,
       }).then(async (res) => {
         if (!!res.error) {
           setState((state) => ({ ...state, error: res.error }));
@@ -182,6 +194,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
             image: null,
             imageUrl: "",
           }));
+          await refetchUser();
         }
       });
     }
@@ -217,6 +230,8 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
         ...state,
         imageUrl: me.avatar || "",
         name: me.name,
+        gender: me.gender,
+        bio: me.bio,
       }));
     }
   }, [me, route]);
@@ -242,7 +257,7 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
       >
         <View style={{ flex: 1 }}>
           <View

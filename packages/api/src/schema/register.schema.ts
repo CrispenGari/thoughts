@@ -25,6 +25,10 @@ export const createUserOrFailSchema = z.object({
     name: z.string(),
     phoneNumber: z.string(),
     image: z.string().nullable(),
+    gender: z.enum(["MALE", "FEMALE", "TRANS-GENDER"]),
+    passkey: z.string(),
+    passkeyQuestion: z.string(),
+    bio: z.string(),
   }),
   country: z.object({
     name: z.string(),

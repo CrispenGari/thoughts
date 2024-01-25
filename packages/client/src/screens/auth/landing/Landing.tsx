@@ -32,7 +32,6 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
       setMe(null);
     }
   }, [data]);
-
   React.useEffect(() => {
     if (granted) {
       setLoading(true);
@@ -40,7 +39,7 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
         .then(({ coords: { latitude, longitude } }) => {
           Location.reverseGeocodeAsync({ latitude, longitude }).then((res) => {
             if (!!res.length) {
-              setCode(res[0].isoCountryCode?.toLowerCase() || null);
+              setCode(res[0]?.isoCountryCode?.toLowerCase() || null);
             }
           });
         })
@@ -99,7 +98,7 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
           style={[
             styles.button,
             {
-              backgroundColor: COLORS.primary,
+              backgroundColor: agree ? COLORS.primary : COLORS.gray,
               padding: 10,
               borderRadius: 5,
               marginTop: 10,
@@ -107,7 +106,12 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
             },
           ]}
         >
-          <Text style={[styles.button__text, { color: COLORS.black }]}>
+          <Text
+            style={[
+              styles.button__text,
+              { color: !agree ? COLORS.white : COLORS.black },
+            ]}
+          >
             GET STARTED
           </Text>
         </TouchableOpacity>

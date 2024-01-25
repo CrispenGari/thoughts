@@ -59,7 +59,7 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
           );
         } else {
           setState({ error: "", pin1: "", pin2: "" });
-          navigation.replace("SetProfile", {
+          navigation.replace("SetPassKey", {
             country: route.params.country,
             user: {
               phoneNumber: route.params.user.phoneNumber,
@@ -68,7 +68,7 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
           });
         }
       })
-      .catch((error) =>
+      .catch((_error) =>
         setState((state) => ({
           ...state,
           error: "Unknown request error. Try Again.",
@@ -162,37 +162,38 @@ const ConfirmPin: React.FunctionComponent<AuthNavProps<"ConfirmPin">> = ({
             >
               {state.error}
             </Text>
-            {!!state.pin2 ? (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                disabled={isLoading}
-                onPress={validatePin}
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              disabled={isLoading || !!!state.pin2}
+              onPress={validatePin}
+              style={[
+                styles.button,
+                {
+                  backgroundColor: !!state.pin2 ? COLORS.primary : COLORS.gray,
+                  padding: 10,
+                  borderRadius: 5,
+                  alignSelf: "flex-end",
+                  marginTop: 10,
+                  marginBottom: 20,
+                  maxWidth: 200,
+                },
+              ]}
+            >
+              <Text
                 style={[
-                  styles.button,
+                  styles.button__text,
                   {
-                    backgroundColor: COLORS.primary,
-                    padding: 10,
-                    borderRadius: 5,
-                    alignSelf: "flex-end",
-                    marginTop: 10,
-                    marginBottom: 20,
-                    maxWidth: 200,
+                    marginRight: isLoading ? 10 : 0,
+                    color: !!state.pin2 ? COLORS.black : COLORS.white,
                   },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.button__text,
-                    {
-                      marginRight: isLoading ? 10 : 0,
-                    },
-                  ]}
-                >
-                  NEXT
-                </Text>
-                {isLoading ? <Ripple color={COLORS.tertiary} size={5} /> : null}
-              </TouchableOpacity>
-            ) : null}
+                NEXT
+              </Text>
+              {isLoading ? <Ripple color={COLORS.tertiary} size={5} /> : null}
+            </TouchableOpacity>
+
             <Divider color={COLORS.black} title="Already registered?" />
             <TouchableOpacity
               activeOpacity={0.7}

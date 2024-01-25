@@ -121,6 +121,10 @@ export interface UserType {
   avatar?: string;
   pin: string;
   phoneNumber: string;
+  gender: "MALE" | "FEMALE" | "TRANS-GENDER";
+  passkey: string;
+  passkeyQuestion: string;
+  bio: string;
   online?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

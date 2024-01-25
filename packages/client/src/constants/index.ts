@@ -1,10 +1,10 @@
 export const APP_NAME = "thoughts";
 
-export const domain: string = "8a39-213-172-134-231.ngrok-free.app";
-export const serverBaseHttpURL: string = `https://${domain}`;
-export const serverBaseWsURL: string = `wss://${domain}`;
-export const clientHttpURL: string = `${serverBaseHttpURL}/api/trpc`;
-export const clientWsURL: string = `${serverBaseWsURL}/api/trpc`;
+export const domain = "192.168.0.30:3001" as const;
+export const serverBaseHttpURL = `http://${domain}` as const;
+export const serverBaseWsURL = `wss://${domain}` as const;
+export const clientHttpURL = `${serverBaseHttpURL}/api/trpc` as const;
+export const clientWsURL = `${serverBaseWsURL}/api/trpc` as const;
 
 export const KEYS = {
   APP_SETTINGS: "set:",
@@ -39,6 +39,16 @@ export const simcard = require("../../assets/simcard.png");
 export const paywave = require("../../assets/paywave.png");
 export const mastercard = require("../../assets/mastercard.png");
 
+export const genders: {
+  value: "MALE" | "FEMALE" | "TRANS-GENDER";
+  id: number;
+  name: string;
+}[] = [
+  { id: 0, name: "Male", value: "MALE" },
+  { id: 1, name: "Female", value: "FEMALE" },
+  { id: 2, name: "Trans-gender", value: "TRANS-GENDER" },
+];
+
 export const relativeTimeObject = {
   future: "in %s",
   past: "%s",
@@ -64,3 +74,16 @@ export const reasons = [
   "Perceived a negative impact on my self-esteem.",
   "I have my own reason.",
 ].map((r, index) => ({ title: r, id: index.toString() }));
+
+export const passkeyQuestions = [
+  "What was the name of your first pet?",
+  "In which city did you celebrate your most memorable birthday?",
+  "What is the name of your favorite childhood teacher?",
+  "What is the first name of the first person you kissed?",
+  "What is the name of the street where you grew up?",
+  "Which country did you visit for your first international trip?",
+  "What is the name of your favorite fictional character?",
+].map((r, index) => ({
+  title: r,
+  id: index.toString(),
+}));

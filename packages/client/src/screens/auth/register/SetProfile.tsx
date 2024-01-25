@@ -1,6 +1,7 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
 import React from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import DropdownSelect from "react-native-input-select";
 import Divider from "../../../components/Divider/Divider";
 import Ripple from "../../../components/Ripple/Ripple";
 import {
@@ -10,11 +11,12 @@ import {
   profile,
   KEYS,
   serverBaseHttpURL,
+  FONTS,
+  genders,
 } from "../../../constants";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
 import { styles } from "../../../styles";
 import { AuthNavProps } from "../../../params";
-import CustomTextInput from "../../../components/CustomTextInput/CustomTextInput";
 import { trpc } from "../../../utils/trpc";
 import { generateRNFile, store } from "../../../utils";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,12 +36,20 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
     error: string;
     image: ImagePicker.ImagePickerAsset | null;
     name: string;
+    bio: string;
+    gender: "MALE" | "FEMALE" | "TRANS-GENDER";
   }>({
     error: "",
     image: null,
     name: "",
+    bio: "Hey there, I am using thoughts.",
+    gender: "MALE",
   });
   const { camera, gallery } = useImagePickerPermission();
+
+  const changeGender = (gender: "MALE" | "FEMALE" | "TRANS-GENDER") => {
+    setState((state) => ({ ...state, gender }));
+  };
   const takeImage = async () => {
     if (camera) {
       const images = await ImagePicker.launchCameraAsync({
@@ -54,7 +64,7 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
         return;
       }
 
-      setState((state) => ({ ...state, image: images.assets[0] }));
+      setState((state) => ({ ...state, image: images.assets[0] ?? null }));
       toggle();
     }
   };
@@ -71,7 +81,7 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
         toggle();
         return;
       }
-      setState((state) => ({ ...state, image: images.assets[0] }));
+      setState((state) => ({ ...state, image: images.assets[0] ?? null }));
       toggle();
     }
   };
@@ -105,7 +115,7 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
           }),
         },
         {
-          onSuccess: (data, variables, context) => {
+          onSuccess: (data, _variables, _context) => {
             if (data.success && !!data.image) {
               mutateAsync({
                 country: route.params.country,
@@ -114,6 +124,10 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
                   name: state.name,
                   phoneNumber: route.params.user.phoneNumber,
                   pin: route.params.user.pin,
+                  bio: state.bio,
+                  gender: state.gender,
+                  passkey: route.params.user.passkey,
+                  passkeyQuestion: route.params.user.passkeyQuestion,
                 },
               }).then(async (res) => {
                 if (!!res.error) {
@@ -147,6 +161,10 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
           name: state.name,
           phoneNumber: route.params.user.phoneNumber,
           pin: route.params.user.pin,
+          bio: state.bio,
+          gender: state.gender,
+          passkey: route.params.user.passkey,
+          passkeyQuestion: route.params.user.passkeyQuestion,
         },
       }).then(async (res) => {
         if (!!res.error) {
@@ -285,7 +303,7 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
           </PictureSelectionModal>
           <View
             style={{
-              flex: 0.5,
+              flex: 0.4,
               justifyContent: "center",
               alignItems: "center",
             }}
@@ -373,7 +391,6 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
                   }}
                 />
               </View>
-
               <View
                 style={{
                   paddingLeft: 5,
@@ -381,19 +398,107 @@ const SetProfile: React.FunctionComponent<AuthNavProps<"SetProfile">> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                <CustomTextInput
-                  text={state.name}
+                <TextInput
+                  style={{
+                    padding: 10,
+                    backgroundColor: COLORS.white,
+                    width: "100%",
+                    borderRadius: 5,
+                    fontFamily: FONTS.regular,
+                    fontSize: 16,
+                    paddingTop: 10,
+                    marginBottom: 3,
+                  }}
+                  value={state.name}
                   onChangeText={(text) =>
                     setState((state) => ({ ...state, name: text }))
                   }
                   placeholder="Name"
+                />
+                <TextInput
+                  multiline
+                  maxLength={200}
+                  style={{
+                    padding: 10,
+                    backgroundColor: COLORS.white,
+                    width: "100%",
+                    marginBottom: 5,
+                    borderRadius: 5,
+                    fontFamily: FONTS.regular,
+                    fontSize: 16,
+                    paddingTop: 10,
+
+                    height: 50,
+                  }}
+                  selectionColor={COLORS.black}
+                  value={state.bio}
+                  onChangeText={(text) =>
+                    setState((state) => ({ ...state, bio: text }))
+                  }
+                  placeholder={`Type biography...`}
+                />
+                <DropdownSelect
+                  placeholder="Change Theme."
+                  options={genders}
+                  optionLabel={"name"}
+                  optionValue={"value"}
+                  selectedValue={state.gender}
+                  isMultiple={false}
+                  dropdownContainerStyle={{
+                    maxWidth: 500,
+                  }}
+                  dropdownIconStyle={{ top: 15, right: 15 }}
+                  dropdownStyle={{
+                    borderWidth: 0.5,
+                    paddingVertical: 8,
+                    paddingHorizontal: 20,
+                    minHeight: 45,
+                    maxWidth: 500,
+                    backgroundColor: COLORS.main,
+                    borderColor: COLORS.primary,
+                    minWidth: "100%",
+                  }}
+                  selectedItemStyle={{
+                    color: COLORS.black,
+                    fontFamily: FONTS.regular,
+                    fontSize: 16,
+                  }}
+                  placeholderStyle={{
+                    fontFamily: FONTS.regular,
+                    fontSize: 16,
+                  }}
+                  onValueChange={changeGender}
+                  labelStyle={{ fontFamily: FONTS.regularBold, fontSize: 20 }}
+                  primaryColor={COLORS.primary}
+                  dropdownHelperTextStyle={{
+                    color: COLORS.black,
+                    fontFamily: FONTS.regular,
+                    fontSize: 15,
+                  }}
+                  modalOptionsContainerStyle={{
+                    padding: 10,
+                    backgroundColor: COLORS.main,
+                  }}
+                  checkboxComponentStyles={{
+                    checkboxSize: 10,
+                    checkboxStyle: {
+                      backgroundColor: COLORS.primary,
+                      borderRadius: 10,
+                      padding: 5,
+                      borderColor: COLORS.tertiary,
+                    },
+                    checkboxLabelStyle: {
+                      color: COLORS.black,
+                      fontSize: 18,
+                      fontFamily: FONTS.regular,
+                    },
+                  }}
                 />
                 <Text style={[styles.p]}>
                   Note that this profile will be public to your contacts.
                 </Text>
               </View>
             </View>
-
             <Text
               style={[
                 styles.p,

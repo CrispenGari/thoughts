@@ -92,16 +92,20 @@ export const registerRouter = router({
               "The name must have a minimum of 3 characters and a maximum of 20 characters.",
           };
         }
-        const hashed = await hash(user.pin.trim());
-
+        const hashedPin = await hash(user.pin.trim());
+        const hashedPassKey = await hash(user.passkey.trim());
         const newToken = crypto.randomInt(1, 10_000_000);
         const me = await User.create({
-          pin: hashed,
+          pin: hashedPin,
           name: user.name.trim(),
           phoneNumber: user.phoneNumber.trim(),
           online: true,
           avatar: user?.image ? user?.image : undefined,
           tokenVersion: newToken,
+          passkey: hashedPassKey,
+          passkeyQuestion: user.passkeyQuestion,
+          gender: user.gender,
+          bio: user.bio,
         });
         const u = me.toJSON();
         await Country.create({ ...country, userId: u.id });

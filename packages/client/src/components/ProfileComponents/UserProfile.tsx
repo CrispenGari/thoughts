@@ -1,13 +1,20 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, TextInput } from "react-native";
 import React from "react";
 import ContentLoader from "../ContentLoader/ContentLoader";
-import { COLORS, profile, serverBaseHttpURL } from "../../constants";
+import {
+  COLORS,
+  FONTS,
+  genders,
+  profile,
+  serverBaseHttpURL,
+} from "../../constants";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import Circular from "../Circular/Circular";
 import { styles } from "../../styles";
-import CustomTextInput from "../CustomTextInput/CustomTextInput";
+
 import { UserType } from "@thoughts/api/src/types";
+import DropdownSelect from "react-native-input-select";
 interface Props {
   user: undefined | null | UserType;
 
@@ -21,6 +28,8 @@ interface Props {
       name: string;
       imageUrl: string;
       loaded: boolean;
+      gender: "MALE" | "FEMALE" | "TRANS-GENDER";
+      bio: string;
     }>
   >;
   state: {
@@ -29,6 +38,8 @@ interface Props {
     name: string;
     imageUrl: string;
     loaded: boolean;
+    gender: "MALE" | "FEMALE" | "TRANS-GENDER";
+    bio: string;
   };
   openProfile: () => void;
   isBlocked: boolean;
@@ -43,6 +54,9 @@ const UserProfile: React.FunctionComponent<Props> = ({
   user,
   isBlocked,
 }) => {
+  const changeGender = (gender: "MALE" | "FEMALE" | "TRANS-GENDER") => {
+    setState((state) => ({ ...state, gender }));
+  };
   return (
     <>
       <View
@@ -100,7 +114,7 @@ const UserProfile: React.FunctionComponent<Props> = ({
             ) : null}
             <TouchableOpacity activeOpacity={0.7} onPress={openProfile}>
               <Image
-                onError={(error) => {
+                onError={(_error) => {
                   setState((state) => ({ ...state, loaded: true }));
                 }}
                 onLoadEnd={() => {
@@ -149,13 +163,104 @@ const UserProfile: React.FunctionComponent<Props> = ({
           }}
         >
           {isMe ? (
-            <CustomTextInput
-              text={state.name}
-              onChangeText={(text) =>
-                setState((state) => ({ ...state, name: text }))
-              }
-              placeholder="Name"
-            />
+            <>
+              <TextInput
+                style={{
+                  padding: 10,
+                  backgroundColor: COLORS.white,
+                  width: "100%",
+                  borderRadius: 5,
+                  fontFamily: FONTS.regular,
+                  fontSize: 16,
+                  paddingTop: 10,
+                  marginBottom: 3,
+                }}
+                value={state.name}
+                onChangeText={(text) =>
+                  setState((state) => ({ ...state, name: text }))
+                }
+                placeholder="Name"
+              />
+              <TextInput
+                multiline
+                maxLength={200}
+                style={{
+                  padding: 10,
+                  backgroundColor: COLORS.white,
+                  width: "100%",
+                  marginBottom: 5,
+                  borderRadius: 5,
+                  fontFamily: FONTS.regular,
+                  fontSize: 16,
+                  paddingTop: 10,
+
+                  height: 50,
+                }}
+                selectionColor={COLORS.black}
+                value={state.bio}
+                onChangeText={(text) =>
+                  setState((state) => ({ ...state, bio: text }))
+                }
+                placeholder={`Type biography...`}
+              />
+              <DropdownSelect
+                placeholder="Change Theme."
+                options={genders}
+                optionLabel={"name"}
+                optionValue={"value"}
+                selectedValue={state.gender}
+                isMultiple={false}
+                dropdownContainerStyle={{
+                  maxWidth: 500,
+                }}
+                dropdownIconStyle={{ top: 15, right: 15 }}
+                dropdownStyle={{
+                  borderWidth: 0.5,
+                  paddingVertical: 8,
+                  paddingHorizontal: 20,
+                  minHeight: 45,
+                  maxWidth: 500,
+                  backgroundColor: COLORS.main,
+                  borderColor: COLORS.primary,
+                  minWidth: "100%",
+                }}
+                selectedItemStyle={{
+                  color: COLORS.black,
+                  fontFamily: FONTS.regular,
+                  fontSize: 16,
+                }}
+                placeholderStyle={{
+                  fontFamily: FONTS.regular,
+                  fontSize: 16,
+                }}
+                onValueChange={changeGender}
+                labelStyle={{ fontFamily: FONTS.regularBold, fontSize: 20 }}
+                primaryColor={COLORS.primary}
+                dropdownHelperTextStyle={{
+                  color: COLORS.black,
+                  fontFamily: FONTS.regular,
+                  fontSize: 15,
+                }}
+                modalOptionsContainerStyle={{
+                  padding: 10,
+                  backgroundColor: COLORS.main,
+                }}
+                checkboxComponentStyles={{
+                  checkboxSize: 10,
+                  checkboxStyle: {
+                    backgroundColor: COLORS.primary,
+                    borderRadius: 10,
+                    padding: 5,
+                    borderColor: COLORS.tertiary,
+                  },
+                  checkboxLabelStyle: {
+                    color: COLORS.black,
+                    fontSize: 18,
+                    fontFamily: FONTS.regular,
+                  },
+                }}
+              />
+            </>
           ) : (
             <>
               {gettingUser ? (
@@ -174,7 +279,7 @@ const UserProfile: React.FunctionComponent<Props> = ({
               )}
             </>
           )}
-          <Text style={[styles.p]}>
+          <Text style={[styles.p, { marginTop: isMe ? -20 : 5 }]}>
             {isMe
               ? "Note that this profile will be public to your contacts."
               : "This name is public to all of this user's contacts"}

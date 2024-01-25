@@ -7,6 +7,7 @@ import {
   NewPin,
   PhoneNumber,
   PinCode,
+  SetPassKey,
   SetPhoneNumber,
   SetPin,
   SetProfile,
@@ -22,6 +23,7 @@ export const AuthStack = () => {
       }}
     >
       <Stack.Screen name="Landing" component={Landing} />
+      <Stack.Screen name="SetPassKey" component={SetPassKey} />
       <Stack.Screen name="PhoneNumber" component={PhoneNumber} />
       <Stack.Screen name="PinCode" component={PinCode} />
       <Stack.Screen name="ConfirmPin" component={ConfirmPin} />
