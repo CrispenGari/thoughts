@@ -31,7 +31,7 @@ const Routes = () => {
     {
       onData: async (data) => {
         if (data === null) {
-          const res = await del(KEYS.TOKEN_KEY);
+          await del(KEYS.TOKEN_KEY);
         }
         setUser(data);
       },

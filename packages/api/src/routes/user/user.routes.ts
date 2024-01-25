@@ -3,7 +3,6 @@ import {
   contactSchema,
   getSchema,
   onStatusSchema,
-  onUserUpdateSchema,
   statusUpdateSchema,
   updatePhoneNumberSchema,
   updateProfileSchema,
@@ -12,6 +11,9 @@ import {
   changePinSchema,
   verifyPinSchema,
   onAuthStateChangedSchema,
+  onUserProfileUpdateSchema,
+  onProfileUpdateSchema,
+  onUserUpdateSchema,
 } from "../../schema/user.schema";
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
@@ -98,20 +100,49 @@ export const userRouter = router({
         };
       });
     }),
+  onUserProfileUpdate: publicProcedure
+    .input(onUserProfileUpdateSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<UserType>((emit) => {
+        const handler = (payload: UserType) => {
+          if (payload.id === userId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_USER_PROFILE_UPDATE, handler);
+        return () => {
+          ee.off(Events.ON_USER_PROFILE_UPDATE, handler);
+        };
+      });
+    }),
+
   onUserUpdate: publicProcedure
     .input(onUserUpdateSchema)
     .subscription(async ({ input: { userId } }) => {
       return observable<UserType>((emit) => {
         const handler = (payload: UserType) => {
-          if (payload.id !== userId) {
-            emit.next(payload);
-          } else {
+          if (payload.id === userId) {
             emit.next(payload);
           }
         };
         ee.on(Events.ON_USER_UPDATE, handler);
         return () => {
           ee.off(Events.ON_USER_UPDATE, handler);
+        };
+      });
+    }),
+  onProfileUpdate: publicProcedure
+    .input(onProfileUpdateSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<UserType>((emit) => {
+        const handler = (payload: UserType) => {
+          if (payload.id === userId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_PROFILE_UPDATE, handler);
+        return () => {
+          ee.off(Events.ON_PROFILE_UPDATE, handler);
         };
       });
     }),
@@ -125,6 +156,7 @@ export const userRouter = router({
         await payload.update({ online: status });
         await payload.save();
         ee.emit(Events.ON_STATUS, payload.toJSON());
+        ee.emit(Events.ON_USER_UPDATE, { ...me, ...payload.toJSON() });
         return { success: true };
       } catch (error) {
         return { success: false };
@@ -265,14 +297,12 @@ export const userRouter = router({
           },
           { where: { userId: me.id } }
         );
-        await User.update(
-          { phoneNumber: phoneNumber.trim() },
-          { where: { id: me.id } }
-        );
+        const __user = await User.findByPk(me.id);
+        const uu = await __user!.update({ phoneNumber: phoneNumber.trim() });
         ee.emit(Events.ON_USER_UPDATE, {
           ...me,
-          phoneNumber: phoneNumber.trim(),
-        } as UserType);
+          ...uu.toJSON(),
+        });
         return { phoneNumber: phoneNumber.trim() };
       } catch (error: any) {
         return {
@@ -298,7 +328,7 @@ export const userRouter = router({
           };
         }
         // delete the old image
-        if (me.avatar !== image || !!!image) {
+        if (me.avatar !== image) {
           const imageName = me.avatar?.replace("/api/storage/images/", "");
           if (!!imageName) {
             const absPath = path.resolve(path.join(storagePath, imageName));
@@ -308,17 +338,19 @@ export const userRouter = router({
             }
           }
         }
-        await User.update(
-          {
-            name: name.trim(),
-            avatar: image ? image : undefined,
-            gender,
-            bio,
-          },
-          { where: { id: me.id } }
-        );
-
-        ee.emit(Events.ON_USER_UPDATE, { ...me, avatar: image });
+        const user = await User.findByPk(me.id);
+        const uu = await user!.update({
+          name: name.trim(),
+          avatar: image ? image : "",
+          gender,
+          bio,
+        });
+        ee.emit(Events.ON_PROFILE_UPDATE, uu.toJSON());
+        ee.emit(Events.ON_USER_PROFILE_UPDATE, uu.toJSON());
+        ee.emit(Events.ON_USER_UPDATE, {
+          ...me,
+          ...uu.toJSON(),
+        });
         return { success: true };
       } catch (error: any) {
         return {

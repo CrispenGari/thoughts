@@ -100,6 +100,7 @@ export const AppTabs = () => {
       },
     }
   );
+
   trpc.user.onUserUpdate.useSubscription(
     { userId: me?.id || 0 },
     {
@@ -107,14 +108,13 @@ export const AppTabs = () => {
         if (data.id === me?.id) {
           setMe(data);
         }
-        setUser(data.id || 0);
       },
     }
   );
   trpc.comment.onNewCommentNotification.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetchNotifications();
       },
     }
@@ -122,7 +122,7 @@ export const AppTabs = () => {
   trpc.vote.onNewCommentVoteNotification.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetchNotifications();
       },
     }
@@ -130,7 +130,7 @@ export const AppTabs = () => {
   trpc.vote.onNewReplyVoteNotification.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetchNotifications();
       },
     }
@@ -138,7 +138,7 @@ export const AppTabs = () => {
   trpc.notification.onRead.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetchNotifications();
       },
     }
@@ -147,7 +147,7 @@ export const AppTabs = () => {
   trpc.notification.onDelete.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetchNotifications();
       },
     }
@@ -168,7 +168,7 @@ export const AppTabs = () => {
   }, []);
 
   React.useEffect(() => {
-    mutateAsync({ status: isOnline }).then((res) => {});
+    mutateAsync({ status: isOnline }).then((_res) => {});
   }, [isOnline]);
 
   React.useEffect(() => {

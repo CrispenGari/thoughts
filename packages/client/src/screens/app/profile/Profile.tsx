@@ -16,7 +16,7 @@ import { generateRNFile } from "../../../utils";
 import PictureSelectionModal from "../../../components/Modal/PictureSelectionModal";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useMeStore, useSubscriptionsStore } from "../../../store";
+import { useSubscriptionsStore } from "../../../store";
 
 import PublicDetails from "../../../components/ProfileComponents/PublicDetails";
 import UserProfile from "../../../components/ProfileComponents/UserProfile";
@@ -29,10 +29,8 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   route,
 }) => {
   const { setBlock, block: blockedId } = useSubscriptionsStore();
-  const { me } = useMeStore();
   const { mutateAsync: mutateLogout, isLoading: loggingOut } =
     trpc.logout.logout.useMutation();
-
   const {
     data: user,
     isLoading: gettingUser,
@@ -40,8 +38,6 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   } = trpc.user.get.useQuery({
     id: route.params.userId || 0,
   });
-
-  console.log({ user: user?.user?.avatar });
   const { isLoading: blocking, mutateAsync: mutateBlockUser } =
     trpc.blocked.block.useMutation();
   const { isLoading: unblocking, mutateAsync: mutateUnBlockUser } =
@@ -69,6 +65,18 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
     gender: "MALE",
     bio: "",
   });
+
+  trpc.user.onProfileUpdate.useSubscription(
+    {
+      userId: route.params.userId,
+    },
+    {
+      onData: async (_data) => {
+        await refetchUser();
+      },
+    }
+  );
+
   const { camera, gallery } = useImagePickerPermission();
   const takeImage = async () => {
     if (camera) {
@@ -225,16 +233,17 @@ const Profile: React.FunctionComponent<AppNavProps<"Profile">> = ({
   }, [navigation]);
 
   React.useEffect(() => {
-    if (route.params.isMe && !!me) {
+    if (!!user?.user) {
+      const { user: _user } = user;
       setState((state) => ({
         ...state,
-        imageUrl: me.avatar || "",
-        name: me.name,
-        gender: me.gender,
-        bio: me.bio,
+        imageUrl: _user.avatar || "",
+        name: _user.name,
+        gender: _user.gender,
+        bio: _user.bio,
       }));
     }
-  }, [me, route]);
+  }, [user]);
 
   React.useEffect(() => {
     if (!!blockedId) {

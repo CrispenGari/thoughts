@@ -1,8 +1,15 @@
 export const APP_NAME = "thoughts";
 
+const ENVIRONMENT: "production" | "development" = "development";
 export const domain = "192.168.0.30:3001" as const;
-export const serverBaseHttpURL = `http://${domain}` as const;
-export const serverBaseWsURL = `wss://${domain}` as const;
+export const serverBaseHttpURL =
+  ENVIRONMENT === "development"
+    ? (`http://${domain}` as const)
+    : (`https://${domain}` as const);
+export const serverBaseWsURL =
+  ENVIRONMENT === "development"
+    ? (`ws://${domain}` as const)
+    : (`wss://${domain}` as const);
 export const clientHttpURL = `${serverBaseHttpURL}/api/trpc` as const;
 export const clientWsURL = `${serverBaseWsURL}/api/trpc` as const;
 

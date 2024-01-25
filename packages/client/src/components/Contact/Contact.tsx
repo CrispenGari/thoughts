@@ -90,7 +90,7 @@ const UserContact: React.FunctionComponent<UserProps> = ({
       userId: user.id!,
     },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await triggerRefetch();
       },
     }
@@ -100,7 +100,7 @@ const UserContact: React.FunctionComponent<UserProps> = ({
       userId: user.id!,
     },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await triggerRefetch();
       },
     }
@@ -109,11 +109,23 @@ const UserContact: React.FunctionComponent<UserProps> = ({
   trpc.user.onUserDeleteAccount.useSubscription(
     { userId: user.id! },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await triggerRefetch();
       },
     }
   );
+
+  trpc.user.onUserProfileUpdate.useSubscription(
+    {
+      userId: user.id!,
+    },
+    {
+      onData: async (_data) => {
+        await triggerRefetch();
+      },
+    }
+  );
+
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -218,7 +230,7 @@ const UserContact: React.FunctionComponent<UserProps> = ({
             onPress={toggleImageViewer}
           >
             <Image
-              onError={(error) => {
+              onError={(_error) => {
                 setLoaded(true);
               }}
               onLoadEnd={() => {
