@@ -14,6 +14,8 @@ import {
   onUserProfileUpdateSchema,
   onProfileUpdateSchema,
   onUserUpdateSchema,
+  verifyPasskeySchema,
+  changePasskeySchema,
 } from "../../schema/user.schema";
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
@@ -527,6 +529,77 @@ export const userRouter = router({
         };
       } catch (error) {
         return { success: false, error: "Internal server error.", retry: true };
+      }
+    }),
+
+  verifyPasskey: publicProcedure
+    .input(verifyPasskeySchema)
+    .mutation(async ({ input: { passkey }, ctx: { me } }) => {
+      try {
+        if (!!!me)
+          return { success: false, error: "You are not authenticated." };
+        const user = await User.findByPk(me.id);
+        if (!!!user) {
+          return {
+            error: "You are not authenticated.",
+            success: false,
+          };
+        }
+        const __me = user.toJSON();
+        const valid = await verify(__me.passkey, passkey.trim());
+        if (!valid) {
+          return {
+            error: `Invalid passkey try again.`,
+            success: false,
+          };
+        }
+        await user.update({
+          pinTrials: 0,
+        });
+        return {
+          success: true,
+          error: null,
+        };
+      } catch (error) {
+        return { success: false, error: "Internal server error." };
+      }
+    }),
+  changePasskey: publicProcedure
+    .input(changePasskeySchema)
+    .mutation(async ({ input: { passkey, passkeyQuestion }, ctx: { me } }) => {
+      try {
+        if (!!!me)
+          return {
+            success: false,
+            error: "You are not authenticated.",
+          };
+        const user = await User.findByPk(me.id);
+        if (!!!user) {
+          return {
+            error: "You are not authenticated.",
+            success: false,
+          };
+        }
+        if (passkey.trim().length < 3) {
+          return {
+            error: "The passkey must contain at least 3 characters.",
+            success: false,
+          };
+        }
+        const hashedPasskey = await hash(passkey);
+        await user.update({
+          passkey: hashedPasskey,
+          passkeyQuestion,
+          online: false,
+          pinTrials: 0,
+        });
+        await user.save();
+        return {
+          success: true,
+          error: null,
+        };
+      } catch (error) {
+        return { success: false, error: "Internal server error." };
       }
     }),
 });

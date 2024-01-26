@@ -31,6 +31,13 @@ export const changePinSchema = z.object({
 export const verifyPinSchema = z.object({
   pin: z.string(),
 });
+export const verifyPasskeySchema = z.object({
+  passkey: z.string(),
+});
+export const changePasskeySchema = z.object({
+  passkey: z.string(),
+  passkeyQuestion: z.string(),
+});
 export const statusUpdateSchema = z.object({ status: z.boolean() });
 export const onStatusSchema = z.object({ userId: z.number() });
 export const onUserDeleteAccountSchema = z.object({ userId: z.number() });

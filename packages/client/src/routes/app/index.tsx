@@ -18,6 +18,9 @@ import {
   ConfirmNewPin,
   ForgotPin,
   NewPin,
+  OldPassKey,
+  NewPassKey,
+  ForgotPasskey,
 } from "../../screens/app";
 import { AppState } from "react-native";
 import { trpc } from "../../utils/trpc";
@@ -299,6 +302,9 @@ export const AppTabs = () => {
     >
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Thought" component={Thought} />
+      <Stack.Screen name="OldPasskey" component={OldPassKey} />
+      <Stack.Screen name="NewPasskey" component={NewPassKey} />
+      <Stack.Screen name="ForgotPasskey" component={ForgotPasskey} />
       <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
       <Stack.Screen
         name="ConfirmDeleteAccount"

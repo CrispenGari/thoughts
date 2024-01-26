@@ -72,6 +72,9 @@ export type AppParamList = {
     userId: number;
     from: keyof AppParamList;
   };
+  OldPasskey: undefined;
+  NewPasskey: undefined;
+  ForgotPasskey: undefined;
 };
 
 export type AppNavProps<T extends keyof AppParamList> = {

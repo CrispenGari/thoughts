@@ -11,5 +11,8 @@ export { default as ForgotPin } from "./pin/ForgotPin";
 export { default as ConfirmNewPin } from "./pin/ConfirmNewPin";
 export { default as DeleteAccount } from "./delete/DeleteAccount";
 export { default as ConfirmDeleteAccount } from "./delete/ConfirmDeleteAccount";
+export { default as NewPassKey } from "./passkey/NewPasskey";
+export { default as OldPassKey } from "./passkey/OldPasskey";
+export { default as ForgotPasskey } from "./passkey/ForgotPasskey";
 export { default as Thought } from "./thought/Thought";
 export { default as BlockedContacts } from "./blocked/BlockedContact";

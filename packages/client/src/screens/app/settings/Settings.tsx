@@ -215,7 +215,7 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
             Icon={
               <MaterialIcons name="lock" size={18} color={COLORS.tertiary} />
             }
-            onPress={() => navigation.navigate("ChangePin")}
+            onPress={() => navigation.navigate("OldPasskey")}
           />
           <SettingItem
             title={"Forgot Pin"}
@@ -227,7 +227,7 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
             title={"Forgot Passkey"}
             titleColor={COLORS.red}
             Icon={<MaterialIcons name="lock" size={18} color={COLORS.red} />}
-            onPress={() => navigation.navigate("ForgotPin")}
+            onPress={() => navigation.navigate("ForgotPasskey")}
           />
 
           <Divider color={COLORS.tertiary} title="ISSUES & BUGS" />
