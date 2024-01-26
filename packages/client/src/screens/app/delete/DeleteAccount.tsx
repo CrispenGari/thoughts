@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import React from "react";
 import { AppNavProps } from "../../../params";
 import AppStackBackButton from "../../../components/AppStackBackButton/AppStackBackButton";

@@ -34,7 +34,7 @@ const Notification: React.FunctionComponent<Props> = ({
   const { mutateAsync: del } = trpc.notification.del.useMutation();
   const noti = notifications[0];
   const { data: notification, isLoading } = trpc.notification.get.useQuery({
-    id: noti.id!,
+    id: noti?.id!,
   });
 
   const open = () => {
@@ -45,6 +45,7 @@ const Notification: React.FunctionComponent<Props> = ({
         read: notification.notification.read,
         type: notification.notification.type!,
         userId: notification.thoughtOwner.id!,
+        from: "Notifications",
       });
     }
   };

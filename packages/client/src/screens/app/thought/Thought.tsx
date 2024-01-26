@@ -27,11 +27,10 @@ import { styles } from "../../../styles";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
-import Comment from "../../../components/Comment/Comment";
 import ContentLoader from "../../../components/ContentLoader/ContentLoader";
 import { useMeStore } from "../../../store";
 import Comments from "../../../components/Comments/Comments";
-import { ThemeProvider } from "@react-navigation/native";
+
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -308,7 +307,7 @@ const Thought: React.FunctionComponent<AppNavProps<"Thought">> = ({
                       ? serverBaseHttpURL.concat(thought?.thought?.user.avatar)
                       : Image.resolveAssetSource(profile).uri,
                   }}
-                  onError={(error) => {
+                  onError={(_error) => {
                     setLoaded(true);
                   }}
                   onLoadEnd={() => {

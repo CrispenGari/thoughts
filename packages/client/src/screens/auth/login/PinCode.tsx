@@ -1,7 +1,6 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import PhoneInput from "../../../components/PhoneInput/PhoneInput";
 import { logo, APP_NAME, COLORS, KEYS } from "../../../constants";
 import { AuthNavProps } from "../../../params";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";

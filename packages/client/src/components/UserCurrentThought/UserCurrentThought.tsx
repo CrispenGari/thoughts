@@ -18,7 +18,6 @@ interface Props {
   isBlocked: boolean;
 }
 const UserCurrentThought: React.FunctionComponent<Props> = ({
-  gettingUser,
   user,
   isMe,
   isBlocked,

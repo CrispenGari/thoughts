@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import { registerRootComponent } from "expo";
-import { LogBox, View, StatusBar } from "react-native";
+import { LogBox, StatusBar } from "react-native";
 import TRPCProvider from "./src/providers/TRPCProvider";
 import { useFonts } from "expo-font";
 import Routes from "./src/routes/Routes";

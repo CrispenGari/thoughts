@@ -125,10 +125,10 @@ export const voteRouter = router({
             read: false,
             type: "comment_reaction",
           });
-          ee.emit(
-            Events.ON_NEW_COMMENT_VOTE_NOTIFICATION,
-            notification.toJSON()
-          );
+          ee.emit(Events.ON_NEW_COMMENT_VOTE_NOTIFICATION, {
+            user: me,
+            ...notification.toJSON(),
+          });
         }
         ee.emit(Events.ON_COMMENT_VOTE, _newVote.toJSON());
         return { success: true };
@@ -182,7 +182,10 @@ export const voteRouter = router({
             read: false,
             type: "reply_reaction",
           });
-          ee.emit(Events.ON_NEW_REPLY_VOTE_NOTIFICATION, notification.toJSON());
+          ee.emit(Events.ON_NEW_REPLY_VOTE_NOTIFICATION, {
+            user: me,
+            ...notification.toJSON(),
+          });
         }
 
         ee.emit(Events.ON_REPLY_VOTE, _newVote.toJSON());

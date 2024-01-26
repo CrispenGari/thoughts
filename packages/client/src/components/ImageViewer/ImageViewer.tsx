@@ -74,7 +74,7 @@ const ImageViewer: React.FunctionComponent<Props> = ({
           </ContentLoader>
         ) : null}
         <Image
-          onError={(error) => {
+          onError={(_error) => {
             setState((state) => ({ ...state, loaded: true }));
           }}
           onLoadEnd={() => {

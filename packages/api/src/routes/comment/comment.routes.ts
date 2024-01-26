@@ -63,9 +63,9 @@ export const commentRouter = router({
             emit.next(payload);
           }
         };
-        ee.on(Events.ON_NEW_NOTIFICATION, handler);
+        ee.on(Events.ON_NEW_COMMENT_NOTIFICATION, handler);
         return () => {
-          ee.off(Events.ON_NEW_NOTIFICATION, handler);
+          ee.off(Events.ON_NEW_COMMENT_NOTIFICATION, handler);
         };
       });
     }),
@@ -125,7 +125,10 @@ export const commentRouter = router({
           read: false,
           type: "comment",
         });
-        ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
+        ee.emit(Events.ON_NEW_COMMENT_NOTIFICATION, {
+          user: me,
+          ...notification.toJSON(),
+        });
         ee.emit(Events.ON_CREATE_COMMENT, comment.toJSON());
         return { success: true, error: null };
       } catch (error) {

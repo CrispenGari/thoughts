@@ -184,7 +184,7 @@ const MyThought = () => {
                 marginBottom: 3,
                 resizeMode: "contain",
               }}
-              onError={(error) => {
+              onError={(_error) => {
                 setLoaded(true);
               }}
               onLoadEnd={() => {

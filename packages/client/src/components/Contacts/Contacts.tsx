@@ -1,8 +1,8 @@
 import { FlatList, SafeAreaView, Text, View } from "react-native";
 import React from "react";
-import { useContacts } from "../../hooks/useContacts";
+
 import Contact from "../Contact/Contact";
-import { getContactNumbers } from "../../utils";
+
 import { COLORS } from "../../constants";
 import { styles } from "../../styles";
 import { trpc } from "../../utils/trpc";
@@ -16,11 +16,10 @@ interface Props {
   navigation: StackNavigationProp<AppParamList, "Home">;
 }
 const Contacts: React.FunctionComponent<Props> = ({ navigation }) => {
-  const { contacts } = useContacts();
   const {
     dimension: { width },
   } = useMediaQuery();
-  const contactNumbers = getContactNumbers(contacts);
+
   const { me } = useMeStore();
   const { data, refetch, isLoading } = trpc.user.all.useQuery();
 
@@ -29,7 +28,7 @@ const Contacts: React.FunctionComponent<Props> = ({ navigation }) => {
       userId: me?.id || 0,
     },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetch();
       },
     }

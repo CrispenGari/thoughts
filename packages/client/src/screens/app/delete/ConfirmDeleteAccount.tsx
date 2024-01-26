@@ -138,7 +138,7 @@ const ConfirmDeleteAccount: React.FunctionComponent<
                   marginBottom: 3,
                   resizeMode: "contain",
                 }}
-                onError={(error) => {
+                onError={(_error) => {
                   setLoaded(true);
                 }}
                 onLoadEnd={() => {

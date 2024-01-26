@@ -98,7 +98,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
   trpc.comment.onEdited.useSubscription(
     { commentId: cmt?.comment?.id || 0 },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetchComment();
       },
     }
@@ -106,7 +106,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
   trpc.vote.onCommentVote.useSubscription(
     { commentId: cmt?.comment?.id || 0 },
     {
-      onData: async (data) => {
+      onData: async (_data) => {
         await refetchComment();
       },
     }
@@ -176,7 +176,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
                 ? serverBaseHttpURL.concat(cmt?.comment?.user?.avatar)
                 : Image.resolveAssetSource(profile).uri,
             }}
-            onError={(error) => {
+            onError={(_error) => {
               setLoaded(true);
             }}
             onLoadEnd={() => {

@@ -6,7 +6,10 @@ export const onDeleteReplySchema = z.object({
 export const onEditReplySchema = z.object({
   replyId: z.number(),
 });
-export const onNewCommentNotificationSchema = z.object({
+export const onNewCommentReplyNotificationSchema = z.object({
+  userId: z.number(),
+});
+export const onNewCommentReplyMentionNotificationSchema = z.object({
   userId: z.number(),
 });
 

@@ -70,6 +70,7 @@ export type AppParamList = {
     read: boolean;
     type: "comment" | "reply" | "comment_reaction" | "reply_reaction";
     userId: number;
+    from: keyof AppParamList;
   };
 };
 

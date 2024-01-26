@@ -12,7 +12,6 @@ import { useMediaQuery } from "../../hooks";
 import { APP_NAME, COLORS } from "../../constants";
 import { styles } from "../../styles";
 import { CardFieldInput, confirmPayment } from "@stripe/stripe-react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import PaymentCard from "./PaymentCard";
 import PaymentPricing from "./PaymentPricing";
 

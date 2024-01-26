@@ -26,11 +26,15 @@ import {
   useNotificationsStore,
   useSubscriptionsStore,
 } from "../../store";
+import { schedulePushNotification } from "../../utils";
+import { useNotificationsToken } from "../../hooks";
 
 const Stack = createStackNavigator<AppParamList>();
 
 export const AppTabs = () => {
   const { me, setMe } = useMeStore();
+
+  const { token } = useNotificationsToken();
 
   const { setUser, setThought, setBlock } = useSubscriptionsStore();
   const { setNotifications } = useNotificationsStore();
@@ -38,14 +42,6 @@ export const AppTabs = () => {
     trpc.notification.all.useQuery();
 
   // listen to all subscriptions here
-  trpc.thought.onCreate.useSubscription(
-    { userId: me?.id || 0 },
-    {
-      onData: (data) => {
-        setThought({ thoughtId: data.id || 0, userId: data.userId || 0 });
-      },
-    }
-  );
   trpc.blocked.onBlockedOrUnBlocked.useSubscription(
     { userId: me?.id || 0 },
     {
@@ -75,7 +71,23 @@ export const AppTabs = () => {
   trpc.user.onStatus.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: (data) => {
+      onData: async (data) => {
+        if (data.online && !!token && !!me?.setting?.notifications) {
+          await schedulePushNotification({
+            data: {
+              from: "Home",
+              userId: data.id!,
+              to: "Profile",
+              thoughtId: undefined,
+              read: undefined,
+              notificationId: undefined,
+              type: undefined,
+            },
+            body: `${data.name} is now online.`,
+            title: `thoughts:active status`,
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
         setUser(data.id || 0);
       },
     }
@@ -100,7 +112,6 @@ export const AppTabs = () => {
       },
     }
   );
-
   trpc.user.onUserUpdate.useSubscription(
     { userId: me?.id || 0 },
     {
@@ -114,24 +125,120 @@ export const AppTabs = () => {
   trpc.comment.onNewCommentNotification.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (_data) => {
+      onData: async (data) => {
         await refetchNotifications();
+        if (!!token && !!me?.setting?.notifications) {
+          await schedulePushNotification({
+            data: {
+              from: "Notifications",
+              userId: data.userId,
+              to: "Thought",
+              thoughtId: data.thoughtId,
+              read: data.read,
+              notificationId: data.id,
+              type: data.type,
+            },
+            body: `${data.user?.name} commented on your thought.`,
+            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
       },
     }
   );
   trpc.vote.onNewCommentVoteNotification.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (_data) => {
+      onData: async (data) => {
         await refetchNotifications();
+        if (!!token && !!me?.setting?.notifications) {
+          await schedulePushNotification({
+            data: {
+              from: "Notifications",
+              userId: data.userId,
+              to: "Thought",
+              thoughtId: data.thoughtId,
+              read: data.read,
+              notificationId: data.id,
+              type: data.type,
+            },
+            body: `${data.user?.name} reacted on your comment.`,
+            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
+      },
+    }
+  );
+  trpc.reply.onNewCommentReplyNotification.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+        if (!!token && !!me?.setting?.notifications) {
+          await schedulePushNotification({
+            data: {
+              from: "Notifications",
+              userId: data.userId,
+              to: "Thought",
+              thoughtId: data.thoughtId,
+              read: data.read,
+              notificationId: data.id,
+              type: data.type,
+            },
+            body: `${data.user?.name} replied to your comment.`,
+            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
+      },
+    }
+  );
+  trpc.reply.onNewCommentReplyMentionNotification.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        await refetchNotifications();
+        if (!!token && !!me?.setting?.notifications) {
+          await schedulePushNotification({
+            data: {
+              from: "Notifications",
+              userId: data.userId,
+              to: "Thought",
+              thoughtId: data.thoughtId,
+              read: data.read,
+              notificationId: data.id,
+              type: data.type,
+            },
+            body: `${data.user?.name} ${data.title}`,
+            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
       },
     }
   );
   trpc.vote.onNewReplyVoteNotification.useSubscription(
     { userId: me?.id || 0 },
     {
-      onData: async (_data) => {
+      onData: async (data) => {
         await refetchNotifications();
+        if (!!token && !!me?.setting?.notifications) {
+          await schedulePushNotification({
+            data: {
+              from: "Notifications",
+              userId: data.userId,
+              to: "Thought",
+              thoughtId: data.thoughtId,
+              read: data.read,
+              notificationId: data.id,
+              type: data.type,
+            },
+            body: `${data.user?.name} reacted to your reply.`,
+            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
       },
     }
   );
@@ -143,7 +250,6 @@ export const AppTabs = () => {
       },
     }
   );
-
   trpc.notification.onDelete.useSubscription(
     { userId: me?.id || 0 },
     {

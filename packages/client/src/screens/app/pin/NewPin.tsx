@@ -12,7 +12,6 @@ import PinInput from "../../../components/PinInput/PinInput";
 
 const NewPin: React.FunctionComponent<AppNavProps<"NewPin">> = ({
   navigation,
-  route,
 }) => {
   const { os } = usePlatform();
   const [state, setState] = React.useState({ error: "", pin: "" });

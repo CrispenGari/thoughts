@@ -69,7 +69,7 @@ const BlockedContact: React.FunctionComponent<Props> = ({ blocked }) => {
           />
         ) : (
           <Image
-            onError={(error) => {
+            onError={(_error) => {
               setLoaded(true);
             }}
             onLoadEnd={() => {

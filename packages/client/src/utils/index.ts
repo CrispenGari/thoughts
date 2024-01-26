@@ -4,9 +4,11 @@ import * as StoreReview from "expo-store-review";
 import * as Updates from "expo-updates";
 import { countries } from "../constants/countries";
 import { Alert } from "react-native";
-import { APP_NAME } from "../constants";
+import { APP_NAME, COLORS } from "../constants";
 import { ReactNativeFile } from "apollo-upload-client";
 import * as mime from "react-native-mime-types";
+import * as Notifications from "expo-notifications";
+import { TNotificationData } from "../types";
 
 export const reloadApp = () => {
   Updates.reloadAsync();
@@ -130,32 +132,30 @@ export const onFetchUpdateAsync = async () => {
   }
 };
 
-// export const schedulePushNotification = async ({
-//   title,
-//   body,
-//   data,
-//   badge,
-//   subtitle,
-// }: {
-//   title: string;
-//   body: string;
-//   data: {
-//     tweetId: string;
-//     from: keyof AppParamList;
-//   };
-//   badge?: number;
-//   subtitle?: string;
-// }) => {
-//   await Notifications.scheduleNotificationAsync({
-//     content: {
-//       title,
-//       body,
-//       data,
-//       badge,
-//       color: COLORS.primary,
-//       sound: "notification.wav",
-//       subtitle,
-//     },
-//     trigger: { seconds: 2 },
-//   });
-// };
+export const schedulePushNotification = async <
+  TData extends TNotificationData
+>({
+  title,
+  body,
+  data,
+  badge,
+  subtitle,
+}: {
+  title: string;
+  body: string;
+  data: TData;
+  badge?: number;
+  subtitle?: string;
+}) => {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title,
+      body,
+      data,
+      badge,
+      color: COLORS.tertiary,
+      subtitle,
+    },
+    trigger: { seconds: 1 },
+  });
+};

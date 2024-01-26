@@ -1,8 +1,6 @@
 import { View } from "react-native";
 import React, { Component } from "react";
-
 import { COLORS } from "../../constants";
-
 import ContentLoader from "../ContentLoader/ContentLoader";
 
 export class NotificationSkeleton extends Component<{ read: boolean }, {}> {

@@ -10,7 +10,8 @@ import {
   getReplySchema,
   onDeleteReplySchema,
   onEditReplySchema,
-  onNewCommentNotificationSchema,
+  onNewCommentReplyMentionNotificationSchema,
+  onNewCommentReplyNotificationSchema,
   onReplySchema,
   replySchema,
 } from "../../schema/reply.schema";
@@ -55,8 +56,8 @@ export const replyRouter = router({
         };
       });
     }),
-  onNewCommentNotification: publicProcedure
-    .input(onNewCommentNotificationSchema)
+  onNewCommentReplyNotification: publicProcedure
+    .input(onNewCommentReplyNotificationSchema)
     .subscription(async ({ input: { userId } }) => {
       return observable<NotificationType>((emit) => {
         const handler = (payload: NotificationType) => {
@@ -64,9 +65,25 @@ export const replyRouter = router({
             emit.next(payload);
           }
         };
-        ee.on(Events.ON_NEW_NOTIFICATION, handler);
+        ee.on(Events.ON_NEW_COMMENT_REPLY_NOTIFICATION, handler);
         return () => {
-          ee.off(Events.ON_NEW_NOTIFICATION, handler);
+          ee.off(Events.ON_NEW_COMMENT_REPLY_NOTIFICATION, handler);
+        };
+      });
+    }),
+
+  onNewCommentReplyMentionNotification: publicProcedure
+    .input(onNewCommentReplyMentionNotificationSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<NotificationType>((emit) => {
+        const handler = (payload: NotificationType) => {
+          if (payload.userId === userId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_NEW_COMMENT_REPLY_MENTION_NOTIFICATION, handler);
+        return () => {
+          ee.off(Events.ON_NEW_COMMENT_REPLY_MENTION_NOTIFICATION, handler);
         };
       });
     }),
@@ -125,13 +142,16 @@ export const replyRouter = router({
         });
         mentions.forEach(async (mention) => {
           const notification = await Notification.create({
-            title: `reply on your comment.`,
+            title: `highlighted and responded to your reply.`,
             thoughtId: cmt.toJSON().thoughtId,
             userId: mention,
             read: false,
             type: "reply",
           });
-          ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
+          ee.emit(Events.ON_NEW_COMMENT_REPLY_MENTION_NOTIFICATION, {
+            user: me,
+            ...notification.toJSON(),
+          });
         });
         const notification = await Notification.create({
           title: `reply on your comment.`,
@@ -140,7 +160,10 @@ export const replyRouter = router({
           read: false,
           type: "reply",
         });
-        ee.emit(Events.ON_NEW_NOTIFICATION, notification.toJSON());
+        ee.emit(Events.ON_NEW_COMMENT_REPLY_NOTIFICATION, {
+          user: me,
+          ...notification.toJSON(),
+        });
         ee.emit(Events.ON_REPLY_CREATE, reply.toJSON());
         return { success: true, error: null };
       } catch (error) {

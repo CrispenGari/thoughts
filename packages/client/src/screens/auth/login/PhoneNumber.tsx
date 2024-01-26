@@ -31,10 +31,10 @@ const PhoneNumber: React.FunctionComponent<AuthNavProps<"PhoneNumber">> = ({
     mutateAsync({
       user: { phoneNumber: phoneInputState.number },
       country: {
-        countryCode: phoneInputState.country.code,
-        phoneCode: phoneInputState.country.phone.code,
-        flag: phoneInputState.country.emoji,
-        name: phoneInputState.country.name,
+        countryCode: phoneInputState.country!.code,
+        phoneCode: phoneInputState.country!.phone.code,
+        flag: phoneInputState.country!.emoji,
+        name: phoneInputState.country!.name,
       },
     })
       .then((res) => {
@@ -51,10 +51,10 @@ const PhoneNumber: React.FunctionComponent<AuthNavProps<"PhoneNumber">> = ({
 
           navigation.replace("PinCode", {
             country: {
-              countryCode: phoneInputState.country.code,
-              phoneCode: phoneInputState.country.phone.code,
-              flag: phoneInputState.country.emoji,
-              name: phoneInputState.country.name,
+              countryCode: phoneInputState.country!.code,
+              phoneCode: phoneInputState.country!.phone.code,
+              flag: phoneInputState.country!.emoji,
+              name: phoneInputState.country!.name,
             },
             user: {
               phoneNumber: res.phoneNumber!,
@@ -62,7 +62,7 @@ const PhoneNumber: React.FunctionComponent<AuthNavProps<"PhoneNumber">> = ({
           });
         }
       })
-      .catch((error) =>
+      .catch((_error) =>
         setState((state) => ({
           ...state,
           error: "Unknown request error. Try Again.",

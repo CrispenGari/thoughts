@@ -62,7 +62,10 @@ const Routes = () => {
           "https://*.thoughts.com",
         ],
         config: {
-          screens: {},
+          screens: {
+            Profile: "profile",
+            Thought: "thought",
+          },
         },
       }}
     >

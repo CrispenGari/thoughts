@@ -1,10 +1,4 @@
-import {
-  View,
-  Linking,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { View, Linking, ScrollView } from "react-native";
 import React from "react";
 import type { AppNavProps } from "../../../params";
 import { COLORS, FONTS } from "../../../constants";
@@ -17,8 +11,7 @@ import { onFetchUpdateAsync, rateApp } from "../../../utils";
 import { trpc } from "../../../utils/trpc";
 import SettingItem from "../../../components/SettingItem/SettingItem";
 import LinearGradientProvider from "../../../providers/LinearGradientProvider";
-import { styles } from "../../../styles";
-import Ripple from "../../../components/Ripple/Ripple";
+
 import PaymentBottomSheet from "../../../components/PaymentBottomSheet/PaymentBottomSheet";
 
 const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
@@ -211,16 +204,29 @@ const Settings: React.FunctionComponent<AppNavProps<"Settings">> = ({
             Icon={<Ionicons name="keypad" size={18} color={COLORS.tertiary} />}
             onPress={() => navigation.navigate("UpdatePhoneNumber")}
           />
-          <Divider color={COLORS.tertiary} title="PIN MANAGEMENT" />
+          <Divider color={COLORS.tertiary} title="PIN & PASSKEY MANAGEMENT" />
           <SettingItem
             title={"Change Pin"}
             Icon={<Ionicons name="key" size={18} color={COLORS.tertiary} />}
             onPress={() => navigation.navigate("ChangePin")}
           />
           <SettingItem
+            title={"Change Passkey"}
+            Icon={
+              <MaterialIcons name="lock" size={18} color={COLORS.tertiary} />
+            }
+            onPress={() => navigation.navigate("ChangePin")}
+          />
+          <SettingItem
             title={"Forgot Pin"}
             titleColor={COLORS.red}
             Icon={<Ionicons name="key" size={18} color={COLORS.red} />}
+            onPress={() => navigation.navigate("ForgotPin")}
+          />
+          <SettingItem
+            title={"Forgot Passkey"}
+            titleColor={COLORS.red}
+            Icon={<MaterialIcons name="lock" size={18} color={COLORS.red} />}
             onPress={() => navigation.navigate("ForgotPin")}
           />
 
