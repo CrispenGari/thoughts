@@ -129,35 +129,63 @@ const PinCode: React.FunctionComponent<AuthNavProps<"PinCode">> = ({
               {state.error}
             </Text>
             {!!state.pin ? (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={login}
-                disabled={isLoading}
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: COLORS.primary,
-                    padding: 10,
-                    borderRadius: 5,
-                    alignSelf: "flex-end",
-                    marginTop: 10,
-                    marginBottom: 20,
-                    maxWidth: 200,
-                  },
-                ]}
-              >
-                <Text
+              <>
+                <TouchableOpacity
+                  style={{ alignSelf: "flex-end" }}
+                  activeOpacity={0.7}
+                  onPress={() =>
+                    navigation.navigate("VerifyPasskey", {
+                      country: route.params.country,
+                      user: route.params.user,
+                    })
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.h1,
+                      {
+                        color: COLORS.tertiary,
+                        textDecorationStyle: "solid",
+                        textDecorationLine: "underline",
+                        fontSize: 16,
+                      },
+                    ]}
+                  >
+                    Forgot Pin Code?
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={login}
+                  disabled={isLoading}
                   style={[
-                    styles.button__text,
+                    styles.button,
                     {
-                      marginRight: isLoading ? 10 : 0,
+                      backgroundColor: COLORS.primary,
+                      padding: 10,
+                      borderRadius: 5,
+                      alignSelf: "flex-end",
+                      marginTop: 10,
+                      marginBottom: 20,
+                      maxWidth: 200,
                     },
                   ]}
                 >
-                  NEXT
-                </Text>
-                {isLoading ? <Ripple color={COLORS.tertiary} size={5} /> : null}
-              </TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.button__text,
+                      {
+                        marginRight: isLoading ? 10 : 0,
+                      },
+                    ]}
+                  >
+                    NEXT
+                  </Text>
+                  {isLoading ? (
+                    <Ripple color={COLORS.tertiary} size={5} />
+                  ) : null}
+                </TouchableOpacity>
+              </>
             ) : null}
             <Divider color={COLORS.black} title="New to thoughts?" />
             <TouchableOpacity

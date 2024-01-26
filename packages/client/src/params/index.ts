@@ -5,8 +5,13 @@ import { CountryType } from "@thoughts/api/src/types";
 // Auth Stack
 export type AuthParamList = {
   Landing: undefined;
-  NewPin: { phoneNumber: string };
   PhoneNumber: undefined;
+  VerifyPasskey: { user: { phoneNumber: string }; country: CountryType };
+  SetNewLoginPin: { user: { phoneNumber: string }; country: CountryType };
+  ConfirmPinAndLogin: {
+    user: { phoneNumber: string; pin1: string };
+    country: CountryType;
+  };
   PinCode: { user: { phoneNumber: string }; country: CountryType };
   SetPhoneNumber: undefined;
   SetPassKey: {

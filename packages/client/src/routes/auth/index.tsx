@@ -4,13 +4,15 @@ import {
   AuthTermsOfUse,
   ConfirmPin,
   Landing,
-  NewPin,
+  SetNewLoginPin,
   PhoneNumber,
   PinCode,
   SetPassKey,
   SetPhoneNumber,
   SetPin,
   SetProfile,
+  VerifyPasskey,
+  ConfirmPinAndLogin,
 } from "../../screens/auth";
 import type { AuthParamList } from "../../params";
 const Stack = createStackNavigator<AuthParamList>();
@@ -27,7 +29,9 @@ export const AuthStack = () => {
       <Stack.Screen name="PhoneNumber" component={PhoneNumber} />
       <Stack.Screen name="PinCode" component={PinCode} />
       <Stack.Screen name="ConfirmPin" component={ConfirmPin} />
-      <Stack.Screen name="NewPin" component={NewPin} />
+      <Stack.Screen name="SetNewLoginPin" component={SetNewLoginPin} />
+      <Stack.Screen name="ConfirmPinAndLogin" component={ConfirmPinAndLogin} />
+      <Stack.Screen name="VerifyPasskey" component={VerifyPasskey} />
       <Stack.Screen name="SetPhoneNumber" component={SetPhoneNumber} />
       <Stack.Screen name="SetPin" component={SetPin} />
       <Stack.Screen name="SetProfile" component={SetProfile} />
