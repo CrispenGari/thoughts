@@ -30,6 +30,7 @@ const NewPasskey: React.FunctionComponent<AppNavProps<"NewPasskey">> = ({
   const { mutateAsync, isLoading: verifying } =
     trpc.user.changePasskey.useMutation();
   const next = () => {
+    if (!!!state.passkeyQuestion.length) return;
     mutateAsync({
       passkey: state.passkey,
       passkeyQuestion: state.passkeyQuestion,
@@ -122,10 +123,7 @@ const NewPasskey: React.FunctionComponent<AppNavProps<"NewPasskey">> = ({
                 setState((state) => ({
                   ...state,
                   question: item,
-                  passkeyQuestion:
-                    item.id === (passkeyQuestions.length - 1).toString()
-                      ? ""
-                      : item.title,
+                  passkeyQuestion: item.title,
                 }));
               }}
             >
@@ -137,10 +135,7 @@ const NewPasskey: React.FunctionComponent<AppNavProps<"NewPasskey">> = ({
                   setState((state) => ({
                     ...state,
                     question: item,
-                    passkeyQuestion:
-                      item.id === (passkeyQuestions.length - 1).toString()
-                        ? ""
-                        : item.title,
+                    passkeyQuestion: item.title,
                   }));
                 }}
               />

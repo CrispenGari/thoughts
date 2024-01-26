@@ -132,10 +132,7 @@ const SetPassKey: React.FunctionComponent<AuthNavProps<"SetPassKey">> = ({
                   setState((state) => ({
                     ...state,
                     question: item,
-                    passkeyQuestion:
-                      item.id === (passkeyQuestions.length - 1).toString()
-                        ? ""
-                        : item.title,
+                    passkeyQuestion: item.title,
                   }));
                 }}
               >
@@ -147,10 +144,7 @@ const SetPassKey: React.FunctionComponent<AuthNavProps<"SetPassKey">> = ({
                     setState((state) => ({
                       ...state,
                       question: item,
-                      passkeyQuestion:
-                        item.id === (passkeyQuestions.length - 1).toString()
-                          ? ""
-                          : item.title,
+                      passkeyQuestion: item.title,
                     }));
                   }}
                 />
