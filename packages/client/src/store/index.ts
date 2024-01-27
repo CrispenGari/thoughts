@@ -1,7 +1,6 @@
 import { UserType, NotificationType } from "@thoughts/api/src/types";
-import pako from "pako";
-import { Buffer } from "buffer";
 import { create } from "zustand";
+import { compressJSON } from "@crispengari/utils";
 
 export const useMeStore = create<{
   me: UserType | null;
@@ -16,8 +15,7 @@ export const useContactsStore = create<{
 }>((set) => ({
   contacts: "",
   setContacts: (contacts) => {
-    const buffer = pako.deflate(contacts, {});
-    const zipped = Buffer.from(buffer).toString("base64");
+    const zipped = compressJSON(JSON.parse(contacts));
     return set({ contacts: zipped });
   },
 }));

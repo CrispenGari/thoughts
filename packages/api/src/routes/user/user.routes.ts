@@ -34,7 +34,7 @@ import { Survey } from "../../sequelize/survey.model";
 import { hash, verify } from "argon2";
 import { signJwt } from "../../utils/jwt";
 import { z } from "zod";
-import pako from "pako";
+import { decompressJSON } from "@crispengari/utils";
 
 const storagePath = path.resolve(
   path.join(__dirname.replace(`\\src\\routes\\user`, ""), "storage", "images")
@@ -241,23 +241,25 @@ export const userRouter = router({
     .input(z.object({ contact: z.string() }))
     .query(async ({ input: { contact }, ctx: { me } }) => {
       try {
-        const uint: Uint8Array = Buffer.from(contact, "base64");
-        const payload = pako.inflate(uint, { to: "string" });
-        const contacts = JSON.parse(payload) as {
-          contactName: string;
-          phoneNumbers: {
-            phoneNumber: string;
-            countryCode: string;
-          }[];
-        }[];
+        const contacts = decompressJSON<
+          {
+            contactName: string;
+            phoneNumbers: {
+              phoneNumber: string;
+              countryCode: string;
+            }[];
+          }[]
+        >(contact);
         // all numbers with phone coded
         const allNumbers = contacts
-          .map(({ phoneNumbers }) =>
-            phoneNumbers
+          .map(({ phoneNumbers }) => {
+            if (typeof phoneNumbers === "undefined") return [];
+            return phoneNumbers
               .map((p) => (p.phoneNumber.startsWith("+") ? p.phoneNumber : ""))
-              .filter(Boolean)
-          )
+              .filter(Boolean);
+          })
           .flat(1);
+
         const users = await User.findAll({
           where: {
             [Op.not]: [{ id: [me?.id || 0] }],

@@ -9,7 +9,7 @@
     "start": "ts-node-dev --respawn --transpile-only src/index.ts"
   },
   "dependencies": {
-    "@crispengari/utils": "^1.0.1",
+    "@crispengari/utils": "^2.0.1",
     "@fastify/cors": "^8.3.0",
     "@fastify/multipart": "^8.1.0",
     "@fastify/static": "^6.12.0",

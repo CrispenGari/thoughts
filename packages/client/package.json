@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.17",
+    "@crispengari/utils": "^2.0.1",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.20",
