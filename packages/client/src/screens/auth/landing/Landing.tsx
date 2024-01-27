@@ -6,18 +6,32 @@ import { AuthNavProps } from "../../../params";
 import { APP_NAME, COLORS, FONTS, logo } from "../../../constants";
 import { styles } from "../../../styles";
 import { BottomSheet, CheckBox } from "react-native-btr";
-import { useLocationPermission, useMediaQuery } from "../../../hooks";
+import {
+  useContacts,
+  useLocationPermission,
+  useMediaQuery,
+} from "../../../hooks";
 import Loading from "../../../components/Loading/Loading";
-import { useCountryCodeStore, useMeStore } from "../../../store";
+import {
+  useContactsStore,
+  useCountryCodeStore,
+  useMeStore,
+} from "../../../store";
 import * as Location from "expo-location";
 
 const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
   navigation,
 }) => {
   const { granted } = useLocationPermission();
+  const {
+    loading: fetchingContacts,
+    contacts,
+    granted: contactsPermission,
+  } = useContacts();
   const { setCode } = useCountryCodeStore();
   const [agree, setAgree] = React.useState(false);
   const { data, isFetching } = trpc.user.me.useQuery();
+  const { setContacts } = useContactsStore();
   const { setMe } = useMeStore();
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -25,6 +39,12 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
   const {
     dimension: { height },
   } = useMediaQuery();
+  React.useEffect(() => {
+    if (!!contactsPermission) {
+      setContacts(contacts.length === 0 ? "" : JSON.stringify(contacts));
+    }
+  }, [contactsPermission, contacts]);
+
   React.useEffect(() => {
     if (!!data?.me) {
       setMe(data.me);
@@ -49,7 +69,7 @@ const Landing: React.FunctionComponent<AuthNavProps<"Landing">> = ({
     }
   }, [setCode, granted]);
 
-  if (isFetching || loading) return <Loading />;
+  if (isFetching || loading || fetchingContacts) return <Loading />;
 
   return (
     <LinearGradientProvider>

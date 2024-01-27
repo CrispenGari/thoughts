@@ -1,7 +1,7 @@
 export const APP_NAME = "thoughts";
 
 const ENVIRONMENT: "production" | "development" = "development";
-export const domain = "192.168.0.30:3001" as const;
+export const domain = "192.168.0.29:3001" as const;
 export const serverBaseHttpURL =
   ENVIRONMENT === "development"
     ? (`http://${domain}` as const)

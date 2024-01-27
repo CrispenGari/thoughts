@@ -6,12 +6,11 @@ import Contact from "../Contact/Contact";
 import { COLORS } from "../../constants";
 import { styles } from "../../styles";
 import { trpc } from "../../utils/trpc";
-import { useMeStore } from "../../store";
+import { useContactsStore, useMeStore } from "../../store";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AppParamList } from "../../params";
 import ContactSkeleton from "../Contact/ContactSkeleton";
 import { useMediaQuery } from "../../hooks";
-
 interface Props {
   navigation: StackNavigationProp<AppParamList, "Home">;
 }
@@ -19,13 +18,15 @@ const Contacts: React.FunctionComponent<Props> = ({ navigation }) => {
   const {
     dimension: { width },
   } = useMediaQuery();
-
+  const { contacts } = useContactsStore();
   const { me } = useMeStore();
-  const { data, refetch, isLoading } = trpc.user.all.useQuery();
-
+  const { data, refetch, isLoading } = trpc.user.all.useQuery({
+    contact: contacts,
+  });
   trpc.register.onNewUser.useSubscription(
     {
       userId: me?.id || 0,
+      contacts,
     },
     {
       onData: async (_data) => {

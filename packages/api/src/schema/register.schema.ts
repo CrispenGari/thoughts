@@ -18,6 +18,7 @@ export const validatePinSchema = z.object({
 });
 export const onNewUserSchema = z.object({
   userId: z.number(),
+  contacts: z.string(),
 });
 export const createUserOrFailSchema = z.object({
   user: z.object({

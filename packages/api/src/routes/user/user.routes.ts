@@ -33,10 +33,12 @@ import { Country } from "../../sequelize/country.model";
 import { Survey } from "../../sequelize/survey.model";
 import { hash, verify } from "argon2";
 import { signJwt } from "../../utils/jwt";
+import { z } from "zod";
+import pako from "pako";
+
 const storagePath = path.resolve(
   path.join(__dirname.replace(`\\src\\routes\\user`, ""), "storage", "images")
 );
-
 const ee = new EventEmitter();
 export const userRouter = router({
   onAuthStateChanged: publicProcedure
@@ -235,33 +237,55 @@ export const userRouter = router({
         };
       }
     }),
-  all: publicProcedure.query(async ({ ctx: { me } }) => {
-    try {
-      const users = await User.findAll({
-        where: {
-          [Op.not]: [{ id: [me?.id || 0] }],
-        },
-        include: {
-          all: true,
-        },
-        order: [
-          ["createdAt", "DESC"],
-          ["online", "DESC"],
-        ],
-        attributes: ["id", "phoneNumber"],
-      });
-      return {
-        users: users.map((u) => ({
-          id: u.toJSON().id,
-          phoneNumber: u.toJSON().phoneNumber,
-        })),
-      };
-    } catch (error: any) {
-      return {
-        users: [],
-      };
-    }
-  }),
+  all: publicProcedure
+    .input(z.object({ contact: z.string() }))
+    .query(async ({ input: { contact }, ctx: { me } }) => {
+      try {
+        const uint: Uint8Array = Buffer.from(contact, "base64");
+        const payload = pako.inflate(uint, { to: "string" });
+        const contacts = JSON.parse(payload) as {
+          contactName: string;
+          phoneNumbers: {
+            phoneNumber: string;
+            countryCode: string;
+          }[];
+        }[];
+        // all numbers with phone coded
+        const allNumbers = contacts
+          .map(({ phoneNumbers }) =>
+            phoneNumbers
+              .map((p) => (p.phoneNumber.startsWith("+") ? p.phoneNumber : ""))
+              .filter(Boolean)
+          )
+          .flat(1);
+        const users = await User.findAll({
+          where: {
+            [Op.not]: [{ id: [me?.id || 0] }],
+            phoneNumber: {
+              [Op.in]: allNumbers,
+            },
+          },
+          include: {
+            all: true,
+          },
+          order: [
+            ["createdAt", "DESC"],
+            ["online", "DESC"],
+          ],
+          attributes: ["id", "phoneNumber"],
+        });
+        return {
+          users: users.map((u) => ({
+            id: u.toJSON().id,
+            phoneNumber: u.toJSON().phoneNumber,
+          })),
+        };
+      } catch (error: any) {
+        return {
+          users: [],
+        };
+      }
+    }),
   updatePhoneNumber: publicProcedure
     .input(updatePhoneNumberSchema)
     .mutation(async ({ ctx: { me }, input: { user, country } }) => {

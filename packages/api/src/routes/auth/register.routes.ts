@@ -21,7 +21,7 @@ const ee = new EventEmitter();
 export const registerRouter = router({
   onNewUser: publicProcedure
     .input(onNewUserSchema)
-    .subscription(async ({ input: { userId } }) => {
+    .subscription(async ({ input: { userId, contacts } }) => {
       return observable<UserType>((emit) => {
         const handler = (payload: UserType) => {
           if (payload.id !== userId) {
