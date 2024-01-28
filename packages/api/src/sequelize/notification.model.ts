@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { NotificationType } from "../types";
+import { NotificationType, PrettifyType } from "../types";
 
 export const Notification: ModelDefined<
-  Required<NotificationType>,
-  NotificationType
+  PrettifyType<Required<NotificationType>>,
+  PrettifyType<NotificationType>
 > = sequelize.define(
   "notifications",
   {

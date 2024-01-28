@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { CountryType } from "../types";
+import { CountryType, PrettifyType } from "../types";
 
 export const Country: ModelDefined<
-  Required<CountryType>,
-  CountryType
+  PrettifyType<Required<CountryType>>,
+  PrettifyType<CountryType>
 > = sequelize.define(
   "countries",
   {

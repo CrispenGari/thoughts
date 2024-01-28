@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { VoteType } from "../types";
+import { PrettifyType, VoteType } from "../types";
 
 export const Vote: ModelDefined<
-  Required<VoteType>,
-  VoteType
+  PrettifyType<Required<VoteType>>,
+  PrettifyType<VoteType>
 > = sequelize.define(
   "votes",
   {

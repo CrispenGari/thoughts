@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { ReplyType } from "../types";
+import { PrettifyType, ReplyType } from "../types";
 
 export const Reply: ModelDefined<
-  Required<ReplyType>,
-  ReplyType
+  PrettifyType<Required<ReplyType>>,
+  PrettifyType<ReplyType>
 > = sequelize.define(
   "replies",
   {

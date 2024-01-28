@@ -1,3 +1,15 @@
+export type TContact = {
+  contactName: string;
+  phoneNumbers: {
+    phoneNumber: string;
+    countryCode: string;
+  }[];
+};
+
+export type PrettifyType<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
 export interface ThoughtType {
   id?: number;
   text: string;
@@ -12,7 +24,6 @@ export interface ThoughtType {
 export interface SurveyType {
   id?: number;
   reason: string;
-
   createdAt?: Date;
   updatedAt?: Date;
 }

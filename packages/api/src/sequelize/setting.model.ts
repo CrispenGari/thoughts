@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { SettingType } from "../types";
+import { PrettifyType, SettingType } from "../types";
 
 export const Setting: ModelDefined<
-  Required<SettingType>,
-  SettingType
+  PrettifyType<Required<SettingType>>,
+  PrettifyType<SettingType>
 > = sequelize.define(
   "settings",
   {

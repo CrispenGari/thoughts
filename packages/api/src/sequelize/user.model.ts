@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { UserType } from "../types";
+import { PrettifyType, UserType } from "../types";
 
 export const User: ModelDefined<
-  Required<UserType>,
-  UserType
+  PrettifyType<Required<UserType>>,
+  PrettifyType<UserType>
 > = sequelize.define(
   "users",
   {

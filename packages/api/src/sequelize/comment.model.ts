@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { CommentType } from "../types";
+import { CommentType, PrettifyType } from "../types";
 
 export const Comment: ModelDefined<
-  Required<CommentType>,
-  CommentType
+  PrettifyType<Required<CommentType>>,
+  PrettifyType<CommentType>
 > = sequelize.define(
   "comments",
   {

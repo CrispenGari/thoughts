@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { PaymentType } from "../types";
+import { PaymentType, PrettifyType } from "../types";
 
 export const Payment: ModelDefined<
-  Required<PaymentType>,
-  PaymentType
+  PrettifyType<Required<PaymentType>>,
+  PrettifyType<PaymentType>
 > = sequelize.define(
   "payments",
   {

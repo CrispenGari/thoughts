@@ -1,10 +1,10 @@
 import { ModelDefined, DataTypes } from "sequelize";
 import { sequelize } from ".";
-import { ThoughtType } from "../types";
+import { PrettifyType, ThoughtType } from "../types";
 
 export const Thought: ModelDefined<
-  Required<ThoughtType>,
-  ThoughtType
+  PrettifyType<Required<ThoughtType>>,
+  PrettifyType<ThoughtType>
 > = sequelize.define(
   "thoughts",
   {

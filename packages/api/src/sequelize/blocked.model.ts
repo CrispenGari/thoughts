@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { BlockedType } from "../types";
+import { BlockedType, PrettifyType } from "../types";
 
 export const Blocked: ModelDefined<
-  Required<BlockedType>,
-  BlockedType
+  PrettifyType<Required<BlockedType>>,
+  PrettifyType<BlockedType>
 > = sequelize.define(
   "blocked",
   {

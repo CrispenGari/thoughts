@@ -1,10 +1,10 @@
 import { DataTypes, ModelDefined } from "sequelize";
 import { sequelize } from ".";
-import { SurveyType } from "../types";
+import { PrettifyType, SurveyType } from "../types";
 
 export const Survey: ModelDefined<
-  Required<SurveyType>,
-  SurveyType
+  PrettifyType<Required<SurveyType>>,
+  PrettifyType<SurveyType>
 > = sequelize.define(
   "survey",
   {

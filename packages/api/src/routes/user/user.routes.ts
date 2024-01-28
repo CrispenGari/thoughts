@@ -20,7 +20,7 @@ import {
 import { publicProcedure, router } from "../../trpc";
 import { Events } from "../../constants";
 import { observable } from "@trpc/server/observable";
-import { UserType } from "../../types";
+import { TContact, UserType } from "../../types";
 import { Op } from "sequelize";
 import { isValidPhoneNumber } from "../../utils/regexp";
 import { User } from "../../sequelize/user.model";
@@ -241,15 +241,7 @@ export const userRouter = router({
     .input(z.object({ contact: z.string() }))
     .query(async ({ input: { contact }, ctx: { me } }) => {
       try {
-        const contacts = decompressJSON<
-          {
-            contactName: string;
-            phoneNumbers: {
-              phoneNumber: string;
-              countryCode: string;
-            }[];
-          }[]
-        >(contact);
+        const contacts = decompressJSON<TContact[]>(contact);
         // all numbers with phone coded
         const allNumbers = contacts
           .map(({ phoneNumbers }) => {
