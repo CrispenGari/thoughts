@@ -4,6 +4,7 @@ import {
   validatePinSchema,
   createUserOrFailSchema,
   onNewUserSchema,
+  onNewUserNotificationSchema,
 } from "../../schema/register.schema";
 
 import { publicProcedure, router } from "../../trpc";
@@ -12,19 +13,58 @@ import { isValidPhoneNumber } from "../../utils/regexp";
 import { User } from "../../sequelize/user.model";
 import { Country } from "../../sequelize/country.model";
 import EventEmitter from "events";
-import { UserType } from "../../types";
+import { TContact, UserType } from "../../types";
 import { observable } from "@trpc/server/observable";
 import { Events } from "../../constants";
 import crypto from "crypto";
 import { Setting } from "../../sequelize/setting.model";
+
+import { decompressJSON } from "@crispengari/utils";
 const ee = new EventEmitter();
 export const registerRouter = router({
+  onNewUserNotification: publicProcedure
+    .input(onNewUserNotificationSchema)
+    .subscription(async ({ input: { userId, contacts } }) => {
+      return observable<UserType>((emit) => {
+        const handler = (payload: UserType) => {
+          const inMyContacts = !!decompressJSON<TContact[]>(contacts)
+            .map(({ phoneNumbers }) => {
+              if (typeof phoneNumbers === "undefined") return [];
+              return phoneNumbers
+                .map((p) =>
+                  p.phoneNumber.startsWith("+") ? p.phoneNumber : ""
+                )
+                .filter(Boolean);
+            })
+            .flat(1)
+            .find((p) => payload.phoneNumber === p);
+          if (payload.id !== userId && inMyContacts) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_NEW_USER_NOTIFICATION, handler);
+        return () => {
+          ee.off(Events.ON_NEW_USER_NOTIFICATION, handler);
+        };
+      });
+    }),
   onNewUser: publicProcedure
     .input(onNewUserSchema)
     .subscription(async ({ input: { userId, contacts } }) => {
       return observable<UserType>((emit) => {
         const handler = (payload: UserType) => {
-          if (payload.id !== userId) {
+          const inMyContacts = !!decompressJSON<TContact[]>(contacts)
+            .map(({ phoneNumbers }) => {
+              if (typeof phoneNumbers === "undefined") return [];
+              return phoneNumbers
+                .map((p) =>
+                  p.phoneNumber.startsWith("+") ? p.phoneNumber : ""
+                )
+                .filter(Boolean);
+            })
+            .flat(1)
+            .find((p) => payload.phoneNumber === p);
+          if (payload.id !== userId && inMyContacts) {
             emit.next(payload);
           }
         };

@@ -5,7 +5,7 @@ import { AuthStack } from "./auth";
 import * as Linking from "expo-linking";
 import { useMeStore } from "../store";
 import { trpc } from "../utils/trpc";
-import { del } from "../utils";
+import { del, reloadApp } from "../utils";
 import { KEYS } from "../constants";
 import { UserType } from "@thoughts/api/src/types";
 
@@ -21,6 +21,7 @@ const Routes = () => {
           const res = await del(KEYS.TOKEN_KEY);
           if (res) {
             setUser(data);
+            reloadApp();
           }
         }
       },

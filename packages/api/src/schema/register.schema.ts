@@ -20,6 +20,10 @@ export const onNewUserSchema = z.object({
   userId: z.number(),
   contacts: z.string(),
 });
+export const onNewUserNotificationSchema = z.object({
+  userId: z.number(),
+  contacts: z.string(),
+});
 export const createUserOrFailSchema = z.object({
   user: z.object({
     pin: z.string(),

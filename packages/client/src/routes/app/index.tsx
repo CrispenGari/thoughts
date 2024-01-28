@@ -30,7 +30,7 @@ import {
   useNotificationsStore,
   useSubscriptionsStore,
 } from "../../store";
-import { schedulePushNotification } from "../../utils";
+import { getContactName, schedulePushNotification } from "../../utils";
 import { useNotificationsToken } from "../../hooks";
 
 const Stack = createStackNavigator<AppParamList>();
@@ -45,6 +45,54 @@ export const AppTabs = () => {
     trpc.notification.all.useQuery();
 
   // listen to all subscriptions here
+  trpc.register.onNewUserNotification.useSubscription(
+    { userId: me?.id || 0, contacts },
+    {
+      onData: async (data) => {
+        if (!!token && !!me?.setting?.notifications && !!data.id) {
+          const contactName = getContactName({ user: data });
+          await schedulePushNotification({
+            data: {
+              from: "Home",
+              userId: data.id,
+              to: "Profile",
+              thoughtId: undefined,
+              read: undefined,
+              notificationId: undefined,
+              type: undefined,
+            },
+            body: `${contactName} has joined thought.`,
+            title: `thoughts:new user 👋`,
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
+      },
+    }
+  );
+  trpc.thought.onCreateNotification.useSubscription(
+    { userId: me?.id || 0 },
+    {
+      onData: async (data) => {
+        if (!!token && !!me?.setting?.notifications && !!data.id) {
+          const contactName = getContactName({ user: data.user! });
+          await schedulePushNotification({
+            data: {
+              from: "Home",
+              userId: data.id,
+              to: "Thought",
+              thoughtId: data.id,
+              read: false,
+              notificationId: undefined,
+              type: undefined,
+            },
+            body: `${contactName} created a new thought.`,
+            title: `thoughts:new thought 💭`,
+            badge: notifications?.unread?.length || undefined,
+          });
+        }
+      },
+    }
+  );
   trpc.blocked.onBlockedOrUnBlocked.useSubscription(
     { userId: me?.id || 0 },
     {
@@ -76,6 +124,7 @@ export const AppTabs = () => {
     {
       onData: async (data) => {
         if (data.online && !!token && !!me?.setting?.notifications) {
+          const contactName = getContactName({ user: data });
           await schedulePushNotification({
             data: {
               from: "Home",
@@ -86,8 +135,8 @@ export const AppTabs = () => {
               notificationId: undefined,
               type: undefined,
             },
-            body: `${data.name} is now online.`,
-            title: `thoughts:active status`,
+            body: `${contactName} is now online.`,
+            title: `thoughts:active status 🔥`,
             badge: notifications?.unread?.length || undefined,
           });
         }
@@ -131,6 +180,7 @@ export const AppTabs = () => {
       onData: async (data) => {
         await refetchNotifications();
         if (!!token && !!me?.setting?.notifications) {
+          const contactName = getContactName({ user: data.user! });
           await schedulePushNotification({
             data: {
               from: "Notifications",
@@ -141,8 +191,8 @@ export const AppTabs = () => {
               notificationId: data.id,
               type: data.type,
             },
-            body: `${data.user?.name} commented on your thought.`,
-            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            body: `${contactName} commented on your thought.`,
+            title: `thoughts:${data.type} 💭`.replace(/(_)/g, (_s) => " "),
             badge: notifications?.unread?.length || undefined,
           });
         }
@@ -155,6 +205,7 @@ export const AppTabs = () => {
       onData: async (data) => {
         await refetchNotifications();
         if (!!token && !!me?.setting?.notifications) {
+          const contactName = getContactName({ user: data.user! });
           await schedulePushNotification({
             data: {
               from: "Notifications",
@@ -165,8 +216,8 @@ export const AppTabs = () => {
               notificationId: data.id,
               type: data.type,
             },
-            body: `${data.user?.name} reacted on your comment.`,
-            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            body: `${contactName} reacted on your comment.`,
+            title: `thoughts:${data.type} 🤎`.replace(/(_)/g, (_s) => " "),
             badge: notifications?.unread?.length || undefined,
           });
         }
@@ -179,6 +230,7 @@ export const AppTabs = () => {
       onData: async (data) => {
         await refetchNotifications();
         if (!!token && !!me?.setting?.notifications) {
+          const contactName = getContactName({ user: data.user! });
           await schedulePushNotification({
             data: {
               from: "Notifications",
@@ -189,8 +241,8 @@ export const AppTabs = () => {
               notificationId: data.id,
               type: data.type,
             },
-            body: `${data.user?.name} replied to your comment.`,
-            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            body: `${contactName} replied to your comment.`,
+            title: `thoughts:${data.type} 💭`.replace(/(_)/g, (_s) => " "),
             badge: notifications?.unread?.length || undefined,
           });
         }
@@ -203,6 +255,7 @@ export const AppTabs = () => {
       onData: async (data) => {
         await refetchNotifications();
         if (!!token && !!me?.setting?.notifications) {
+          const contactName = getContactName({ user: data.user! });
           await schedulePushNotification({
             data: {
               from: "Notifications",
@@ -213,8 +266,8 @@ export const AppTabs = () => {
               notificationId: data.id,
               type: data.type,
             },
-            body: `${data.user?.name} ${data.title}`,
-            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            body: `${contactName} ${data.title}`,
+            title: `thoughts:${data.type} 💭`.replace(/(_)/g, (_s) => " "),
             badge: notifications?.unread?.length || undefined,
           });
         }
@@ -227,6 +280,7 @@ export const AppTabs = () => {
       onData: async (data) => {
         await refetchNotifications();
         if (!!token && !!me?.setting?.notifications) {
+          const contactName = getContactName({ user: data.user! });
           await schedulePushNotification({
             data: {
               from: "Notifications",
@@ -237,8 +291,8 @@ export const AppTabs = () => {
               notificationId: data.id,
               type: data.type,
             },
-            body: `${data.user?.name} reacted to your reply.`,
-            title: `thoughts:${data.type}`.replace(/(_)/g, (_s) => " "),
+            body: `${contactName} reacted to your reply.`,
+            title: `thoughts:${data.type} 🤎`.replace(/(_)/g, (_s) => " "),
             badge: notifications?.unread?.length || undefined,
           });
         }
@@ -261,6 +315,7 @@ export const AppTabs = () => {
       },
     }
   );
+
   const { mutateAsync } = trpc.user.statusUpdate.useMutation();
   const appState = React.useRef(AppState.currentState);
   const [isOnline, setIsOnline] = React.useState<boolean>(

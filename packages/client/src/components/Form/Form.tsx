@@ -4,15 +4,16 @@ import { APP_NAME, COLORS, FONTS } from "../../constants";
 import { styles } from "../../styles";
 import { trpc } from "../../utils/trpc";
 import Ripple from "../Ripple/Ripple";
+import { useContactsStore } from "../../store";
 
 const Form = ({ toggle }: { toggle: () => void }) => {
   const [state, setState] = React.useState({ thought: "", error: "" });
   const { mutateAsync, isLoading: creating } =
     trpc.thought.create.useMutation();
-
+  const { contacts } = useContactsStore();
   const save = () => {
     if (creating) return;
-    mutateAsync({ thought: state.thought }).then((res) => {
+    mutateAsync({ thought: state.thought, contacts }).then((res) => {
       if (res.error) {
         return Alert.alert(APP_NAME, res.error);
       }

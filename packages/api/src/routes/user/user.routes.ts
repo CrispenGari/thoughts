@@ -93,9 +93,9 @@ export const userRouter = router({
     .input(onStatusSchema)
     .subscription(async ({ input: { userId } }) => {
       return observable<UserType>((emit) => {
-        const handler = (payload: UserType) => {
-          if (payload.id !== userId) {
-            emit.next(payload);
+        const handler = (payload: { user: UserType; dispatcherId: number }) => {
+          if (payload.user.id !== userId && payload.dispatcherId !== userId) {
+            emit.next(payload.user);
           }
         };
         ee.on(Events.ON_STATUS, handler);
@@ -119,7 +119,6 @@ export const userRouter = router({
         };
       });
     }),
-
   onUserUpdate: publicProcedure
     .input(onUserUpdateSchema)
     .subscription(async ({ input: { userId } }) => {
@@ -175,7 +174,10 @@ export const userRouter = router({
           },
         });
         users.forEach((user) => {
-          ee.emit(Events.ON_STATUS, user.toJSON());
+          ee.emit(Events.ON_STATUS, {
+            user: user.toJSON(),
+            dispatcherId: me.id,
+          });
         });
         ee.emit(Events.ON_USER_UPDATE, { ...me, ...payload.toJSON() });
         return { success: true };
@@ -200,6 +202,7 @@ export const userRouter = router({
             required: false,
           },
           "setting",
+          "country",
         ],
       });
       const blocked = !!user?.toJSON().blocked.length;
@@ -276,10 +279,12 @@ export const userRouter = router({
           },
           include: {
             all: true,
+            required: false,
           },
           order: [
-            ["createdAt", "DESC"],
             ["online", "DESC"],
+            ["updatedAt", "DESC"],
+            ["createdAt", "DESC"],
           ],
           attributes: ["id", "phoneNumber"],
         });

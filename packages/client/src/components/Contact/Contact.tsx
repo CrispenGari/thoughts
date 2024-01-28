@@ -261,10 +261,30 @@ const UserContact: React.FunctionComponent<UserProps> = ({
             />
           </TouchableOpacity>
         </View>
+
         <Text numberOfLines={1} style={[styles.h1]}>
           {contactName}
         </Text>
+        <Text
+          numberOfLines={1}
+          style={[styles.p, { fontSize: 12, color: COLORS.tertiary }]}
+        >
+          {user.phoneNumber}
+        </Text>
       </View>
+      <Text
+        style={[
+          styles.h1,
+          {
+            zIndex: 1,
+            position: "absolute",
+            top: "55%",
+            right: 10,
+          },
+        ]}
+      >
+        {user.country?.flag}
+      </Text>
     </TouchableOpacity>
   );
 };

@@ -9,6 +9,9 @@ import { ReactNativeFile } from "apollo-upload-client";
 import * as mime from "react-native-mime-types";
 import * as Notifications from "expo-notifications";
 import { TNotificationData } from "../types";
+import { TContact, UserType } from "@thoughts/api/src/types";
+import { decompressJSON } from "@crispengari/utils";
+import { useContactsStore } from "../store";
 
 export const reloadApp = () => {
   Updates.reloadAsync();
@@ -158,4 +161,25 @@ export const schedulePushNotification = async <
     },
     trigger: { seconds: 1 },
   });
+};
+
+export const getContactName = ({ user }: { user: UserType }) => {
+  const contacts = useContactsStore.getState().contacts;
+  const allNumbers = decompressJSON<TContact[]>(contacts).map(
+    ({ phoneNumbers, contactName }) => ({
+      contactName,
+      phoneNumbers:
+        typeof phoneNumbers === "undefined"
+          ? []
+          : phoneNumbers
+              .map((p) =>
+                p.phoneNumber.startsWith("+") ? p.phoneNumber : null
+              )
+              .filter(Boolean),
+    })
+  );
+  const name =
+    allNumbers.find((num) => num.phoneNumbers.indexOf(user.phoneNumber) !== -1)
+      ?.contactName || user.name;
+  return name;
 };

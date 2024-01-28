@@ -7,14 +7,17 @@ import {
   updateSchema,
   getUserThoughtSchema,
   getByIdSchema,
+  onCreateNotificationSchema,
 } from "../../schema/thought.schema";
 import { publicProcedure, router } from "../../trpc";
 import { observable } from "@trpc/server/observable";
 import { Events } from "../../constants";
-import { ThoughtType } from "../../types";
+import { TContact, ThoughtType } from "../../types";
 import { Thought } from "../../sequelize/thought.model";
 import { User } from "../../sequelize/user.model";
 import { Blocked } from "../../sequelize/blocked.model";
+import { decompressJSON } from "@crispengari/utils";
+import { Op } from "sequelize";
 
 const ee = new EventEmitter();
 export const thoughtRouter = router({
@@ -32,6 +35,21 @@ export const thoughtRouter = router({
         ee.on(Events.ON_CREATE_THOUGHT, handler);
         return () => {
           ee.off(Events.ON_CREATE_THOUGHT, handler);
+        };
+      });
+    }),
+  onCreateNotification: publicProcedure
+    .input(onCreateNotificationSchema)
+    .subscription(async ({ input: { userId } }) => {
+      return observable<ThoughtType>((emit) => {
+        const handler = (payload: ThoughtType) => {
+          if (payload.userId === userId) {
+            emit.next(payload);
+          }
+        };
+        ee.on(Events.ON_CREATE_THOUGHT_NOTIFICATION, handler);
+        return () => {
+          ee.off(Events.ON_CREATE_THOUGHT_NOTIFICATION, handler);
         };
       });
     }),
@@ -72,7 +90,7 @@ export const thoughtRouter = router({
     }),
   create: publicProcedure
     .input(createSchema)
-    .mutation(async ({ input: { thought }, ctx: { me } }) => {
+    .mutation(async ({ input: { thought, contacts }, ctx: { me } }) => {
       try {
         if (!!!me)
           return {
@@ -85,6 +103,31 @@ export const thoughtRouter = router({
         const payload = await Thought.create({
           text: thought.trim(),
           userId: me.id!,
+        });
+
+        const allNumbers = decompressJSON<TContact[]>(contacts)
+          .map(({ phoneNumbers }) => {
+            if (typeof phoneNumbers === "undefined") return [];
+            return phoneNumbers
+              .map((p) => (p.phoneNumber.startsWith("+") ? p.phoneNumber : ""))
+              .filter(Boolean);
+          })
+          .flat(1);
+        const audience = await User.findAll({
+          where: {
+            phoneNumber: {
+              [Op.in]: allNumbers,
+            },
+          },
+        });
+        audience.forEach((user) => {
+          if (user.toJSON().id !== me.id) {
+            ee.emit(Events.ON_CREATE_THOUGHT_NOTIFICATION, {
+              ...payload.toJSON(),
+              userId: user.toJSON().id,
+              user: me,
+            });
+          }
         });
         ee.emit(Events.ON_CREATE_THOUGHT, payload.toJSON());
         return { thought: payload.toJSON() };
