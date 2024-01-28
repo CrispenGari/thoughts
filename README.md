@@ -1,8 +1,19 @@
-# thoughts
+### thoughts
 
 💭 this is a simple mobile social app for sharing thoughts with your contact friends.
 
 <p align="center"><img src="logo.png" alt="logo" width="200"/></p>
+
+### Core Screens UI
+
+The following are the core screens UI for the app functionality.
+
+<p align="center">
+<img src="/images/0.jpeg" alt="logo" width="200"/>
+<img src="/images/1.jpeg" alt="logo" width="200"/>
+<img src="/images/2.jpeg" alt="logo" width="200"/>
+<img src="/images/4.jpeg" alt="logo" width="200"/>
+</p>
 
 ### Idea
 
@@ -137,6 +148,102 @@ In this project the `postgres` database is used to store all the data of the app
 
 In this project we are storing the images which are the profile avatar to the server in the `packages/api/storage/image` folder. These images are uploaded to the server by sending a `POST` request at `/api/upload/images` with an image file. We are not storing the whole image path in the database we are storing the relative path to the server for example if the image url is `http://localhost:3001/api/storage/images/0f5feb01-8a2b-469f-b613-999886ad95bd.jpg` in the database we are going to store the path `/api/storage/images/0f5feb01-8a2b-469f-b613-999886ad95bd.jpg` in the `avatar` field.
 
+### Real time
+
+In this simple app we are using realtime websocket for:
+
+1. notifications
+2. real-time updates on:
+   1. reactions
+   2. comments
+   3. profile updates
+   4. replies
+   5. e.t.c
+
+### What if the user forgot his/her pin?
+
+Upon authentication when you try to login with invalid pin number for `4` times you get blocked for that operation. However if you remember your `passkey` which is the backup plan for restoring pin codes you can change it by clicking the `Forgot Pin?` link in the login.
+
+### Testing the App
+
+> Make sure that you have the following softwares before testing this app locally:
+
+1. `Nodejs`
+2. `Git`
+3. `Postgres`
+
+To test the app locally first you need to clone this repository by running the following command:
+
+```shell
+git clone https://github.com/CrispenGari/thoughts
+# then
+cd thoughts
+```
+
+Navigate to each package in a different terminal by running the following commands:
+
+```shell
+cd packages/api
+
+# on another on
+cd packages/client
+```
+
+Install the packages for the `client` and `api` packages by running the following commands:
+
+```shell
+yarn
+# on another one
+yarn
+```
+
+You can then start the `client` and the `api` development server by running the following separate commands:
+
+```shell
+yarn start
+# on another one
+yarn start
+```
+
+OR you can run the concurrently by navigating back to the root folder of the project and run:
+
+```shell
+yarn start
+```
+
+When the api server starts you will see the logs that looks as follows:
+
+```shell
+Local: http://127.0.0.1:3001/
+Network: http://192.168.0.29:3001/
+```
+
+> Copy the part that says: `192.168.0.29:3001` navigate to the `packages/client/src/constants/index.ts` and change the domain to that value
+
+```ts
+export const domain = "192.168.0.29:3001" as const;
+```
+
+However you will need some environmental variables for this to work, navigate to the `packages/api/.env` file and make sure that you have the following environmental variables in place:
+
+```shell
+#postgres
+PG_USER = YOURS
+PG_PASS = YOURS
+
+# node
+NODE_ENV = "production"
+
+# stripe
+STRIPE_SECRETE_KEY = YOURS
+STRIPE_API_VERSION = YOURS
+
+# jwt
+JWT_SECRETE = YOURS
+```
+
+With all this in place you are good to go you can download `Expo Go` and test the app locally or you can start the app on an emulator.
+
 ### LICENSE
 
 THIS PROJECT IS USING THE [`MIT`](/LICENSE) WHICH READS AS FOLLOWS:
@@ -144,7 +251,7 @@ THIS PROJECT IS USING THE [`MIT`](/LICENSE) WHICH READS AS FOLLOWS:
 ```txt
 MIT License
 
-Copyright (c) 2023 crispengari
+Copyright (c) 2024 crispengari
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
