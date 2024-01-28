@@ -188,11 +188,7 @@ const PublicDetails: React.FunctionComponent<Props> = ({
               },
             ]}
           >
-            {isBlocked
-              ? "hidden"
-              : user?.online
-              ? "online"
-              : `${dayjs(user?.createdAt).fromNow()} ago`}
+            {isBlocked ? "hidden" : `${dayjs(user?.createdAt).fromNow()} ago`}
           </Text>
         )}
       </View>

@@ -6,17 +6,20 @@ import { COLORS, profile, serverBaseHttpURL } from "../../constants";
 import { styles } from "../../styles";
 import ContentLoader from "../ContentLoader/ContentLoader";
 import BlockedContactControls from "./BlockedContactControls";
+import { useContactName } from "../../hooks";
 
 interface Props {
   blocked: BlockedType;
 }
 const BlockedContact: React.FunctionComponent<Props> = ({ blocked }) => {
   const [loaded, setLoaded] = React.useState(true);
-
   const [open, setOpen] = React.useState(false);
   const toggle = () => setOpen((state) => !state);
   const { isLoading: fetching, data: user } = trpc.blocked.get.useQuery({
     id: blocked.id!,
+  });
+  const { contactName } = useContactName({
+    user,
   });
   return (
     <TouchableOpacity
@@ -110,7 +113,7 @@ const BlockedContact: React.FunctionComponent<Props> = ({ blocked }) => {
           />
         ) : (
           <Text style={[styles.h1, { fontSize: 18, marginBottom: 4 }]}>
-            {user?.name}
+            {contactName}
           </Text>
         )}
         {fetching ? (

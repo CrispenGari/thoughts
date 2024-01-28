@@ -19,6 +19,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
 import ContactSkeleton from "./ContactSkeleton";
 import { UserType } from "@thoughts/api/src/types";
+import { useContactName } from "../../hooks";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -85,6 +86,8 @@ const UserContact: React.FunctionComponent<UserProps> = ({
   const toggleImageViewer = () => setOpenImageViewer((state) => !state);
   const [loaded, setLoaded] = React.useState(true);
   const { me } = useMeStore();
+  const { contactName } = useContactName({ user });
+
   trpc.blocked.onBlocker.useSubscription(
     {
       userId: user.id!,
@@ -259,7 +262,7 @@ const UserContact: React.FunctionComponent<UserProps> = ({
           </TouchableOpacity>
         </View>
         <Text numberOfLines={1} style={[styles.h1]}>
-          {user.name}
+          {contactName}
         </Text>
       </View>
     </TouchableOpacity>

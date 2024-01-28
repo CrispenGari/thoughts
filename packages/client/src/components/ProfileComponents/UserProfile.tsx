@@ -12,9 +12,9 @@ import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import Circular from "../Circular/Circular";
 import { styles } from "../../styles";
-
 import { UserType } from "@thoughts/api/src/types";
 import DropdownSelect from "react-native-input-select";
+import { useContactName } from "../../hooks";
 interface Props {
   user: undefined | null | UserType;
 
@@ -57,6 +57,7 @@ const UserProfile: React.FunctionComponent<Props> = ({
   const changeGender = (gender: "MALE" | "FEMALE" | "TRANS-GENDER") => {
     setState((state) => ({ ...state, gender }));
   };
+  const { contactName } = useContactName({ user });
   return (
     <>
       <View
@@ -131,15 +132,15 @@ const UserProfile: React.FunctionComponent<Props> = ({
                     ? {
                         uri: !!state.image
                           ? state.image.uri
-                          : !!state.imageUrl
+                          : !!state.imageUrl.length
                           ? serverBaseHttpURL.concat(state.imageUrl)
                           : Image.resolveAssetSource(profile).uri,
                       }
                     : {
                         uri: isBlocked
                           ? Image.resolveAssetSource(profile).uri
-                          : !!user
-                          ? serverBaseHttpURL.concat(user?.avatar || "")
+                          : !!user?.avatar
+                          ? serverBaseHttpURL.concat(user.avatar)
                           : Image.resolveAssetSource(profile).uri,
                       }
                 }
@@ -275,7 +276,7 @@ const UserProfile: React.FunctionComponent<Props> = ({
                   }}
                 />
               ) : (
-                <Text style={[styles.h1, { fontSize: 18 }]}>{user?.name}</Text>
+                <Text style={[styles.h1, { fontSize: 18 }]}>{contactName}</Text>
               )}
             </>
           )}

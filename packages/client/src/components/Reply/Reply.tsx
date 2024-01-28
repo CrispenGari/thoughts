@@ -23,6 +23,7 @@ import { TextInput } from "react-native-gesture-handler";
 import ReplySkeleton from "./ReplySkeleton";
 import Modal from "../Modal/Modal";
 import ReplyControls from "./ReplyControls";
+import { useContactName } from "../../hooks";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -56,7 +57,7 @@ const Reply: React.FunctionComponent<Props> = ({
   });
   const [openControls, setOpenControls] = React.useState(false);
   const toggleOpenControls = () => setOpenControls((state) => !state);
-
+  const { contactName } = useContactName({ user: response?.reply?.user });
   const { mutateAsync: mutateVote, isLoading: voting } =
     trpc.vote.replyVote.useMutation();
 
@@ -148,7 +149,7 @@ const Reply: React.FunctionComponent<Props> = ({
                 ? serverBaseHttpURL.concat(response?.reply?.user?.avatar)
                 : Image.resolveAssetSource(profile).uri,
             }}
-            onError={(error) => {
+            onError={(_error) => {
               setLoaded(true);
             }}
             onLoadEnd={() => {
@@ -174,9 +175,7 @@ const Reply: React.FunctionComponent<Props> = ({
             {" • "}
           </Text>
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
-            {response?.reply?.userId === me?.id
-              ? "you"
-              : response?.reply?.user.name}
+            {response?.reply?.userId === me?.id ? "you" : contactName}
           </Text>
         </View>
       </View>

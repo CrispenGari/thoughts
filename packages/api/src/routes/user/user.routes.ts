@@ -152,14 +152,31 @@ export const userRouter = router({
     }),
   statusUpdate: publicProcedure
     .input(statusUpdateSchema)
-    .mutation(async ({ ctx: { me }, input: { status } }) => {
+    .mutation(async ({ ctx: { me }, input: { status, contacts } }) => {
       try {
         if (!!!me) return { success: false };
         const payload = await User.findByPk(me.id);
         if (!!!payload) return { success: false };
         await payload.update({ online: status });
         await payload.save();
-        ee.emit(Events.ON_STATUS, payload.toJSON());
+        const allNumbers = decompressJSON<TContact[]>(contacts)
+          .map(({ phoneNumbers }) => {
+            if (typeof phoneNumbers === "undefined") return [];
+            return phoneNumbers
+              .map((p) => (p.phoneNumber.startsWith("+") ? p.phoneNumber : ""))
+              .filter(Boolean);
+          })
+          .flat(1);
+        const users = await User.findAll({
+          where: {
+            phoneNumber: {
+              [Op.in]: allNumbers,
+            },
+          },
+        });
+        users.forEach((user) => {
+          ee.emit(Events.ON_STATUS, user.toJSON());
+        });
         ee.emit(Events.ON_USER_UPDATE, { ...me, ...payload.toJSON() });
         return { success: true };
       } catch (error) {
@@ -241,9 +258,7 @@ export const userRouter = router({
     .input(z.object({ contact: z.string() }))
     .query(async ({ input: { contact }, ctx: { me } }) => {
       try {
-        const contacts = decompressJSON<TContact[]>(contact);
-        // all numbers with phone coded
-        const allNumbers = contacts
+        const allNumbers = decompressJSON<TContact[]>(contact)
           .map(({ phoneNumbers }) => {
             if (typeof phoneNumbers === "undefined") return [];
             return phoneNumbers

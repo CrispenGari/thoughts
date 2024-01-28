@@ -33,6 +33,7 @@ import Replies from "../Replies/Replies";
 import Modal from "../Modal/Modal";
 import CommentControls from "./CommentControls";
 import CommentSkeleton from "./CommentSkeleton";
+import { useContactName } from "../../hooks";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -67,6 +68,12 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
 
   const [openControls, setOpenControls] = React.useState(false);
   const toggleOpenControls = () => setOpenControls((state) => !state);
+  const { contactName: commentorName } = useContactName({
+    user: cmt?.comment.user,
+  });
+  const { contactName: replyToName } = useContactName({
+    user: replyTo,
+  });
 
   const reply = () => {
     if (cmt?.comment?.id) {
@@ -202,7 +209,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
             {" • "}
           </Text>
           <Text style={[styles.p, { fontSize: 15, color: COLORS.gray }]}>
-            {cmt?.comment?.userId === me?.id ? "you" : cmt?.comment?.user?.name}
+            {cmt?.comment?.userId === me?.id ? "you" : commentorName}
           </Text>
         </View>
       </View>
@@ -275,7 +282,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
               marginBottom: 5,
             }}
           >
-            <Text style={[styles.h1]}>RE: {replyTo?.name}</Text>
+            <Text style={[styles.h1]}>RE: {replyToName}</Text>
             <TouchableOpacity
               onPress={() => {
                 setReplyTo(undefined);
@@ -307,7 +314,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
             maxLength={200}
             multiline={true}
             style={{
-              padding: 5,
+              padding: 10,
               backgroundColor: COLORS.white,
               width: "100%",
               marginBottom: 5,
@@ -315,6 +322,7 @@ const Comment: React.FunctionComponent<Props> = ({ comment, navigation }) => {
               fontFamily: FONTS.regular,
               fontSize: 14,
               flex: 1,
+              height: 40,
             }}
             selectionColor={COLORS.black}
             value={state.text}

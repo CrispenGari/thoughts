@@ -25,6 +25,7 @@ import {
 import { AppState } from "react-native";
 import { trpc } from "../../utils/trpc";
 import {
+  useContactsStore,
   useMeStore,
   useNotificationsStore,
   useSubscriptionsStore,
@@ -36,9 +37,8 @@ const Stack = createStackNavigator<AppParamList>();
 
 export const AppTabs = () => {
   const { me, setMe } = useMeStore();
-
+  const { contacts } = useContactsStore();
   const { token } = useNotificationsToken();
-
   const { setUser, setThought, setBlock } = useSubscriptionsStore();
   const { setNotifications } = useNotificationsStore();
   const { data: notifications, refetch: refetchNotifications } =
@@ -277,8 +277,10 @@ export const AppTabs = () => {
   }, []);
 
   React.useEffect(() => {
-    mutateAsync({ status: isOnline }).then((_res) => {});
-  }, [isOnline]);
+    if (!!contacts.length) {
+      mutateAsync({ status: isOnline, contacts }).then((_res) => {});
+    }
+  }, [isOnline, contacts]);
 
   React.useEffect(() => {
     if (!!notifications) {
